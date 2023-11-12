@@ -1,10 +1,13 @@
 use std::{
 	env::{self, split_paths},
-	fs, io,
+	fs::{self, read_dir, DirEntry, ReadDir},
+	io,
 	path::{Path, PathBuf}
 };
 
 use thiserror::Error;
+
+use crate::utils::fs::{find_dirs, find_files};
 
 #[derive(Debug, Error)]
 pub enum InitError {
@@ -39,14 +42,14 @@ impl Files {
 
 		config_dir.push(Self::PREFIX);
 
-		Self::init_dir(&config_dir)?;
+		init_dir(&config_dir)?;
 
 		let config_file = config_dir.join(Self::CONFIG_FILE);
 		let custom_themes_dir = config_dir.join(Self::THEMES_DIR);
 		let custom_modules_dir = config_dir.join(Self::MODULES_DIR);
 
-		Self::init_dir(&custom_themes_dir)?;
-		Self::init_dir(&custom_modules_dir)?;
+		init_dir(&custom_themes_dir)?;
+		init_dir(&custom_modules_dir)?;
 
 		let mut themes_dirs = vec![custom_themes_dir];
 		let mut modules_dirs = vec![custom_modules_dir];
@@ -70,8 +73,28 @@ impl Files {
 		})
 	}
 
-	fn init_dir(dir: &Path) -> Result<(), InitError> {
-		fs::create_dir_all(dir)
-			.map_err(|err| InitError::CreationFailed(dir.display().to_string(), err))
+	#[inline]
+	pub fn config_file(&self) -> &Path {
+		&self.config_file
 	}
+
+	pub fn iter_themes(&self) -> impl Iterator<Item = PathBuf> + '_ {
+		find_files(&self.themes_dirs)
+	}
+
+	pub fn iter_modules(&self) -> impl Iterator<Item = PathBuf> + '_ {
+		find_dirs(&self.modules_dirs)
+	}
+}
+
+fn init_dir(dir: &Path) -> Result<(), InitError> {
+	fs::create_dir_all(dir).map_err(|err| InitError::CreationFailed(dir.display().to_string(), err))
+}
+
+fn iter_valid_entries(dir: &Path) -> impl Iterator<Item = PathBuf> {
+	read_dir(dir)
+		.into_iter()
+		.flatten()
+		.flatten()
+		.map(|entry| entry.path())
 }
