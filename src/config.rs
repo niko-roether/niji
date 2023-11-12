@@ -25,29 +25,29 @@ pub struct UiTheme {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TerminalTheme {
+pub struct Palette {
 	pub black: Color,
-	pub red: Color,
-	pub green: Color,
-	pub yellow: Color,
-	pub blue: Color,
-	pub magenta: Color,
-	pub cyan: Color,
-	pub white: Color,
-	pub bright_black: Color,
+	pub dark_red: Color,
+	pub dark_green: Color,
+	pub orange: Color,
+	pub dark_blue: Color,
+	pub purple: Color,
+	pub turquoise: Color,
+	pub light_gray: Color,
+	pub dark_gray: Color,
 	pub bright_red: Color,
 	pub bright_green: Color,
-	pub bright_yellow: Color,
+	pub yellow: Color,
 	pub bright_blue: Color,
-	pub bright_magenta: Color,
-	pub bright_cyan: Color,
-	pub bright_white: Color
+	pub magenta: Color,
+	pub cyan: Color,
+	pub white: Color
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Theme {
 	pub ui: UiTheme,
-	pub terminal: TerminalTheme
+	pub terminal: Palette
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
