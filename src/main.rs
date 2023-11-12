@@ -1,6 +1,11 @@
+use crate::files::Files;
+
 mod config;
+mod files;
 mod types;
 
 fn main() {
-	println!("Hello, world!");
+	let files = Files::init().unwrap();
+
+	dbg!(files);
 }
