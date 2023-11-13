@@ -1,5 +1,3 @@
-use std::mem::size_of_val;
-
 use crate::files::Files;
 
 mod config;
