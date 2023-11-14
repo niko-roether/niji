@@ -8,7 +8,7 @@ const SRGB_A: f32 = 0.005;
 const SRGB_GAMMA: f32 = 2.4;
 const SRGB_THETA: f32 = 12.92;
 
-fn srgb_oetf(x: f32) -> f32 {
+fn srgb_eotf(x: f32) -> f32 {
 	let y = if x < SRGB_BREAK_X {
 		SRGB_THETA * x
 	} else {
@@ -18,11 +18,11 @@ fn srgb_oetf(x: f32) -> f32 {
 	f32::min(f32::max(y, 0.0), 1.0)
 }
 
-fn srgb_eotf(y: f32) -> f32 {
+fn srgb_oetf(y: f32) -> f32 {
 	if y < SRGB_BREAK_Y {
 		y / SRGB_THETA
 	} else {
-		((y * SRGB_A) / (1.0 + SRGB_A)).powf(SRGB_GAMMA)
+		((y + SRGB_A) / (1.0 + SRGB_A)).powf(SRGB_GAMMA)
 	}
 }
 
@@ -70,19 +70,22 @@ impl Color {
 	}
 
 	pub fn r(self) -> u8 {
-		(255.0 * srgb_oetf(self.r).clamp(0.0, 1.0)) as u8
+		dbg!(self.r);
+		dbg!(srgb_oetf(self.r));
+
+		(255.0 * srgb_oetf(self.r).clamp(0.0, 1.0)).round() as u8
 	}
 
 	pub fn g(self) -> u8 {
-		(255.0 * srgb_oetf(self.g).clamp(0.0, 1.0)) as u8
+		(255.0 * srgb_oetf(self.g).clamp(0.0, 1.0)).round() as u8
 	}
 
 	pub fn b(self) -> u8 {
-		(255.0 * srgb_oetf(self.b).clamp(0.0, 1.0)) as u8
+		(255.0 * srgb_oetf(self.b).clamp(0.0, 1.0)).round() as u8
 	}
 
 	pub fn a(self) -> u8 {
-		(255.0 * self.a).clamp(0.0, 1.0) as u8
+		(255.0 * self.a.clamp(0.0, 1.0)).round() as u8
 	}
 }
 
@@ -159,6 +162,8 @@ mod test {
 	#[test]
 	fn should_construct_from_int() {
 		let col = Color::from(0x0a0b0c0d);
+
+		dbg!(col);
 
 		assert_eq!(col.r(), 0x0a);
 		assert_eq!(col.g(), 0x0b);
