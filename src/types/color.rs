@@ -2,22 +2,87 @@ use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::{fmt, mem::transmute, num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, SerializeDisplay, DeserializeFromStr)]
+const SRGB_BREAK_X: f32 = 0.0031308;
+const SRGB_BREAK_Y: f32 = 0.04045;
+const SRGB_A: f32 = 0.005;
+const SRGB_GAMMA: f32 = 2.4;
+const SRGB_THETA: f32 = 12.92;
+
+fn srgb_oetf(x: f32) -> f32 {
+	let y = if x < SRGB_BREAK_X {
+		SRGB_THETA * x
+	} else {
+		(1.0 + SRGB_A) * x.powf(1.0 / SRGB_GAMMA) - SRGB_A
+	};
+
+	f32::min(f32::max(y, 0.0), 1.0)
+}
+
+fn srgb_eotf(y: f32) -> f32 {
+	if y < SRGB_BREAK_Y {
+		y / SRGB_THETA
+	} else {
+		((y * SRGB_A) / (1.0 + SRGB_A)).powf(SRGB_GAMMA)
+	}
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, SerializeDisplay, DeserializeFromStr)]
 #[repr(C, align(4))]
 pub struct Color {
-	pub a: u8,
-	pub b: u8,
-	pub g: u8,
-	pub r: u8
+	r: f32,
+	g: f32,
+	b: f32,
+	a: f32
 }
 
 impl Color {
-	pub fn new_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
+	pub fn new_linear_rgba(r: f32, g: f32, b: f32, a: f32) -> Self {
 		Self { r, g, b, a }
 	}
 
-	pub fn new_rgb(r: u8, g: u8, b: u8) -> Self {
-		Self::new_rgba(r, g, b, 255)
+	pub fn new_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
+		Self::new_linear_rgba(
+			srgb_eotf(r as f32 / 255.0),
+			srgb_eotf(g as f32 / 255.0),
+			srgb_eotf(b as f32 / 255.0),
+			a as f32 / 255.0
+		)
+	}
+
+	#[inline]
+	pub fn linear_r(self) -> f32 {
+		self.r
+	}
+
+	#[inline]
+	pub fn linear_g(self) -> f32 {
+		self.g
+	}
+
+	#[inline]
+	pub fn linear_b(self) -> f32 {
+		self.b
+	}
+
+	#[inline]
+	pub fn alpha(self) -> f32 {
+		self.a
+	}
+
+	pub fn r(self) -> u8 {
+		(255.0 * srgb_oetf(self.r).clamp(0.0, 1.0)) as u8
+	}
+
+	pub fn g(self) -> u8 {
+		(255.0 * srgb_oetf(self.g).clamp(0.0, 1.0)) as u8
+	}
+
+	pub fn b(self) -> u8 {
+		(255.0 * srgb_oetf(self.b).clamp(0.0, 1.0)) as u8
+	}
+
+	pub fn a(self) -> u8 {
+		(255.0 * self.a).clamp(0.0, 1.0) as u8
 	}
 }
 
@@ -29,13 +94,21 @@ impl Default for Color {
 
 impl From<u32> for Color {
 	fn from(value: u32) -> Self {
-		unsafe { transmute(value) }
+		Self::new_rgba(
+			(value >> 24) as u8,
+			((value >> 16) & 0xff) as u8,
+			((value >> 8) & 0xff) as u8,
+			(value & 0xff) as u8
+		)
 	}
 }
 
 impl From<Color> for u32 {
 	fn from(value: Color) -> Self {
-		unsafe { transmute(value) }
+		value.a() as u32
+			| (value.b() as u32) << 8
+			| (value.g() as u32) << 16
+			| (value.r() as u32) << 24
 	}
 }
 
@@ -87,10 +160,10 @@ mod test {
 	fn should_construct_from_int() {
 		let col = Color::from(0x0a0b0c0d);
 
-		assert_eq!(col.r, 0x0a);
-		assert_eq!(col.g, 0x0b);
-		assert_eq!(col.b, 0x0c);
-		assert_eq!(col.a, 0x0d);
+		assert_eq!(col.r(), 0x0a);
+		assert_eq!(col.g(), 0x0b);
+		assert_eq!(col.b(), 0x0c);
+		assert_eq!(col.a(), 0x0d);
 	}
 
 	#[test]

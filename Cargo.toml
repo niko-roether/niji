@@ -11,4 +11,3 @@ serde = { version = "1.0.190", features = ["derive"] }
 serde_with = "3.4.0"
 thiserror = "1.0.50"
 toml = "0.8.6"
-ultraviolet = "0.9.2"

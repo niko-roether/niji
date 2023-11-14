@@ -1,7 +1,6 @@
 use crate::files::Files;
 
 mod api;
-mod color_math;
 mod config;
 mod files;
 mod types;
