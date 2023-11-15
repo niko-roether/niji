@@ -1,15 +1,28 @@
+use std::fmt;
+
+use niji_macros::IntoLua;
 use serde::{Deserialize, Serialize};
 
 use crate::types::color::Color;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
+#[lua(as_string)]
 #[serde(rename_all = "lowercase")]
 pub enum ColorScheme {
 	Light,
 	Dark
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl fmt::Display for ColorScheme {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::Light => write!(f, "light"),
+			Self::Dark => write!(f, "dark")
+		}
+	}
+}
+
+#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct UiTheme {
 	pub color_scheme: ColorScheme,
 	pub background: Color,
@@ -24,7 +37,7 @@ pub struct UiTheme {
 	pub error: Color
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Palette {
 	pub black: Color,
 	pub dark_red: Color,
@@ -44,13 +57,13 @@ pub struct Palette {
 	pub white: Color
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Theme {
 	pub ui: UiTheme,
 	pub terminal: Palette
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Config {
 	pub icons: String,
 	pub cursor: String,
