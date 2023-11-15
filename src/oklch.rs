@@ -1,6 +1,6 @@
 use ultraviolet as uv;
 
-use crate::types::color::Color;
+use crate::utils::lerp;
 
 const SRGB_BREAK_X: f32 = 0.0031308;
 const SRGB_BREAK_Y: f32 = 0.04045;
@@ -58,7 +58,10 @@ pub struct OklchColor {
 }
 
 impl OklchColor {
-	pub fn new(l: f32, c: f32, h: f32) -> Self {
+	pub const BLACK: Self = Self::new(0.0, 0.0, 0.0);
+	pub const WHITE: Self = Self::new(1.0, 0.0, 0.0);
+
+	pub const fn new(l: f32, c: f32, h: f32) -> Self {
 		Self { l, c, h }
 	}
 
@@ -130,8 +133,4 @@ impl OklchColor {
 			lerp(col1.hue(), col2.hue(), t)
 		)
 	}
-}
-
-fn lerp(a: f32, b: f32, t: f32) -> f32 {
-	a + t * (b - a)
 }

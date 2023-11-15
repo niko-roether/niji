@@ -1,8 +1,9 @@
+use mlua::FromLua;
 use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::{fmt, mem::transmute, num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
-use crate::oklch::OklchColor;
+use crate::{oklch::OklchColor, utils::lerp};
 
 #[derive(Debug, Clone, Copy, PartialEq, SerializeDisplay, DeserializeFromStr)]
 #[repr(C, align(4))]
@@ -18,12 +19,32 @@ impl Color {
 		Self { r, g, b, a }
 	}
 
+	#[inline]
+	pub fn alpha(self) -> f32 {
+		self.a as f32 / 255.0
+	}
+
 	pub fn lighten(self, amount: f32) -> Self {
 		Self::from_oklch(self.into_oklch().lighten(amount), self.a)
 	}
 
 	pub fn darken(self, amount: f32) -> Self {
 		Self::from_oklch(self.into_oklch().darken(amount), self.a)
+	}
+
+	pub fn blend(col1: Self, col2: Self, t: f32) -> Self {
+		let alpha1 = col1.alpha();
+		let alpha2 = col2.alpha();
+		let out_alpha = lerp(alpha1, alpha2, t);
+
+		Self::from_oklch(
+			OklchColor::blend(col1.into_oklch(), col2.into_oklch(), t),
+			f32::round(out_alpha * 255.0) as u8
+		)
+	}
+
+	pub fn mix(col1: Self, col2: Self) -> Self {
+		Self::blend(col1, col2, 0.5)
 	}
 
 	fn into_oklch(self) -> OklchColor {
@@ -114,6 +135,21 @@ impl mlua::UserData for Color {
 	fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
 		methods.add_method("lighten", |_, this, amount: f32| Ok(this.lighten(amount)));
 		methods.add_method("darken", |_, this, amount: f32| Ok(this.darken(amount)));
+	}
+}
+
+impl<'lua> FromLua<'lua> for Color {
+	fn from_lua(value: mlua::Value<'lua>, _: &'lua mlua::Lua) -> mlua::Result<Self> {
+		match value {
+			mlua::Value::String(str) => {
+				Color::from_str(str.to_str()?).map_err(mlua::Error::runtime)
+			}
+			mlua::Value::UserData(data) => {
+				let color_ref = data.borrow::<Color>()?;
+				Ok(*color_ref)
+			}
+			_ => Err(mlua::Error::runtime("Cannot cast this value to a color!"))
+		}
 	}
 }
 
