@@ -59,7 +59,7 @@ pub fn derive_into_lua(input: TokenStream) -> TokenStream {
 				fn into_lua(self, lua: &'lua mlua::Lua) -> mlua::Result<mlua::Value<'lua>> {
 					let table = lua.create_table()?;
 
-					#(table.raw_set("#field_names", mlua::IntoLua::into_lua(self.#field_names, lua)?)?;)*
+					#(table.raw_set(stringify!(#field_names), mlua::IntoLua::into_lua(self.#field_names, lua)?)?;)*
 
 					table.into_lua(lua)
 				}

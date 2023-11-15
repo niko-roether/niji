@@ -135,6 +135,7 @@ impl mlua::UserData for Color {
 	fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
 		methods.add_method("lighten", |_, this, amount: f32| Ok(this.lighten(amount)));
 		methods.add_method("darken", |_, this, amount: f32| Ok(this.darken(amount)));
+		methods.add_meta_method("__tostring", |_, this, ()| Ok(this.to_string()));
 	}
 }
 

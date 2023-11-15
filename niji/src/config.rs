@@ -60,7 +60,7 @@ pub struct Palette {
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Theme {
 	pub ui: UiTheme,
-	pub terminal: Palette
+	pub palette: Palette
 }
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
