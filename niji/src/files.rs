@@ -21,6 +21,7 @@ pub enum InitError {
 #[derive(Debug)]
 pub struct Files {
 	config_file: PathBuf,
+	current_theme_file: PathBuf,
 	themes_dirs: Vec<PathBuf>,
 	modules_dirs: Vec<PathBuf>
 }
@@ -28,6 +29,7 @@ pub struct Files {
 impl Files {
 	const PREFIX: &'static str = "niji";
 	const CONFIG_FILE: &'static str = "config.toml";
+	const CURRENT_THEME_FILE: &'static str = "current_theme";
 	const THEMES_DIR: &'static str = "themes";
 	const MODULES_DIR: &'static str = "modules";
 
@@ -45,6 +47,7 @@ impl Files {
 		init_dir(&config_dir)?;
 
 		let config_file = config_dir.join(Self::CONFIG_FILE);
+		let current_theme_file = config_dir.join(Self::CURRENT_THEME_FILE);
 		let custom_themes_dir = config_dir.join(Self::THEMES_DIR);
 		let custom_modules_dir = config_dir.join(Self::MODULES_DIR);
 
@@ -68,6 +71,7 @@ impl Files {
 
 		Ok(Self {
 			config_file,
+			current_theme_file,
 			themes_dirs,
 			modules_dirs
 		})
@@ -76,6 +80,11 @@ impl Files {
 	#[inline]
 	pub fn config_file(&self) -> &Path {
 		&self.config_file
+	}
+
+	#[inline]
+	pub fn current_theme_file(&self) -> &Path {
+		&self.current_theme_file
 	}
 
 	pub fn iter_themes(&self) -> impl Iterator<Item = PathBuf> + '_ {
