@@ -51,50 +51,49 @@ const LSB_LSRGB_MAT: uv::Mat3 = uv::Mat3::new(
 );
 
 #[derive(Debug, Clone)]
-pub struct OklabColor {
-	lab: uv::Vec3,
-	alpha: f32
+pub struct OklchColor {
+	l: f32,
+	c: f32,
+	h: f32,
+	a: f32
 }
 
-impl OklabColor {
-	pub fn lighten(&mut self, amount: f32) {
-		self.lab.x = f32::min(self.lab.x + amount, 100.0);
+impl OklchColor {
+	pub fn new(l: f32, c: f32, h: f32, a: f32) -> Self {
+		Self { l, c, h, a }
 	}
 
-	pub fn darken(&mut self, amount: f32) {
-		self.lab.x = f32::max(self.lab.x - amount, 0.0);
+	#[inline]
+	pub fn lightness(&self) -> f32 {
+		self.l
 	}
-}
 
-impl From<Color> for OklabColor {
-	fn from(value: Color) -> Self {
-		let mut lsrgb = uv::Vec3::new(value.r as f32, value.g as f32, value.b as f32) / 255.0;
-		lsrgb.apply(srgb_eotf);
-
-		let alpha = value.a as f32 / 255.0;
-
-		let mut lsb = LSRGB_LSB_MAT * lsrgb;
-		lsb.apply(f32::cbrt);
-
-		let lab = LSB_OKLAB_MAT * lsb;
-
-		Self { lab, alpha }
+	#[inline]
+	pub fn chroma(&self) -> f32 {
+		self.c
 	}
-}
 
-impl From<OklabColor> for Color {
-	fn from(value: OklabColor) -> Self {
-		let mut lsb = OKLAB_LSB_MAT * value.lab;
-		lsb.apply(|x| x.powi(3));
+	#[inline]
+	pub fn hue(&self) -> f32 {
+		self.h
+	}
 
-		let mut srgb = LSB_LSRGB_MAT * lsb;
-		srgb.apply(srgb_oetf);
+	#[inline]
+	pub fn alpha(&self) -> f32 {
+		self.a
+	}
 
-		Color::new_rgba(
-			(255.0 * srgb.x.clamp(0.0, 1.0)) as u8,
-			(255.0 * srgb.y.clamp(0.0, 1.0)) as u8,
-			(255.0 * srgb.z.clamp(0.0, 1.0)) as u8,
-			(255.0 * value.alpha.clamp(0.0, 1.0)) as u8
-		)
+	pub fn shade(&self, lightness: f32) -> Self {
+		let mut result = self.clone();
+		result.l = lightness;
+		result
+	}
+
+	pub fn brighten(&self, amount: f32) -> Self {
+		self.shade(self.lightness() + amount)
+	}
+
+	pub fn darken(&self, amount: f32) -> Self {
+		self.shade(self.lightness() - amount)
 	}
 }

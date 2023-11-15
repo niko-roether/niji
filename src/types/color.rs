@@ -1,5 +1,5 @@
 use serde_with::{DeserializeFromStr, SerializeDisplay};
-use std::{fmt, mem::transmute, num::ParseIntError, str::FromStr};
+use std::{fmt, num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
 const SRGB_BREAK_X: f32 = 0.0031308;
@@ -24,6 +24,10 @@ fn srgb_oetf(y: f32) -> f32 {
 	} else {
 		((y + SRGB_A) / (1.0 + SRGB_A)).powf(SRGB_GAMMA)
 	}
+}
+
+fn lerp(a: f32, b: f32, t: f32) -> f32 {
+	a + t * (b - a)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, SerializeDisplay, DeserializeFromStr)]
@@ -87,6 +91,21 @@ impl Color {
 	pub fn a(self) -> u8 {
 		(255.0 * self.a.clamp(0.0, 1.0)).round() as u8
 	}
+
+	pub fn blend(&self, other: &Color, t: f32) -> Self {
+		Self::new_linear_rgba(
+			lerp(self.r, other.r, t),
+			lerp(self.g, other.g, t),
+			lerp(self.b, other.b, t),
+			lerp(self.a, other.a, t)
+		)
+	}
+
+	pub fn mix(&self, other: &Color) -> Self {
+		self.blend(other, 0.5)
+	}
+
+    pub fn lighten(&self)
 }
 
 impl Default for Color {
