@@ -1,111 +1,48 @@
 use serde_with::{DeserializeFromStr, SerializeDisplay};
-use std::{fmt, num::ParseIntError, str::FromStr};
+use std::{fmt, mem::transmute, num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
-const SRGB_BREAK_X: f32 = 0.0031308;
-const SRGB_BREAK_Y: f32 = 0.04045;
-const SRGB_A: f32 = 0.005;
-const SRGB_GAMMA: f32 = 2.4;
-const SRGB_THETA: f32 = 12.92;
-
-fn srgb_eotf(x: f32) -> f32 {
-	let y = if x < SRGB_BREAK_X {
-		SRGB_THETA * x
-	} else {
-		(1.0 + SRGB_A) * x.powf(1.0 / SRGB_GAMMA) - SRGB_A
-	};
-
-	f32::min(f32::max(y, 0.0), 1.0)
-}
-
-fn srgb_oetf(y: f32) -> f32 {
-	if y < SRGB_BREAK_Y {
-		y / SRGB_THETA
-	} else {
-		((y + SRGB_A) / (1.0 + SRGB_A)).powf(SRGB_GAMMA)
-	}
-}
-
-fn lerp(a: f32, b: f32, t: f32) -> f32 {
-	a + t * (b - a)
-}
+use crate::oklch::OklchColor;
 
 #[derive(Debug, Clone, Copy, PartialEq, SerializeDisplay, DeserializeFromStr)]
 #[repr(C, align(4))]
 pub struct Color {
-	r: f32,
-	g: f32,
-	b: f32,
-	a: f32
+	pub a: u8,
+	pub b: u8,
+	pub g: u8,
+	pub r: u8
 }
 
 impl Color {
-	pub fn new_linear_rgba(r: f32, g: f32, b: f32, a: f32) -> Self {
+	pub fn new_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
 		Self { r, g, b, a }
 	}
 
-	pub fn new_rgba(r: u8, g: u8, b: u8, a: u8) -> Self {
-		Self::new_linear_rgba(
-			srgb_eotf(r as f32 / 255.0),
-			srgb_eotf(g as f32 / 255.0),
-			srgb_eotf(b as f32 / 255.0),
-			a as f32 / 255.0
+	pub fn lighten(self, amount: f32) -> Self {
+		Self::from_oklch(self.into_oklch().lighten(amount), self.a)
+	}
+
+	pub fn darken(self, amount: f32) -> Self {
+		Self::from_oklch(self.into_oklch().darken(amount), self.a)
+	}
+
+	fn into_oklch(self) -> OklchColor {
+		OklchColor::from_srgb(
+			self.r as f32 / 255.0,
+			self.g as f32 / 255.0,
+			self.b as f32 / 255.0
 		)
 	}
 
-	#[inline]
-	pub fn linear_r(self) -> f32 {
-		self.r
-	}
-
-	#[inline]
-	pub fn linear_g(self) -> f32 {
-		self.g
-	}
-
-	#[inline]
-	pub fn linear_b(self) -> f32 {
-		self.b
-	}
-
-	#[inline]
-	pub fn alpha(self) -> f32 {
-		self.a
-	}
-
-	pub fn r(self) -> u8 {
-		dbg!(self.r);
-		dbg!(srgb_oetf(self.r));
-
-		(255.0 * srgb_oetf(self.r).clamp(0.0, 1.0)).round() as u8
-	}
-
-	pub fn g(self) -> u8 {
-		(255.0 * srgb_oetf(self.g).clamp(0.0, 1.0)).round() as u8
-	}
-
-	pub fn b(self) -> u8 {
-		(255.0 * srgb_oetf(self.b).clamp(0.0, 1.0)).round() as u8
-	}
-
-	pub fn a(self) -> u8 {
-		(255.0 * self.a.clamp(0.0, 1.0)).round() as u8
-	}
-
-	pub fn blend(&self, other: &Color, t: f32) -> Self {
-		Self::new_linear_rgba(
-			lerp(self.r, other.r, t),
-			lerp(self.g, other.g, t),
-			lerp(self.b, other.b, t),
-			lerp(self.a, other.a, t)
+	fn from_oklch(color: OklchColor, a: u8) -> Self {
+		let (r, g, b) = color.into_srgb();
+		Self::new_rgba(
+			f32::round(r * 255.0) as u8,
+			f32::round(g * 255.0) as u8,
+			f32::round(b * 255.0) as u8,
+			a
 		)
 	}
-
-	pub fn mix(&self, other: &Color) -> Self {
-		self.blend(other, 0.5)
-	}
-
-    pub fn lighten(&self)
 }
 
 impl Default for Color {
@@ -116,21 +53,13 @@ impl Default for Color {
 
 impl From<u32> for Color {
 	fn from(value: u32) -> Self {
-		Self::new_rgba(
-			(value >> 24) as u8,
-			((value >> 16) & 0xff) as u8,
-			((value >> 8) & 0xff) as u8,
-			(value & 0xff) as u8
-		)
+		unsafe { transmute(value) }
 	}
 }
 
 impl From<Color> for u32 {
 	fn from(value: Color) -> Self {
-		value.a() as u32
-			| (value.b() as u32) << 8
-			| (value.g() as u32) << 16
-			| (value.r() as u32) << 24
+		unsafe { transmute(value) }
 	}
 }
 
@@ -174,6 +103,20 @@ impl FromStr for Color {
 	}
 }
 
+impl mlua::UserData for Color {
+	fn add_fields<'lua, F: mlua::UserDataFields<'lua, Self>>(fields: &mut F) {
+		fields.add_field_method_get("r", |_, this| Ok(this.r));
+		fields.add_field_method_get("g", |_, this| Ok(this.g));
+		fields.add_field_method_get("b", |_, this| Ok(this.b));
+		fields.add_field_method_get("a", |_, this| Ok(this.a));
+	}
+
+	fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
+		methods.add_method("lighten", |_, this, amount: f32| Ok(this.lighten(amount)));
+		methods.add_method("darken", |_, this, amount: f32| Ok(this.darken(amount)));
+	}
+}
+
 #[cfg(test)]
 mod test {
 	use super::*;
@@ -184,10 +127,10 @@ mod test {
 
 		dbg!(col);
 
-		assert_eq!(col.r(), 0x0a);
-		assert_eq!(col.g(), 0x0b);
-		assert_eq!(col.b(), 0x0c);
-		assert_eq!(col.a(), 0x0d);
+		assert_eq!(col.r, 0x0a);
+		assert_eq!(col.g, 0x0b);
+		assert_eq!(col.b, 0x0c);
+		assert_eq!(col.a, 0x0d);
 	}
 
 	#[test]
