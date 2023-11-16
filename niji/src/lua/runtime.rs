@@ -2,12 +2,13 @@ use std::path::Path;
 
 use mlua::{FromLuaMulti, Lua};
 
-use crate::config::Config;
+use crate::{config::Config, utils::xdg::XdgDirs};
 
-use super::api::LuaApi;
+use super::api::{LuaApi, LuaApiInit};
 
 pub struct LuaRuntimeInit {
-	pub config: Config
+	pub config: Config,
+	pub xdg: XdgDirs
 }
 
 pub struct LuaRuntime {
@@ -18,7 +19,13 @@ impl LuaRuntime {
 	pub fn new(init: LuaRuntimeInit) -> mlua::Result<Self> {
 		let lua = Lua::new();
 
-		lua.globals().set("niji", LuaApi::new(init.config))?;
+		lua.globals().set(
+			"niji",
+			LuaApi::new(LuaApiInit {
+				config: init.config,
+				xdg: init.xdg
+			})
+		)?;
 
 		Ok(Self { lua })
 	}
