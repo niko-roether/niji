@@ -17,17 +17,15 @@ mod utils;
 fn main() {
 	let xdg = XdgDirs::new().unwrap();
 
-	let lua = LuaRuntime::new(LuaRuntimeInit {
-		config: Config {
-			icons: "Abc".to_string(),
-			cursor: "Cde".to_string(),
-			cursor_size: 69,
-			font_family: "Comic Sans".to_string(),
-			font_size: 420
-		},
-		xdg
-	})
-	.unwrap();
+	let _config = Config {
+		icons: "Abc".to_string(),
+		cursor: "Cde".to_string(),
+		cursor_size: 69,
+		font_family: "Comic Sans".to_string(),
+		font_size: 420
+	};
+
+	let lua = LuaRuntime::new(LuaRuntimeInit { xdg }).unwrap();
 
 	let theme = Theme {
 		ui: UiTheme {

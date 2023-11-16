@@ -2,12 +2,11 @@ use std::path::Path;
 
 use mlua::{FromLuaMulti, Lua};
 
-use crate::{config::Config, utils::xdg::XdgDirs};
+use crate::utils::xdg::XdgDirs;
 
 use super::api::{LuaApi, LuaApiInit};
 
 pub struct LuaRuntimeInit {
-	pub config: Config,
 	pub xdg: XdgDirs
 }
 
@@ -21,13 +20,8 @@ impl LuaRuntime {
 
 		lua.load_from_std_lib(mlua::StdLib::ALL_SAFE);
 
-		lua.globals().set(
-			"niji",
-			LuaApi::new(LuaApiInit {
-				config: init.config,
-				xdg: init.xdg
-			})
-		)?;
+		lua.globals()
+			.set("niji", LuaApi::new(LuaApiInit { xdg: init.xdg }))?;
 
 		Ok(Self { lua })
 	}

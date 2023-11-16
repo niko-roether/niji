@@ -2,7 +2,7 @@ use std::{io, path::Path};
 
 use thiserror::Error;
 
-use crate::config::Theme;
+use crate::config::{Config, Theme};
 
 use super::runtime::LuaRuntime;
 
@@ -12,18 +12,19 @@ pub enum LoadError {
 	FileReadErr(#[from] io::Error),
 
 	#[error("{0}")]
-	ExecErr(#[from] mlua::Error)
+	LuaErr(#[from] mlua::Error)
 }
 
 #[derive(Debug, Error)]
-pub enum ApplyError {
+pub enum ExecError {
 	#[error("{0}")]
-	ExecErr(#[from] mlua::Error)
+	LuaErr(#[from] mlua::Error)
 }
 
 pub struct Module<'lua> {
 	name: String,
-	apply: mlua::Function<'lua>
+	apply: Option<mlua::Function<'lua>>,
+	configure: Option<mlua::Function<'lua>>
 }
 
 impl<'lua> Module<'lua> {
@@ -32,13 +33,27 @@ impl<'lua> Module<'lua> {
 		let entry_point = path.join("module.lua");
 
 		let module: mlua::Table = lua.run_module(&entry_point)?;
-		let apply: mlua::Function = module.get("apply")?;
+		let apply: Option<mlua::Function> = module.get("apply")?;
+		let configure: Option<mlua::Function> = module.get("configure")?;
 
-		Ok(Self { name, apply })
+		Ok(Self {
+			name,
+			apply,
+			configure
+		})
 	}
 
-	pub fn apply(&self, theme: &Theme) -> Result<(), ApplyError> {
-		self.apply.call(theme.clone())?;
+	pub fn configure(&self, config: &Config) -> Result<(), ExecError> {
+		if let Some(configure) = &self.configure {
+			configure.call(config.clone())?;
+		}
+		Ok(())
+	}
+
+	pub fn apply(&self, theme: &Theme) -> Result<(), ExecError> {
+		if let Some(apply) = &self.apply {
+			apply.call(theme.clone())?;
+		}
 		Ok(())
 	}
 }
