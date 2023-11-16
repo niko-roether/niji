@@ -19,6 +19,8 @@ impl LuaRuntime {
 	pub fn new(init: LuaRuntimeInit) -> mlua::Result<Self> {
 		let lua = Lua::new();
 
+		lua.load_from_std_lib(mlua::StdLib::ALL_SAFE);
+
 		lua.globals().set(
 			"niji",
 			LuaApi::new(LuaApiInit {
