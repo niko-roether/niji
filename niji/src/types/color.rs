@@ -3,7 +3,7 @@ use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::{fmt, mem::transmute, num::ParseIntError, str::FromStr};
 use thiserror::Error;
 
-use crate::{oklch::OklchColor, utils::lerp};
+use crate::utils::{lerp, oklch::OklchColor};
 
 #[derive(Debug, Clone, Copy, PartialEq, SerializeDisplay, DeserializeFromStr)]
 #[repr(C, align(4))]

@@ -10,7 +10,6 @@ use types::color::Color;
 mod config;
 mod files;
 mod lua;
-mod oklch;
 mod types;
 mod utils;
 
