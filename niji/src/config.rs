@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::types::color::Color;
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
-#[lua(as_string)]
+#[lua_with("ToString::to_string")]
 #[serde(rename_all = "lowercase")]
 pub enum ColorScheme {
 	Light,

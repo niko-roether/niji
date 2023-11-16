@@ -1,6 +1,6 @@
 use mlua::{IntoLua, Lua};
 
-use crate::config::Config;
+use crate::{config::Config, utils::xdg::XdgDirs};
 
 use self::col::ColApi;
 
@@ -8,13 +8,23 @@ mod col;
 mod fs;
 
 #[derive(Debug, Clone)]
+pub struct LuaApiInit {
+	pub config: Config,
+	pub xdg: XdgDirs
+}
+
+#[derive(Debug, Clone)]
 pub struct LuaApi {
-	config: Config
+	config: Config,
+	xdg: XdgDirs
 }
 
 impl LuaApi {
-	pub fn new(config: Config) -> Self {
-		Self { config }
+	pub fn new(init: LuaApiInit) -> Self {
+		Self {
+			config: init.config,
+			xdg: init.xdg
+		}
 	}
 }
 
@@ -24,6 +34,7 @@ impl<'lua> IntoLua<'lua> for LuaApi {
 
 		module.raw_set("col", ColApi)?;
 		module.raw_set("cfg", self.config)?;
+		module.raw_set("xdg", self.xdg)?;
 
 		module.into_lua(lua)
 	}
