@@ -1,17 +1,15 @@
 use std::path::PathBuf;
 
 use config::{ColorScheme, Config, Palette, Theme, UiTheme};
-use lua_runtime::{LuaRuntime, LuaRuntimeInit};
-use module::Module;
+use lua::{
+	module::Module,
+	runtime::{LuaRuntime, LuaRuntimeInit}
+};
 use types::color::Color;
 
-use crate::files::Files;
-
-mod api;
 mod config;
 mod files;
-mod lua_runtime;
-mod module;
+mod lua;
 mod oklch;
 mod types;
 mod utils;

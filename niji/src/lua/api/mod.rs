@@ -5,7 +5,9 @@ use crate::config::Config;
 use self::col::ColApi;
 
 mod col;
+mod fs;
 
+#[derive(Debug, Clone)]
 pub struct LuaApi {
 	config: Config
 }
@@ -21,6 +23,7 @@ impl<'lua> IntoLua<'lua> for LuaApi {
 		let module = lua.create_table()?;
 
 		module.raw_set("col", ColApi)?;
+		module.raw_set("cfg", self.config)?;
 
 		module.into_lua(lua)
 	}

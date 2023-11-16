@@ -1,9 +1,10 @@
 use std::{io, path::Path};
 
-use mlua::IntoLua;
 use thiserror::Error;
 
-use crate::{config::Theme, lua_runtime::LuaRuntime};
+use crate::config::Theme;
+
+use super::runtime::LuaRuntime;
 
 #[derive(Debug, Error)]
 pub enum LoadError {

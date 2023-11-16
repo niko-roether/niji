@@ -31,4 +31,3 @@ impl<'lua> IntoLua<'lua> for ColApi {
 		module.into_lua(lua)
 	}
 }
-

@@ -2,7 +2,9 @@ use std::path::Path;
 
 use mlua::{FromLuaMulti, Lua};
 
-use crate::{api::LuaApi, config::Config};
+use crate::config::Config;
+
+use super::api::LuaApi;
 
 pub struct LuaRuntimeInit {
 	pub config: Config
