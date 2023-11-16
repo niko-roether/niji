@@ -113,7 +113,7 @@ pub fn __error(args: fmt::Arguments, source: Option<&str>) {
 #[inline]
 pub fn __warn(args: fmt::Arguments, source: Option<&str>) {
 	if log_level() >= LogLevel::Normal {
-		log(args, source, Some("WARN"), YELLOW, true);
+		log(args, source, Some("WARNING"), YELLOW, true);
 	}
 }
 

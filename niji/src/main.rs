@@ -3,6 +3,8 @@
 use std::path::PathBuf;
 
 use config::{ColorScheme, Config, Palette, Theme, UiTheme};
+use file_manager::FileManager;
+use files::Files;
 use lua::{
 	module::Module,
 	runtime::{LuaRuntime, LuaRuntimeInit}
@@ -19,9 +21,15 @@ mod types;
 mod utils;
 
 fn main() {
-	let xdg = XdgDirs::new().unwrap();
-
 	console::set_color(true);
+
+	let xdg = XdgDirs::new().unwrap();
+	let files = Files::init(&xdg).unwrap();
+	let mut file_manager = FileManager::new(&files).unwrap();
+
+	file_manager
+		.manage(&xdg.config_home.join("niji/config.toml"))
+		.unwrap();
 
 	let _config = Config {
 		icons: "Abc".to_string(),
