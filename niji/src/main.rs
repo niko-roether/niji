@@ -22,15 +22,6 @@ fn main() {
 	let xdg = XdgDirs::new().unwrap();
 
 	console::set_color(true);
-	console::info!(source = "main", "Test");
-	console::error!(
-		source = "module:gtk4",
-		"Something went terribly {}",
-		"wrong"
-	);
-
-	let res = console::prompt!(source = "main", default = true, "Testing");
-	dbg!(res);
 
 	let _config = Config {
 		icons: "Abc".to_string(),
@@ -79,5 +70,5 @@ fn main() {
 	let module =
 		Module::load(&lua, &PathBuf::from("/home/niko/.config/niji/modules/test")).unwrap();
 
-	// module.apply(&theme).unwrap();
+	module.apply(&theme).unwrap();
 }

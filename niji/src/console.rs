@@ -84,7 +84,7 @@ fn log(
 			));
 		}
 		if let Some(level) = level {
-			message.push_str(&format!("{bright}\x1b[1m{level}\x1b[0m\x1b[90m:\x1b[0m "));
+			message.push_str(&format!("{bright}\x1b[1m{level}\x1b[0m{normal}:\x1b[0m "));
 		}
 		message.push_str(&format!("{normal}{args}\x1b[0m"));
 	} else {
@@ -111,7 +111,7 @@ pub fn __error(args: fmt::Arguments, source: Option<&str>) {
 }
 
 #[inline]
-pub fn __warning(args: fmt::Arguments, source: Option<&str>) {
+pub fn __warn(args: fmt::Arguments, source: Option<&str>) {
 	if log_level() >= LogLevel::Normal {
 		log(args, source, Some("WARN"), YELLOW, true);
 	}
@@ -182,9 +182,9 @@ def_log_macro!(error, __error);
 #[allow(clippy::single_component_path_imports)]
 pub(crate) use error;
 
-def_log_macro!(warning, __warn);
+def_log_macro!(warn2, __warn);
 #[allow(clippy::single_component_path_imports)]
-pub(crate) use warning;
+pub(crate) use warn2 as warn;
 
 def_log_macro!(info, __info);
 #[allow(clippy::single_component_path_imports)]

@@ -22,21 +22,23 @@ pub enum ExecError {
 }
 
 pub struct Module<'lua> {
+	runtime: &'lua LuaRuntime,
 	name: String,
 	apply: Option<mlua::Function<'lua>>,
 	configure: Option<mlua::Function<'lua>>
 }
 
 impl<'lua> Module<'lua> {
-	pub fn load(lua: &'lua LuaRuntime, path: &Path) -> Result<Self, LoadError> {
+	pub fn load(runtime: &'lua LuaRuntime, path: &Path) -> Result<Self, LoadError> {
 		let name = path.file_name().unwrap().to_string_lossy().into_owned();
 		let entry_point = path.join("module.lua");
 
-		let module: mlua::Table = lua.run_module(&entry_point)?;
+		let module: mlua::Table = runtime.load_module(&entry_point)?;
 		let apply: Option<mlua::Function> = module.get("apply")?;
 		let configure: Option<mlua::Function> = module.get("configure")?;
 
 		Ok(Self {
+			runtime,
 			name,
 			apply,
 			configure
@@ -45,15 +47,23 @@ impl<'lua> Module<'lua> {
 
 	pub fn configure(&self, config: &Config) -> Result<(), ExecError> {
 		if let Some(configure) = &self.configure {
-			configure.call(config.clone())?;
+			self.in_context(|| configure.call(config.clone()))?;
 		}
 		Ok(())
 	}
 
 	pub fn apply(&self, theme: &Theme) -> Result<(), ExecError> {
 		if let Some(apply) = &self.apply {
-			apply.call(theme.clone())?;
+			self.in_context(|| apply.call(theme.clone()))?;
 		}
+		Ok(())
+	}
+
+	fn in_context(&self, cb: impl FnOnce() -> Result<(), mlua::Error>) -> Result<(), ExecError> {
+		self.runtime.set_module_context(Some(&self.name))?;
+		cb()?;
+		self.runtime.set_module_context(None)?;
+
 		Ok(())
 	}
 }

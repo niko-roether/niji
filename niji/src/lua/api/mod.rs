@@ -2,10 +2,12 @@ use mlua::{IntoLua, Lua};
 
 use crate::utils::xdg::XdgDirs;
 
-use self::{col::ColApi, fs::FsApi};
+use self::{col::ColApi, csl::CslApi, fs::FsApi};
 
 mod col;
+mod csl;
 mod fs;
+pub mod mod_;
 
 #[derive(Debug, Clone)]
 pub struct LuaApiInit {
@@ -30,6 +32,7 @@ impl<'lua> IntoLua<'lua> for LuaApi {
 		module.raw_set("col", ColApi)?;
 		module.raw_set("xdg", self.xdg)?;
 		module.raw_set("fs", FsApi)?;
+		module.raw_set("csl", CslApi)?;
 
 		module.into_lua(lua)
 	}
