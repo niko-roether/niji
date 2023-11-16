@@ -37,11 +37,13 @@ impl Files {
 
 	pub fn init(xdg: &XdgDirs) -> Result<Self, InitError> {
 		let config_dir = xdg.config_home.join(Self::PREFIX);
+		let state_dir = xdg.state_home.join(Self::PREFIX);
 
 		init_dir(&config_dir)?;
+		init_dir(&state_dir)?;
 
 		let config_file = config_dir.join(Self::CONFIG_FILE);
-		let current_theme_file = config_dir.join(Self::CURRENT_THEME_FILE);
+		let current_theme_file = state_dir.join(Self::CURRENT_THEME_FILE);
 		let custom_themes_dir = config_dir.join(Self::THEMES_DIR);
 		let custom_modules_dir = config_dir.join(Self::MODULES_DIR);
 
