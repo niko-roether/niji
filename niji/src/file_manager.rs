@@ -1,14 +1,10 @@
 use std::{
 	collections::{hash_map::DefaultHasher, HashMap},
-	ffi::OsString,
 	fs::{self, File, OpenOptions},
 	hash::{Hash, Hasher},
 	io::{self, Read},
-	path::{Path, PathBuf},
-	time::Instant
+	path::{Path, PathBuf}
 };
-
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::{console, files::Files};
