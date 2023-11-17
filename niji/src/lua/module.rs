@@ -60,9 +60,9 @@ impl<'lua> Module<'lua> {
 	}
 
 	fn in_context(&self, cb: impl FnOnce() -> Result<(), mlua::Error>) -> Result<(), ExecError> {
-		self.runtime.set_module_context(Some(&self.name))?;
+		self.runtime.set_module_context(Some(&self.name));
 		cb()?;
-		self.runtime.set_module_context(None)?;
+		self.runtime.set_module_context(None);
 
 		Ok(())
 	}

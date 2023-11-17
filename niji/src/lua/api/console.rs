@@ -1,8 +1,10 @@
 use mlua::{IntoLua, Lua};
 
-use crate::{console, lua::runtime::LuaRuntime};
+use crate::console;
 
-pub struct CslApi;
+use super::{Module, ModuleContext};
+
+pub struct ConsoleApi;
 
 macro_rules! define_log_function {
 	($name:ident) => {
@@ -14,15 +16,16 @@ macro_rules! define_log_function {
 	};
 }
 
-impl CslApi {
+impl ConsoleApi {
 	fn get_source(lua: &Lua) -> mlua::Result<String> {
-		let api: mlua::Table = lua.globals().get(LuaRuntime::API_GLOBAL)?;
-		let mod_data: Option<mlua::Table> = api.get("mod")?;
-		let mod_name: String = match mod_data {
-			Some(data) => data.get("name")?,
-			None => String::from("?")
-		};
-		Ok(format!("module:{}", mod_name))
+		let module_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
+		if let Some(module_name) = &module_ctx.name {
+			Ok(format!("module:{module_name}"))
+		} else {
+			Err(mlua::Error::runtime(
+				"Console invocation failed; not in module context"
+			))
+		}
 	}
 
 	define_log_function!(info);
@@ -41,8 +44,10 @@ impl CslApi {
 	}
 }
 
-impl<'lua> IntoLua<'lua> for CslApi {
-	fn into_lua(self, lua: &'lua Lua) -> mlua::Result<mlua::Value<'lua>> {
+impl Module for ConsoleApi {
+	const NAMESPACE: &'static str = "console";
+
+	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {
 		let module = lua.create_table()?;
 
 		module.raw_set("info", lua.create_function(Self::info)?)?;

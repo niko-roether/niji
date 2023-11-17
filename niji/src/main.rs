@@ -25,11 +25,7 @@ fn main() {
 
 	let xdg = XdgDirs::new().unwrap();
 	let files = Files::init(&xdg).unwrap();
-	let mut file_manager = FileManager::new(&files).unwrap();
-
-	file_manager
-		.manage(&xdg.config_home.join("niji/config.toml"))
-		.unwrap();
+	let file_manager = FileManager::new(&files).unwrap();
 
 	let _config = Config {
 		icons: "Abc".to_string(),
@@ -39,7 +35,7 @@ fn main() {
 		font_size: 420
 	};
 
-	let lua = LuaRuntime::new(LuaRuntimeInit { xdg }).unwrap();
+	let lua = LuaRuntime::new(LuaRuntimeInit { xdg, file_manager }).unwrap();
 
 	let theme = Theme {
 		ui: UiTheme {
