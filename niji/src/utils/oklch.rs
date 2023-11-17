@@ -58,9 +58,6 @@ pub struct OklchColor {
 }
 
 impl OklchColor {
-	pub const BLACK: Self = Self::new(0.0, 0.0, 0.0);
-	pub const WHITE: Self = Self::new(1.0, 0.0, 0.0);
-
 	pub const fn new(l: f32, c: f32, h: f32) -> Self {
 		Self { l, c, h }
 	}

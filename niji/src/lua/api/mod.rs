@@ -1,4 +1,3 @@
-use handlebars::Handlebars;
 use mlua::Lua;
 
 use crate::{file_manager::FileManager, utils::xdg::XdgDirs};

@@ -3,7 +3,7 @@ use std::{
 	path::{Path, PathBuf}
 };
 
-use mlua::{FromLuaMulti, IntoLua, IntoLuaMulti, Lua};
+use mlua::{FromLuaMulti, IntoLuaMulti, Lua};
 
 use crate::{console, file_manager::FileManager, utils::xdg::XdgDirs};
 
@@ -16,11 +16,6 @@ pub struct LuaRuntimeInit {
 
 pub struct LuaRuntime {
 	lua: Lua
-}
-
-pub struct ModuleContext<'a> {
-	pub name: &'a str,
-	pub path: &'a Path
 }
 
 #[derive(Debug)]

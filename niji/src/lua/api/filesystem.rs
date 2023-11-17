@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use mlua::{IntoLua, Lua};
 
-use crate::{file_manager::FileManager, utils::xdg::XdgDirs};
+use crate::file_manager::FileManager;
 
 use super::Module;
 
