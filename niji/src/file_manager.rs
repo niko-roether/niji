@@ -83,7 +83,7 @@ impl FileManager {
 		console::warn!(
 			"In order to apply your configuration, niji needs to write to {}. This would \
 			 overwrite a previous version of that file that is not managed by niji. You can \
-			 choose to let niji overwrite the file, or cancel the process. If you override the \
+			 choose to let niji overwrite the file, or cancel the process. If you overwrite the \
 			 file, the previous version will be backed up to {}.",
 			path.display(),
 			backup_path.display()
