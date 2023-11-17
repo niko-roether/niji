@@ -8,9 +8,9 @@ pub struct ConsoleApi;
 
 macro_rules! define_log_function {
 	($name:ident) => {
-		fn $name(lua: &Lua, message: String) -> mlua::Result<()> {
+		fn $name(lua: &Lua, message: mlua::Value) -> mlua::Result<()> {
 			let source = Self::get_source(lua)?;
-			console::$name!(source = &source, "{message}");
+			console::$name!(source = &source, "{}", message.to_string()?);
 			Ok(())
 		}
 	};
@@ -32,8 +32,9 @@ impl ConsoleApi {
 	define_log_function!(warn);
 	define_log_function!(error);
 
-	fn prompt(lua: &Lua, (message, default): (String, Option<bool>)) -> mlua::Result<bool> {
+	fn prompt(lua: &Lua, (message, default): (mlua::Value, Option<bool>)) -> mlua::Result<bool> {
 		let source = Self::get_source(lua)?;
+		let message = message.to_string()?;
 		let result = if let Some(default) = default {
 			console::prompt!(source = &source, default = default, "{message}")
 		} else {
