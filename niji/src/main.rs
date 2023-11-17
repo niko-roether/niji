@@ -5,10 +5,8 @@ use std::path::PathBuf;
 use config::{ColorScheme, Config, Palette, Theme, UiTheme};
 use file_manager::FileManager;
 use files::Files;
-use lua::{
-	module::Module,
-	runtime::{LuaRuntime, LuaRuntimeInit}
-};
+use lua::runtime::{LuaRuntime, LuaRuntimeInit};
+use module::Module;
 use types::color::Color;
 use utils::xdg::XdgDirs;
 
@@ -17,6 +15,7 @@ mod console;
 mod file_manager;
 mod files;
 mod lua;
+mod module;
 mod types;
 mod utils;
 
@@ -71,8 +70,15 @@ fn main() {
 		}
 	};
 
-	let module =
-		Module::load(&lua, &PathBuf::from("/home/niko/.config/niji/modules/test")).unwrap();
+	let module = match Module::load(&lua, &PathBuf::from("/home/niko/.config/niji/modules/test")) {
+		Ok(m) => m,
+		Err(err) => {
+			console::error!("{err}");
+			return;
+		}
+	};
 
-	module.apply(&theme).unwrap();
+	if let Err(err) = module.apply(&theme) {
+		console::error!("{err}");
+	};
 }
