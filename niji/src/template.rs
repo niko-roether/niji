@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, hash::Hash, path::Path};
 
 use strfmt::{strfmt_map, DisplayStr};
 use thiserror::Error;
@@ -25,7 +25,7 @@ pub enum RenderError {
 
 pub type FmtResult<T> = Result<T, FmtError>;
 
-pub trait TemplateValue {
+pub trait FmtValue {
 	fn type_name(&self) -> &'static str;
 
 	fn default_fmt(&self) -> &'static str;
@@ -44,24 +44,10 @@ pub trait TemplateValue {
 	}
 }
 
-impl TemplateValue for Box<dyn TemplateValue> {
-	fn type_name(&self) -> &'static str {
-		self.as_ref().type_name()
-	}
-
-	fn default_fmt(&self) -> &'static str {
-		self.as_ref().default_fmt()
-	}
-
-	fn get_placeholder(&self, name: &str) -> Option<Box<dyn DisplayStr>> {
-		self.as_ref().get_placeholder(name)
-	}
-}
-
 macro_rules! basic_template_value {
 	($name:literal, $($ty:ident),+) => {
         $(
-            impl TemplateValue for $ty {
+            impl FmtValue for $ty {
                 #[inline]
                 fn type_name(&self) -> &'static str {
                     $name
@@ -88,27 +74,7 @@ basic_template_value!("string", String);
 basic_template_value!("int", i8, u8, i16, u16, i32, u32, i64, u64);
 basic_template_value!("float", f32, f64);
 
-impl TemplateValue for bool {
-	fn type_name(&self) -> &'static str {
-		"bool"
-	}
-
-	fn default_fmt(&self) -> &'static str {
-		"{true/false}"
-	}
-
-	fn get_placeholder(&self, name: &str) -> Option<Box<dyn DisplayStr>> {
-		let (when_true, when_false) = name.split_once('/')?;
-
-		if *self {
-			Some(Box::new(when_true.to_string()))
-		} else {
-			Some(Box::new(when_false.to_string()))
-		}
-	}
-}
-
-impl TemplateValue for Color {
+impl FmtValue for Color {
 	fn type_name(&self) -> &'static str {
 		"color"
 	}
@@ -137,8 +103,78 @@ impl TemplateValue for Color {
 }
 
 #[derive(Debug, Clone)]
+pub struct TemplateContext {
+	fmt: HashMap<String, String>
+}
+
+impl TemplateContext {
+	fn new() -> Self {
+		Self {
+			fmt: HashMap::new()
+		}
+	}
+}
+
+pub trait TemplateData {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data>;
+}
+
+impl<V> TemplateData for V
+where
+	V: FmtValue
+{
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+		let fmtstr = ctx
+			.fmt
+			.get(self.type_name())
+			.map(String::as_str)
+			.unwrap_or(self.default_fmt());
+
+		self.format(fmtstr).map(mustache::Data::String)
+	}
+}
+
+impl TemplateData for bool {
+	fn to_data(&self, _: &TemplateContext) -> FmtResult<mustache::Data> {
+		Ok(mustache::Data::Bool(*self))
+	}
+}
+
+impl<T> TemplateData for Vec<T>
+where
+	T: TemplateData
+{
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+		let mut data_vec = Vec::with_capacity(self.len());
+		for value in self {
+			data_vec.push(value.to_data(ctx)?);
+		}
+		Ok(mustache::Data::Vec(data_vec))
+	}
+}
+
+impl<V> TemplateData for HashMap<String, V>
+where
+	V: TemplateData
+{
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+		let mut data_map = HashMap::new();
+		for (key, value) in self {
+			data_map.insert(key.to_string(), value.to_data(ctx)?);
+		}
+		Ok(mustache::Data::Map(data_map))
+	}
+}
+
+impl TemplateData for Box<dyn TemplateData> {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+		self.as_ref().to_data(ctx)
+	}
+}
+
+#[derive(Debug, Clone)]
 pub struct Template {
-	fmt: HashMap<String, String>,
+	ctx: TemplateContext,
 	template: mustache::Template
 }
 
@@ -151,7 +187,7 @@ impl Template {
 			.map_err(|e| InitError::Failed(path.as_ref().to_string_lossy().into_owned(), e))?;
 
 		Ok(Self {
-			fmt: HashMap::new(),
+			ctx: TemplateContext::new(),
 			template
 		})
 	}
@@ -161,13 +197,13 @@ impl Template {
 			.map_err(|e| InitError::Failed(String::from("inline template"), e))?;
 
 		Ok(Self {
-			fmt: HashMap::new(),
+			ctx: TemplateContext::new(),
 			template
 		})
 	}
 
 	pub fn format_as(&mut self, ty: &str, fmtstr: String) -> FmtResult<()> {
-		self.fmt.insert(ty.to_string(), fmtstr);
+		self.ctx.fmt.insert(ty.to_string(), fmtstr);
 
 		Ok(())
 	}
@@ -175,34 +211,30 @@ impl Template {
 	pub fn renderer(&self) -> TemplateRenderer {
 		TemplateRenderer {
 			template: self,
-			values: HashMap::new()
+			data_map: HashMap::new()
 		}
 	}
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct TemplateRenderer<'a> {
 	template: &'a Template,
-	values: HashMap<String, String>
+	data_map: HashMap<String, mustache::Data>
 }
 
 impl<'a> TemplateRenderer<'a> {
-	pub fn set_value(&mut self, name: String, value: impl TemplateValue) -> FmtResult<()> {
-		let fmtstr = self
-			.template
-			.fmt
-			.get(value.type_name())
-			.map(String::as_str)
-			.unwrap_or(value.default_fmt());
-
-		let val_string = value.format(fmtstr)?;
-		self.values.insert(name, val_string);
+	pub fn set_value(&mut self, name: String, value: impl TemplateData) -> FmtResult<()> {
+		let data = value.to_data(&self.template.ctx)?;
+		self.data_map.insert(name, data);
 
 		Ok(())
 	}
 
 	pub fn render(self) -> Result<String, RenderError> {
-		let string = self.template.template.render_to_string(&self.values)?;
+		let string = self
+			.template
+			.template
+			.render_data_to_string(&mustache::Data::Map(self.data_map))?;
 		Ok(string)
 	}
 }

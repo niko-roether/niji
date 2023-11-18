@@ -1,14 +1,14 @@
 use mlua::{IntoLua, Lua, UserData, UserDataMethods};
 
 use crate::{
-	template::{Template, TemplateValue},
+	template::{Template, TemplateData},
 	types::color::Color
 };
 
 use super::Module;
 
-fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn TemplateValue>> {
-	let template_val: Box<dyn TemplateValue> = match value {
+fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn TemplateData>> {
+	let template_val: Box<dyn TemplateData> = match value {
 		mlua::Value::Number(num) => Box::new(num),
 		mlua::Value::Integer(int) => Box::new(int),
 		mlua::Value::Boolean(bool) => Box::new(bool),
