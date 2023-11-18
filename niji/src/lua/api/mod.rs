@@ -1,6 +1,6 @@
 use mlua::Lua;
 
-use crate::{file_manager::FileManager, utils::xdg::XdgDirs};
+use crate::{config::ModuleConfig, file_manager::FileManager, utils::xdg::XdgDirs};
 
 use self::{
 	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi,
@@ -14,8 +14,9 @@ mod module;
 mod template;
 mod xdg;
 
-struct ModuleContext {
-	name: Option<String>
+pub struct ModuleContext {
+	name: String,
+	config: ModuleConfig
 }
 
 trait Module: Sized {
@@ -36,7 +37,7 @@ pub struct Init {
 }
 
 pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
-	set_module_context(lua, None);
+	reset_module_context(lua);
 	lua.set_app_data(init.xdg);
 	lua.set_app_data(init.file_manager);
 
@@ -54,8 +55,13 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	Ok(())
 }
 
-pub fn set_module_context(lua: &Lua, module_name: Option<&str>) {
+pub fn set_module_context(lua: &Lua, module_name: String, config: ModuleConfig) {
 	lua.set_app_data(ModuleContext {
-		name: module_name.map(String::from)
+		name: module_name,
+		config
 	});
+}
+
+pub fn reset_module_context(lua: &Lua) {
+	lua.remove_app_data::<ModuleContext>();
 }

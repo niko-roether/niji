@@ -50,14 +50,62 @@ fn derive_into_lua_with(ast: DeriveInput, path: Path) -> TokenStream {
 	.into()
 }
 
-fn derive_into_lua_table(ast: DeriveInput) -> TokenStream {
+fn derive_into_lua_direct(ast: DeriveInput) -> TokenStream {
 	let name = ast.ident;
 
-	let Data::Struct(data_struct) = ast.data else {
-		abort_call_site!("Deriving IntoLua directly is currently only supported for structs");
-	};
+	match ast.data {
+		Data::Struct(data) => derive_into_lua_struct(name, data),
+		Data::Enum(data) => derive_into_lua_enum(name, data),
+		Data::Union(..) => abort_call_site!("Deriving IntoLua for unions is not supported")
+	}
+}
 
-	let field_names: Vec<&Ident> = data_struct
+fn derive_into_lua_enum(name: Ident, data: DataEnum) -> TokenStream {
+	let variant_names: Vec<&Ident> = data
+		.variants
+		.iter()
+		.map(|v| {
+			if v.fields.len() != 1 || !matches!(v.fields, Fields::Unnamed(..)) {
+				abort!(
+					v,
+					"Only enum members with exactly one unnamed field are supported"
+				);
+			}
+			&v.ident
+		})
+		.collect();
+
+	let variants_into_lua: Vec<proc_macro2::TokenStream> = data
+		.variants
+		.iter()
+		.map(|v| {
+			let lua_attr = get_lua_attr(&v.attrs);
+
+			match lua_attr {
+				Some(LuaAttr::With(path)) => quote! {
+					mlua::IntoLua::into_lua(#path(value), lua)
+				},
+				_ => quote! {
+					mlua::IntoLua::into_lua(value, lua)
+				}
+			}
+		})
+		.collect();
+
+	quote! {
+		impl<'lua> mlua::IntoLua<'lua> for #name {
+			fn into_lua(self, lua: &'lua mlua::Lua) -> mlua::Result<mlua::Value<'lua>> {
+				match self {
+					#(Self::#variant_names(value) => #variants_into_lua),*
+				}
+			}
+		}
+	}
+	.into()
+}
+
+fn derive_into_lua_struct(name: Ident, data: DataStruct) -> TokenStream {
+	let field_names: Vec<&Ident> = data
 		.fields
 		.iter()
 		.map(|f| {
@@ -68,7 +116,7 @@ fn derive_into_lua_table(ast: DeriveInput) -> TokenStream {
 		})
 		.collect();
 
-	let field_into_lua: Vec<proc_macro2::TokenStream> = data_struct
+	let fields_into_lua: Vec<proc_macro2::TokenStream> = data
 		.fields
 		.iter()
 		.map(|f| {
@@ -91,7 +139,7 @@ fn derive_into_lua_table(ast: DeriveInput) -> TokenStream {
 			fn into_lua(self, lua: &'lua mlua::Lua) -> mlua::Result<mlua::Value<'lua>> {
 				let table = lua.create_table()?;
 
-				#(table.raw_set(stringify!(#field_names), #field_into_lua?)?;)*
+				#(table.raw_set(stringify!(#field_names), #fields_into_lua?)?;)*
 
 				table.into_lua(lua)
 			}
@@ -109,6 +157,6 @@ pub fn derive_into_lua(input: TokenStream) -> TokenStream {
 
 	match lua_attr {
 		Some(LuaAttr::With(path)) => derive_into_lua_with(ast, path),
-		_ => derive_into_lua_table(ast)
+		_ => derive_into_lua_direct(ast)
 	}
 }

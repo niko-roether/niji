@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use niji_macros::IntoLua;
 use serde::{Deserialize, Serialize};
@@ -64,10 +64,30 @@ pub struct Theme {
 }
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
-pub struct Config {
+pub struct GeneralConfig {
 	pub icons: String,
 	pub cursor: String,
 	pub cursor_size: u32,
 	pub font_family: String,
 	pub font_size: u32
+}
+
+#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ModuleConfig {
+	String(String),
+	Int(i64),
+	Float(f64),
+	Bool(bool),
+	Vec(Vec<ModuleConfig>),
+	Map(HashMap<String, ModuleConfig>)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+	#[serde(flatten)]
+	pub general: GeneralConfig,
+
+	#[serde(flatten)]
+	pub modules: HashMap<String, ModuleConfig>
 }

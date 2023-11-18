@@ -19,13 +19,7 @@ macro_rules! define_log_function {
 impl ConsoleApi {
 	fn get_source(lua: &Lua) -> mlua::Result<String> {
 		let module_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
-		if let Some(module_name) = &module_ctx.name {
-			Ok(format!("module:{module_name}"))
-		} else {
-			Err(mlua::Error::runtime(
-				"Console invocation failed; not in module context"
-			))
-		}
+		Ok(format!("module:{}", module_ctx.name))
 	}
 
 	define_log_function!(info);

@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use config::{ColorScheme, Config, Palette, Theme, UiTheme};
+use config::{ColorScheme, GeneralConfig, ModuleConfig, Palette, Theme, UiTheme};
 use file_manager::FileManager;
 use files::Files;
 use lua::runtime::{LuaRuntime, LuaRuntimeInit};
@@ -27,7 +27,7 @@ fn main() {
 	let files = Files::init(&xdg).unwrap();
 	let file_manager = FileManager::new(&files).unwrap();
 
-	let _config = Config {
+	let _config = GeneralConfig {
 		icons: "Abc".to_string(),
 		cursor: "Cde".to_string(),
 		cursor_size: 69,
@@ -71,7 +71,11 @@ fn main() {
 		}
 	};
 
-	let module = match Module::load(&lua, &PathBuf::from("/home/niko/.config/niji/modules/test")) {
+	let module = match Module::load(
+		&lua,
+		&PathBuf::from("/home/niko/.config/niji/modules/test"),
+		ModuleConfig::Int(69)
+	) {
 		Ok(m) => m,
 		Err(err) => {
 			console::error!("{err}");
