@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::utils::{lerp, oklch::OklchColor};
 
-#[derive(Debug, Clone, Copy, PartialEq, SerializeDisplay, DeserializeFromStr)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, SerializeDisplay, DeserializeFromStr)]
 #[repr(C, align(4))]
 pub struct Color {
 	pub a: u8,
@@ -121,36 +121,6 @@ impl FromStr for Color {
 		};
 
 		Ok(Self::from(col))
-	}
-}
-
-impl mlua::UserData for Color {
-	fn add_fields<'lua, F: mlua::UserDataFields<'lua, Self>>(fields: &mut F) {
-		fields.add_field_method_get("r", |_, this| Ok(this.r));
-		fields.add_field_method_get("g", |_, this| Ok(this.g));
-		fields.add_field_method_get("b", |_, this| Ok(this.b));
-		fields.add_field_method_get("a", |_, this| Ok(this.a));
-	}
-
-	fn add_methods<'lua, M: mlua::UserDataMethods<'lua, Self>>(methods: &mut M) {
-		methods.add_method("lighten", |_, this, amount: f32| Ok(this.lighten(amount)));
-		methods.add_method("darken", |_, this, amount: f32| Ok(this.darken(amount)));
-		methods.add_meta_method("__tostring", |_, this, ()| Ok(this.to_string()));
-	}
-}
-
-impl<'lua> FromLua<'lua> for Color {
-	fn from_lua(value: mlua::Value<'lua>, _: &'lua mlua::Lua) -> mlua::Result<Self> {
-		match value {
-			mlua::Value::String(str) => {
-				Color::from_str(str.to_str()?).map_err(mlua::Error::runtime)
-			}
-			mlua::Value::UserData(data) => {
-				let color_ref = data.borrow::<Color>()?;
-				Ok(*color_ref)
-			}
-			_ => Err(mlua::Error::runtime("Cannot cast this value to a color!"))
-		}
 	}
 }
 
