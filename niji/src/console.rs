@@ -5,19 +5,15 @@ use std::{
 	sync::atomic::{AtomicBool, AtomicU8, Ordering}
 };
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Default, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 #[repr(u8)]
 pub enum LogLevel {
 	Quiet = 0,
-	Normal = 1,
-	Verbose = 2
-}
 
-impl Default for LogLevel {
-	#[inline]
-	fn default() -> Self {
-		Self::Normal
-	}
+	#[default]
+	Normal = 1,
+
+	Verbose = 2
 }
 
 static LOG_LEVEL: AtomicU8 = AtomicU8::new(LogLevel::Normal as u8);
