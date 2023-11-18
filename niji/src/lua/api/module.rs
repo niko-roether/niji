@@ -11,7 +11,7 @@ impl Module for ModuleApi {
 		let meta = lua.create_table()?;
 		meta.raw_set(
 			"__index",
-			lua.create_function(|lua, index: String| {
+			lua.create_function(|lua, (_, index): (mlua::Value, String)| {
 				let module_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
 				match index.as_str() {
 					"name" => Ok(module_ctx.name.clone().into_lua(lua)?),
