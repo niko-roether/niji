@@ -323,7 +323,7 @@ impl Template {
 		})
 	}
 
-	pub fn format_as(&mut self, ty: &str, fmtstr: String) -> FmtResult<()> {
+	pub fn set_format(&mut self, ty: &str, fmtstr: String) -> FmtResult<()> {
 		self.ctx.fmt.insert(ty.to_string(), fmtstr);
 
 		Ok(())

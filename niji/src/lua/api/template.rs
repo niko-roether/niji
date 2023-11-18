@@ -35,9 +35,9 @@ fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn ToTemplateData
 impl UserData for Template {
 	fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
 		methods.add_method_mut(
-			"format_as",
+			"set_format",
 			|_, this, (ty, fmtstr): (String, String)| -> mlua::Result<()> {
-				this.format_as(&ty, fmtstr).map_err(mlua::Error::runtime)
+				this.set_format(&ty, fmtstr).map_err(mlua::Error::runtime)
 			}
 		);
 

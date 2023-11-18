@@ -25,6 +25,7 @@ pub struct Files {
 	config_file: PathBuf,
 	current_theme_file: PathBuf,
 	managed_files_file: PathBuf,
+	output_dir: PathBuf,
 	themes_dirs: Vec<PathBuf>,
 	modules_dirs: Vec<PathBuf>
 }
@@ -39,9 +40,11 @@ impl Files {
 
 	pub fn init(xdg: &XdgDirs) -> Result<Self, InitError> {
 		let config_dir = xdg.config_home.join(Self::PREFIX);
+		let data_dir = xdg.data_home.join(Self::PREFIX);
 		let state_dir = xdg.state_home.join(Self::PREFIX);
 
 		init_dir(&config_dir)?;
+		init_dir(&data_dir)?;
 		init_dir(&state_dir)?;
 
 		let config_file = config_dir.join(Self::CONFIG_FILE);
@@ -70,6 +73,7 @@ impl Files {
 
 		Ok(Self {
 			config_file,
+			output_dir: data_dir,
 			current_theme_file,
 			managed_files_file,
 			themes_dirs,
