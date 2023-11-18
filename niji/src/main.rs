@@ -16,6 +16,7 @@ mod file_manager;
 mod files;
 mod lua;
 mod module;
+mod template;
 mod types;
 mod utils;
 

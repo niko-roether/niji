@@ -3,13 +3,15 @@ use mlua::Lua;
 use crate::{file_manager::FileManager, utils::xdg::XdgDirs};
 
 use self::{
-	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi, xdg::XdgApi
+	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi,
+	template::TemplateApi, xdg::XdgApi
 };
 
 mod color;
 mod console;
 mod filesystem;
 mod module;
+mod template;
 mod xdg;
 
 struct ModuleContext {
@@ -45,6 +47,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	insert_module::<ModuleApi>(lua, &api)?;
 	insert_module::<ConsoleApi>(lua, &api)?;
 	insert_module::<XdgApi>(lua, &api)?;
+	insert_module::<TemplateApi>(lua, &api)?;
 
 	lua.globals().set(API_GLOBAL, api)?;
 
