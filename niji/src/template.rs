@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash, path::Path};
+use std::{collections::HashMap, fs, io, path::Path};
 
 use strfmt::{strfmt_map, DisplayStr};
 use thiserror::Error;
@@ -14,13 +14,16 @@ pub enum FmtError {
 #[derive(Debug, Error)]
 pub enum InitError {
 	#[error("Failed to load {0}: {1}")]
-	Failed(String, mustache::Error)
+	Load(String, io::Error),
+
+	#[error("Failed to parse the template: {0}")]
+	Parse(ramhorns::Error)
 }
 
 #[derive(Debug, Error)]
 pub enum RenderError {
-	#[error("Failed to render template {0}")]
-	Mustache(#[from] mustache::Error)
+	#[error("Failed to render template: {0}")]
+	Mustache(#[from] ramhorns::Error)
 }
 
 pub type FmtResult<T> = Result<T, FmtError>;
@@ -115,67 +118,189 @@ impl TemplateContext {
 	}
 }
 
-pub trait TemplateData {
-	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data>;
+#[derive(Debug, Clone)]
+pub enum TemplateData {
+	Bool(bool),
+	String(String),
+	Vec(Vec<TemplateData>),
+	Map(HashMap<String, TemplateData>)
 }
 
-impl<V> TemplateData for V
+macro_rules! template_data_delegate {
+    ($self:ident.$name:ident($($arg:expr),*)) => {
+        match $self {
+            TemplateData::Bool(bool) => bool.$name($($arg),*),
+            TemplateData::String(string) => string.$name($($arg),*),
+            TemplateData::Vec(vec) => vec.$name($($arg),*),
+            TemplateData::Map(map) => map.$name($($arg),*)
+        }
+    };
+}
+
+impl ramhorns::Content for TemplateData {
+	#[inline]
+	fn is_truthy(&self) -> bool {
+		template_data_delegate!(self.is_truthy())
+	}
+
+	#[inline]
+	fn capacity_hint(&self, tpl: &ramhorns::Template) -> usize {
+		template_data_delegate!(self.capacity_hint(tpl))
+	}
+
+	#[inline]
+	fn render_escaped<E: ramhorns::encoding::Encoder>(
+		&self,
+		encoder: &mut E
+	) -> Result<(), E::Error> {
+		template_data_delegate!(self.render_escaped(encoder))
+	}
+
+	#[inline]
+	fn render_section<C, E>(
+		&self,
+		section: ramhorns::Section<C>,
+		encoder: &mut E
+	) -> Result<(), E::Error>
+	where
+		C: ramhorns::traits::ContentSequence,
+		E: ramhorns::encoding::Encoder
+	{
+		template_data_delegate!(self.render_section(section, encoder))
+	}
+
+	#[inline]
+	fn render_inverse<C, E>(
+		&self,
+		section: ramhorns::Section<C>,
+		encoder: &mut E
+	) -> Result<(), E::Error>
+	where
+		C: ramhorns::traits::ContentSequence,
+		E: ramhorns::encoding::Encoder
+	{
+		template_data_delegate!(self.render_inverse(section, encoder))
+	}
+
+	#[inline]
+	fn render_unescaped<E: ramhorns::encoding::Encoder>(
+		&self,
+		encoder: &mut E
+	) -> Result<(), E::Error> {
+		template_data_delegate!(self.render_unescaped(encoder))
+	}
+
+	#[inline]
+	fn render_field_escaped<E: ramhorns::encoding::Encoder>(
+		&self,
+		hash: u64,
+		name: &str,
+		encoder: &mut E
+	) -> Result<bool, E::Error> {
+		template_data_delegate!(self.render_field_escaped(hash, name, encoder))
+	}
+
+	#[inline]
+	fn render_field_section<C, E>(
+		&self,
+		hash: u64,
+		name: &str,
+		section: ramhorns::Section<C>,
+		encoder: &mut E
+	) -> Result<bool, E::Error>
+	where
+		C: ramhorns::traits::ContentSequence,
+		E: ramhorns::encoding::Encoder
+	{
+		template_data_delegate!(self.render_field_section(hash, name, section, encoder))
+	}
+
+	#[inline]
+	fn render_field_inverse<C, E>(
+		&self,
+		hash: u64,
+		name: &str,
+		section: ramhorns::Section<C>,
+		encoder: &mut E
+	) -> Result<bool, E::Error>
+	where
+		C: ramhorns::traits::ContentSequence,
+		E: ramhorns::encoding::Encoder
+	{
+		template_data_delegate!(self.render_field_inverse(hash, name, section, encoder))
+	}
+
+	#[inline]
+	fn render_field_unescaped<E: ramhorns::encoding::Encoder>(
+		&self,
+		hash: u64,
+		name: &str,
+		encoder: &mut E
+	) -> Result<bool, E::Error> {
+		template_data_delegate!(self.render_field_unescaped(hash, name, encoder))
+	}
+}
+
+pub trait ToTemplateData {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<TemplateData>;
+}
+
+impl<V> ToTemplateData for V
 where
 	V: FmtValue
 {
-	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<TemplateData> {
 		let fmtstr = ctx
 			.fmt
 			.get(self.type_name())
 			.map(String::as_str)
 			.unwrap_or(self.default_fmt());
 
-		self.format(fmtstr).map(mustache::Data::String)
+		self.format(fmtstr).map(TemplateData::String)
 	}
 }
 
-impl TemplateData for bool {
-	fn to_data(&self, _: &TemplateContext) -> FmtResult<mustache::Data> {
-		Ok(mustache::Data::Bool(*self))
+impl ToTemplateData for bool {
+	fn to_data(&self, _: &TemplateContext) -> FmtResult<TemplateData> {
+		Ok(TemplateData::Bool(*self))
 	}
 }
 
-impl<T> TemplateData for Vec<T>
+impl<T> ToTemplateData for Vec<T>
 where
-	T: TemplateData
+	T: ToTemplateData
 {
-	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<TemplateData> {
 		let mut data_vec = Vec::with_capacity(self.len());
 		for value in self {
 			data_vec.push(value.to_data(ctx)?);
 		}
-		Ok(mustache::Data::Vec(data_vec))
+		Ok(TemplateData::Vec(data_vec))
 	}
 }
 
-impl<V> TemplateData for HashMap<String, V>
+impl<V> ToTemplateData for HashMap<String, V>
 where
-	V: TemplateData
+	V: ToTemplateData
 {
-	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<TemplateData> {
 		let mut data_map = HashMap::new();
 		for (key, value) in self {
 			data_map.insert(key.to_string(), value.to_data(ctx)?);
 		}
-		Ok(mustache::Data::Map(data_map))
+		Ok(TemplateData::Map(data_map))
 	}
 }
 
-impl TemplateData for Box<dyn TemplateData> {
-	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<mustache::Data> {
+impl ToTemplateData for Box<dyn ToTemplateData> {
+	fn to_data(&self, ctx: &TemplateContext) -> FmtResult<TemplateData> {
 		self.as_ref().to_data(ctx)
 	}
 }
 
-#[derive(Debug, Clone)]
 pub struct Template {
 	ctx: TemplateContext,
-	template: mustache::Template
+	template: ramhorns::Template<'static>
 }
 
 impl Template {
@@ -183,18 +308,14 @@ impl Template {
 	where
 		P: AsRef<Path>
 	{
-		let template = mustache::compile_path(path.as_ref())
-			.map_err(|e| InitError::Failed(path.as_ref().to_string_lossy().into_owned(), e))?;
+		let path_name = path.as_ref().display().to_string();
+		let source = fs::read_to_string(path).map_err(|e| InitError::Load(path_name, e))?;
 
-		Ok(Self {
-			ctx: TemplateContext::new(),
-			template
-		})
+		Self::parse(source)
 	}
 
-	pub fn parse(template: &str) -> Result<Self, InitError> {
-		let template = mustache::compile_str(template)
-			.map_err(|e| InitError::Failed(String::from("inline template"), e))?;
+	pub fn parse(source: String) -> Result<Self, InitError> {
+		let template = ramhorns::Template::new(source).map_err(|e| InitError::Parse(e))?;
 
 		Ok(Self {
 			ctx: TemplateContext::new(),
@@ -216,25 +337,20 @@ impl Template {
 	}
 }
 
-#[derive(Debug)]
 pub struct TemplateRenderer<'a> {
 	template: &'a Template,
-	data_map: HashMap<String, mustache::Data>
+	data_map: HashMap<String, TemplateData>
 }
 
 impl<'a> TemplateRenderer<'a> {
-	pub fn set_value(&mut self, name: String, value: impl TemplateData) -> FmtResult<()> {
+	pub fn set_value(&mut self, name: String, value: impl ToTemplateData) -> FmtResult<()> {
 		let data = value.to_data(&self.template.ctx)?;
 		self.data_map.insert(name, data);
 
 		Ok(())
 	}
 
-	pub fn render(self) -> Result<String, RenderError> {
-		let string = self
-			.template
-			.template
-			.render_data_to_string(&mustache::Data::Map(self.data_map))?;
-		Ok(string)
+	pub fn render(self) -> String {
+		self.template.template.render(&self.data_map)
 	}
 }

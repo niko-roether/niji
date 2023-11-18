@@ -1,14 +1,14 @@
 use mlua::{IntoLua, Lua, UserData, UserDataMethods};
 
 use crate::{
-	template::{Template, TemplateData},
+	template::{Template, ToTemplateData},
 	types::color::Color
 };
 
 use super::Module;
 
-fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn TemplateData>> {
-	let template_val: Box<dyn TemplateData> = match value {
+fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn ToTemplateData>> {
+	let template_val: Box<dyn ToTemplateData> = match value {
 		mlua::Value::Number(num) => Box::new(num),
 		mlua::Value::Integer(int) => Box::new(int),
 		mlua::Value::Boolean(bool) => Box::new(bool),
@@ -53,9 +53,7 @@ impl UserData for Template {
 						.map_err(mlua::Error::runtime)?;
 				}
 
-				let result = renderer.render().map_err(mlua::Error::runtime)?;
-
-				Ok(result)
+				Ok(renderer.render())
 			}
 		)
 	}
@@ -71,7 +69,7 @@ impl TemplateApi {
 	}
 
 	fn parse(lua: &Lua, template: String) -> mlua::Result<mlua::Value> {
-		let template = Template::parse(&template).map_err(mlua::Error::runtime)?;
+		let template = Template::parse(template).map_err(mlua::Error::runtime)?;
 
 		template.into_lua(lua)
 	}
