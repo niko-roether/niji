@@ -27,7 +27,7 @@ pub struct Module<'lua> {
 }
 
 impl<'lua> Module<'lua> {
-	const ENTRY_POINT: &str = "module.lua";
+	const ENTRY_POINT: &'static str = "module.lua";
 
 	fn new(lua: &'lua Lua, directory: PathBuf) -> Self {
 		Self {
