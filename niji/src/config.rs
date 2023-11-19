@@ -1,9 +1,10 @@
-use std::{collections::HashMap, fmt};
+use std::{collections::HashMap, fmt, fs, io};
 
 use niji_macros::IntoLua;
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
-use crate::types::color::Color;
+use crate::{files::Files, types::color::Color};
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 #[lua_with("ToString::to_string")]
@@ -72,9 +73,11 @@ pub struct GeneralConfig {
 	pub font_size: u32
 }
 
-#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, IntoLua, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ModuleConfig {
+	#[default]
+	Nil,
 	String(String),
 	Int(i64),
 	Float(f64),
@@ -85,9 +88,9 @@ pub enum ModuleConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-	#[serde(flatten)]
+	pub modules: Vec<String>,
 	pub general: GeneralConfig,
 
 	#[serde(flatten)]
-	pub modules: HashMap<String, ModuleConfig>
+	pub module_config: HashMap<String, ModuleConfig>
 }

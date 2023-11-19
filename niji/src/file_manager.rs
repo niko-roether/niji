@@ -25,7 +25,7 @@ pub enum Error {
 }
 
 pub struct FileManager {
-	managed_files_file: File,
+	managed_files_file: PathBuf,
 	managed_files: HashMap<PathBuf, u64>
 }
 
@@ -37,19 +37,15 @@ impl FileManager {
 			})?;
 		}
 
-		let mut options = OpenOptions::new();
-		options.write(true);
-		options.read(true);
-		let managed_files_file = options.open(files.managed_files_file()).unwrap();
-
 		Ok(Self {
-			managed_files_file,
+			managed_files_file: files.managed_files_file().to_path_buf(),
 			managed_files: HashMap::new()
 		})
 	}
 
 	pub fn manage(&mut self, path: &Path) -> Result<(), Error> {
 		if !path.exists() {
+			console::debug!("Creating new managed file at {}", path.display());
 			self.init_new_file(path)
 		} else {
 			self.manage_existing_file(path)
@@ -67,6 +63,7 @@ impl FileManager {
 
 	fn manage_existing_file(&mut self, path: &Path) -> Result<(), Error> {
 		if self.is_managed(path)? {
+			console::debug!("Writing to managed file at {}", path.display());
 			return Ok(());
 		}
 
@@ -145,7 +142,8 @@ impl FileManager {
 
 		let mut reader = csv::ReaderBuilder::new()
 			.has_headers(false)
-			.from_reader(&self.managed_files_file);
+			.from_path(&self.managed_files_file)
+			.map_err(Error::CsvAccess)?;
 
 		for result in reader.deserialize::<(PathBuf, u64)>() {
 			let (path, hash) = result?;
@@ -155,7 +153,8 @@ impl FileManager {
 	}
 
 	fn write_changes(&self) -> Result<(), Error> {
-		let mut writer = csv::Writer::from_writer(&self.managed_files_file);
+		let mut writer =
+			csv::Writer::from_path(&self.managed_files_file).map_err(Error::CsvAccess)?;
 		for (path, hash) in self.managed_files.iter() {
 			writer.serialize((path, hash))?;
 		}

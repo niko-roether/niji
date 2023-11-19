@@ -3,7 +3,7 @@ use std::{
 	path::{Path, PathBuf}
 };
 
-use mlua::{FromLuaMulti, IntoLua, IntoLuaMulti, Lua};
+use mlua::{FromLuaMulti, IntoLuaMulti, Lua};
 
 use crate::{config::ModuleConfig, console, file_manager::FileManager, utils::xdg::XdgDirs};
 
@@ -19,7 +19,7 @@ pub struct LuaRuntime {
 }
 
 #[derive(Debug)]
-pub struct Module<'lua> {
+pub struct LuaModule<'lua> {
 	lua: &'lua Lua,
 	name: String,
 	directory: PathBuf,
@@ -27,7 +27,7 @@ pub struct Module<'lua> {
 	table: Option<mlua::Table<'lua>>
 }
 
-impl<'lua> Module<'lua> {
+impl<'lua> LuaModule<'lua> {
 	const ENTRY_POINT: &'static str = "module.lua";
 
 	fn new(lua: &'lua Lua, directory: PathBuf, config: ModuleConfig) -> Self {
@@ -103,12 +103,12 @@ impl LuaRuntime {
 		Ok(Self { lua })
 	}
 
-	pub fn load_module<'lua>(
+	pub fn load_lua_module<'lua>(
 		&'lua self,
 		path: &Path,
 		config: ModuleConfig
-	) -> mlua::Result<Module<'lua>> {
-		let mut module = Module::new(&self.lua, path.to_path_buf(), config);
+	) -> mlua::Result<LuaModule<'lua>> {
+		let mut module = LuaModule::new(&self.lua, path.to_path_buf(), config);
 		module.load()?;
 		Ok(module)
 	}

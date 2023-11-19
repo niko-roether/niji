@@ -61,32 +61,30 @@ fn derive_into_lua_direct(ast: DeriveInput) -> TokenStream {
 }
 
 fn derive_into_lua_enum(name: Ident, data: DataEnum) -> TokenStream {
-	let variant_names: Vec<&Ident> = data
+	let variant_mappings: Vec<proc_macro2::TokenStream> = data
 		.variants
 		.iter()
 		.map(|v| {
-			if v.fields.len() != 1 || !matches!(v.fields, Fields::Unnamed(..)) {
+			if v.fields.len() > 1 || !matches!(v.fields, Fields::Unit | Fields::Unnamed(..)) {
 				abort!(
 					v,
-					"Only enum members with exactly one unnamed field are supported"
+					"Only enum members with zero or one unnamed fields are supported"
 				);
 			}
-			&v.ident
-		})
-		.collect();
+			let name = &v.ident;
 
-	let variants_into_lua: Vec<proc_macro2::TokenStream> = data
-		.variants
-		.iter()
-		.map(|v| {
-			let lua_attr = get_lua_attr(&v.attrs);
+			if v.fields.is_empty() {
+				quote! { Self::#name => Ok(mlua::Value::Nil) }
+			} else {
+				let lua_attr = get_lua_attr(&v.attrs);
 
-			match lua_attr {
-				Some(LuaAttr::With(path)) => quote! {
-					mlua::IntoLua::into_lua(#path(value), lua)
-				},
-				_ => quote! {
-					mlua::IntoLua::into_lua(value, lua)
+				match lua_attr {
+					Some(LuaAttr::With(path)) => quote! {
+						Self::#name(value) => mlua::IntoLua::into_lua(#path(&value), lua)
+					},
+					None => quote! {
+						Self::#name(value) => mlua::IntoLua::into_lua(value, lua)
+					}
 				}
 			}
 		})
@@ -96,7 +94,7 @@ fn derive_into_lua_enum(name: Ident, data: DataEnum) -> TokenStream {
 		impl<'lua> mlua::IntoLua<'lua> for #name {
 			fn into_lua(self, lua: &'lua mlua::Lua) -> mlua::Result<mlua::Value<'lua>> {
 				match self {
-					#(Self::#variant_names(value) => #variants_into_lua),*
+					#(#variant_mappings),*
 				}
 			}
 		}

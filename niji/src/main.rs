@@ -10,13 +10,16 @@ use module::Module;
 use types::color::Color;
 use utils::xdg::XdgDirs;
 
+mod app;
 mod config;
 mod console;
 mod file_manager;
 mod files;
 mod lua;
 mod module;
+mod module_manager;
 mod template;
+mod theme_manager;
 mod types;
 mod utils;
 

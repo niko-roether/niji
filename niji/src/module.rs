@@ -4,7 +4,7 @@ use thiserror::Error;
 
 use crate::{
 	config::{GeneralConfig, ModuleConfig, Theme},
-	lua::{self, runtime::LuaRuntime}
+	lua::runtime::{LuaModule, LuaRuntime}
 };
 
 #[derive(Debug, Error)]
@@ -22,7 +22,7 @@ pub enum ExecError {
 	LuaErr(#[from] mlua::Error)
 }
 
-pub struct Module<'lua>(lua::runtime::Module<'lua>);
+pub struct Module<'lua>(LuaModule<'lua>);
 
 impl<'lua> Module<'lua> {
 	pub fn load(
@@ -30,7 +30,7 @@ impl<'lua> Module<'lua> {
 		path: &Path,
 		config: ModuleConfig
 	) -> Result<Self, LoadError> {
-		let module = runtime.load_module(path, config)?;
+		let module = runtime.load_lua_module(path, config)?;
 		Ok(Self(module))
 	}
 
