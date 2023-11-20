@@ -127,8 +127,6 @@ impl fmt::Display for Palette {
 		f.write_str(&colored_square(self.cyan))?;
 		f.write_str(&colored_square(self.white))?;
 
-		writeln!(f)?;
-
 		Ok(())
 	}
 }
