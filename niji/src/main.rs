@@ -3,6 +3,7 @@
 use app::NijiApp;
 
 mod app;
+mod cli;
 mod config;
 mod console;
 mod file_manager;
@@ -26,16 +27,5 @@ fn main() {
 		}
 	};
 
-	console::info!(
-		"{}",
-		match app.current_theme() {
-			Ok(theme) => theme
-				.map(|t| t.name)
-				.unwrap_or("<no theme set>".to_string()),
-			Err(err) => {
-				console::error!("{err}");
-				return;
-			}
-		}
-	)
+	cli::run();
 }
