@@ -71,7 +71,7 @@ pub fn run() {
 				.subcommand(
 					Command::new("show")
 						.about("Display a preview of a theme in the console")
-						.arg(Arg::new("name").long("name").short('n').help(
+						.arg(Arg::new("name").help(
 							"The theme to preview. Defaults to the current theme if not set."
 						))
 				)
@@ -144,11 +144,22 @@ fn cmd_theme_get(app: &NijiApp) {
 fn cmd_theme_show(app: &NijiApp, args: &ArgMatches) {
 	let name = args.get_one::<String>("name");
 
+	let resolved_name;
+
 	let theme = match name {
-		Some(name) => handle!(app.get_theme(name)),
-		None => handle!(app.current_theme()).values
+		Some(name) => {
+			resolved_name = name.clone();
+			handle!(app.get_theme(name))
+		}
+		None => {
+			let theme = handle!(app.current_theme());
+			resolved_name = theme.name;
+			theme.values
+		}
 	};
 
+	println!("Theme \"{resolved_name}\":");
+	println!();
 	println!("{theme}")
 }
 

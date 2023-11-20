@@ -139,7 +139,7 @@ pub struct Theme {
 
 impl fmt::Display for Theme {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		writeln!(f, "{}\n{}", self.ui, self.palette)
+		write!(f, "{}\n{}", self.ui, self.palette)
 	}
 }
 
