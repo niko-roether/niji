@@ -4,7 +4,7 @@ use mlua::{IntoLua, Lua};
 
 use crate::{console, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
-use super::{console, Module, ModuleContext};
+use super::{Module, ModuleContext};
 
 pub struct FilesystemApi;
 
