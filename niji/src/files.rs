@@ -1,5 +1,4 @@
 use std::{
-	cell::Ref,
 	fs::{self, read_dir},
 	io,
 	path::{Path, PathBuf}
@@ -13,7 +12,7 @@ use crate::utils::{
 };
 
 #[derive(Debug, Error)]
-pub enum InitError {
+pub enum Error {
 	#[error("The HOME environment variable is not set!")]
 	NoHome,
 
@@ -39,7 +38,7 @@ impl Files {
 	const THEMES_DIR: &'static str = "themes";
 	const MODULES_DIR: &'static str = "modules";
 
-	pub fn new(xdg: &XdgDirs) -> Result<Self, InitError> {
+	pub fn new(xdg: &XdgDirs) -> Result<Self, Error> {
 		let config_dir = xdg.config_home.join(Self::PREFIX);
 		let data_dir = xdg.data_home.join(Self::PREFIX);
 		let state_dir = xdg.state_home.join(Self::PREFIX);
@@ -106,8 +105,8 @@ impl Files {
 	}
 }
 
-fn init_dir(dir: &Path) -> Result<(), InitError> {
-	fs::create_dir_all(dir).map_err(|err| InitError::CreationFailed(dir.display().to_string(), err))
+fn init_dir(dir: &Path) -> Result<(), Error> {
+	fs::create_dir_all(dir).map_err(|err| Error::CreationFailed(dir.display().to_string(), err))
 }
 
 fn iter_valid_entries(dir: &Path) -> impl Iterator<Item = PathBuf> {

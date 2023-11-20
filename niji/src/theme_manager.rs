@@ -1,10 +1,4 @@
-use std::{
-	borrow::Cow,
-	ffi::{OsStr, OsString},
-	fs, io,
-	path::PathBuf,
-	rc::Rc
-};
+use std::{ffi::OsString, fs, io, path::PathBuf, rc::Rc};
 
 use thiserror::Error;
 
@@ -29,6 +23,12 @@ pub struct ThemeManager {
 	files: Rc<Files>
 }
 
+#[derive(Debug, Clone)]
+pub struct NamedTheme {
+	pub name: String,
+	pub values: Theme
+}
+
 impl ThemeManager {
 	pub fn new(files: Rc<Files>) -> Self {
 		Self { files }
@@ -41,11 +41,24 @@ impl ThemeManager {
 			.collect()
 	}
 
-	pub fn current_theme(&self) -> Result<Theme, Error> {
+	pub fn current_theme(&self) -> Result<Option<NamedTheme>, Error> {
+		if !self.files.current_theme_file().exists() {
+			self.reset_theme();
+		}
+
 		let current_theme =
 			fs::read_to_string(self.files.current_theme_file()).map_err(Error::AccessThemeState)?;
 
-		Ok(config::read(current_theme)?)
+		if current_theme.is_empty() {
+			return Ok(None);
+		}
+
+		let values: Theme = config::read(&current_theme)?;
+
+		Ok(Some(NamedTheme {
+			name: current_theme,
+			values
+		}))
 	}
 
 	pub fn set_theme(&self, name: String) -> Result<(), Error> {
@@ -53,6 +66,11 @@ impl ThemeManager {
 			return Err(Error::UnknownTheme(name));
 		}
 		fs::write(self.files.current_theme_file(), name).map_err(Error::AccessThemeState)?;
+		Ok(())
+	}
+
+	pub fn reset_theme(&self) -> Result<(), Error> {
+		fs::write(self.files.current_theme_file(), "").map_err(Error::AccessThemeState)?;
 		Ok(())
 	}
 

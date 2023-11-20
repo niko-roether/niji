@@ -66,11 +66,11 @@ pub struct Theme {
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct GeneralConfig {
-	pub icons: String,
-	pub cursor: String,
-	pub cursor_size: u32,
-	pub font_family: String,
-	pub font_size: u32
+	pub icons: Option<String>,
+	pub cursor: Option<String>,
+	pub cursor_size: Option<u32>,
+	pub font_family: Option<String>,
+	pub font_size: Option<u32>
 }
 
 #[derive(Debug, Default, Clone, IntoLua, Serialize, Deserialize)]
