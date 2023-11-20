@@ -4,7 +4,6 @@ use thiserror::Error;
 
 use crate::{
 	config::{self, Config, Theme},
-	console,
 	file_manager::{self, FileManager},
 	files::{self, Files},
 	module_manager::{self, ModuleManager, ModuleManagerInit},
