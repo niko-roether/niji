@@ -35,7 +35,50 @@ pub struct UiTheme {
 	pub text_primary: Color,
 	pub info: Color,
 	pub warning: Color,
-	pub error: Color
+	pub error: Color,
+	pub text_info: Color,
+	pub text_warning: Color,
+	pub text_error: Color
+}
+
+fn color_display(text: &str, bg_col: Color, fg_col: Color) -> String {
+	format!(
+		"\x1b[48;2;{};{};{}m\x1b[38;2;{};{};{}m {text} \x1b[0m",
+		bg_col.r, bg_col.g, bg_col.b, fg_col.r, fg_col.g, fg_col.b
+	)
+}
+
+impl fmt::Display for UiTheme {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		writeln!(f, "Color scheme: {}", self.color_scheme)?;
+		writeln!(
+			f,
+			"{}",
+			color_display("Background", self.background, self.text_background)
+		)?;
+		writeln!(
+			f,
+			"{}",
+			color_display("Surface", self.surface, self.text_surface)
+		)?;
+		writeln!(
+			f,
+			"{}",
+			color_display("Primary", self.primary, self.text_primary)
+		)?;
+
+		writeln!(f)?;
+
+		writeln!(f, "{}", color_display("Info", self.info, self.text_info))?;
+		writeln!(
+			f,
+			"{}",
+			color_display("Warning", self.warning, self.text_warning)
+		)?;
+		writeln!(f, "{}", color_display("Error", self.error, self.text_error))?;
+
+		Ok(())
+	}
 }
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
@@ -58,10 +101,48 @@ pub struct Palette {
 	pub white: Color
 }
 
+fn colored_square(color: Color) -> String {
+	format!("\x1b[48;2;{};{};{}m   \x1b[0m", color.r, color.g, color.b)
+}
+
+impl fmt::Display for Palette {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		f.write_str(&colored_square(self.black))?;
+		f.write_str(&colored_square(self.dark_red))?;
+		f.write_str(&colored_square(self.dark_green))?;
+		f.write_str(&colored_square(self.orange))?;
+		f.write_str(&colored_square(self.dark_blue))?;
+		f.write_str(&colored_square(self.purple))?;
+		f.write_str(&colored_square(self.turquoise))?;
+		f.write_str(&colored_square(self.light_gray))?;
+
+		writeln!(f)?;
+
+		f.write_str(&colored_square(self.dark_gray))?;
+		f.write_str(&colored_square(self.bright_red))?;
+		f.write_str(&colored_square(self.bright_green))?;
+		f.write_str(&colored_square(self.yellow))?;
+		f.write_str(&colored_square(self.bright_blue))?;
+		f.write_str(&colored_square(self.magenta))?;
+		f.write_str(&colored_square(self.cyan))?;
+		f.write_str(&colored_square(self.white))?;
+
+		writeln!(f)?;
+
+		Ok(())
+	}
+}
+
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Theme {
 	pub ui: UiTheme,
 	pub palette: Palette
+}
+
+impl fmt::Display for Theme {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		writeln!(f, "{}\n{}", self.ui, self.palette)
+	}
 }
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]

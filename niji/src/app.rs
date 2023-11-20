@@ -3,7 +3,7 @@ use std::rc::Rc;
 use thiserror::Error;
 
 use crate::{
-	config::{self, Config},
+	config::{self, Config, Theme},
 	console,
 	file_manager::{self, FileManager},
 	files::{self, Files},
@@ -56,8 +56,12 @@ impl NijiApp {
 		})
 	}
 
-	pub fn current_theme(&self) -> Result<Option<NamedTheme>, Error> {
+	pub fn current_theme(&self) -> Result<NamedTheme, Error> {
 		Ok(self.theme_manager.current_theme()?)
+	}
+
+	pub fn get_theme(&self, name: &str) -> Result<Theme, Error> {
+		Ok(self.theme_manager.get_theme(name)?)
 	}
 
 	pub fn apply_config(&self) -> Result<(), Error> {
@@ -70,10 +74,7 @@ impl NijiApp {
 	}
 
 	pub fn apply_theme(&self) -> Result<(), Error> {
-		let Some(theme) = self.current_theme()? else {
-			console::warn!("No theme is currently set; theme application will be skipped");
-			return Ok(());
-		};
+		let theme = self.current_theme()?;
 		self.module_manager.apply(&theme.values)?;
 		Ok(())
 	}

@@ -69,6 +69,13 @@ pub fn run() {
 				.subcommand_required(true)
 				.subcommand(Command::new("get").about("Get the name of the current theme"))
 				.subcommand(
+					Command::new("show")
+						.about("Display a preview of a theme in the console")
+						.arg(Arg::new("name").long("name").short('n').help(
+							"The theme to preview. Defaults to the current theme if not set."
+						))
+				)
+				.subcommand(
 					Command::new("set")
 						.about("Change the current theme")
 						.arg_required_else_help(true)
@@ -121,6 +128,7 @@ fn cmd_apply(app: &NijiApp) {
 fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
 	match args.subcommand() {
 		Some(("get", _)) => cmd_theme_get(app),
+		Some(("show", args)) => cmd_theme_show(app, args),
 		Some(("set", args)) => cmd_theme_set(app, args),
 		Some(("list", _)) => cmd_theme_list(app),
 		Some(("reset", _)) => cmd_theme_reset(app),
@@ -130,28 +138,27 @@ fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
 
 fn cmd_theme_get(app: &NijiApp) {
 	let theme = handle!(app.current_theme());
+	println!("{}", theme.name);
+}
 
-	match theme {
-		Some(theme) => println!("{}", theme.name),
-		None => console::error!("No theme selected")
-	}
+fn cmd_theme_show(app: &NijiApp, args: &ArgMatches) {
+	let name = args.get_one::<String>("name");
+
+	let theme = match name {
+		Some(name) => handle!(app.get_theme(name)),
+		None => handle!(app.current_theme()).values
+	};
+
+	println!("{theme}")
 }
 
 fn cmd_theme_set(app: &NijiApp, args: &ArgMatches) {
 	let name = args.get_one::<String>("name").unwrap().as_str();
 	let apply = *args.get_one::<bool>("apply").unwrap();
 
-	let prev_theme = handle!(app.current_theme());
-
 	handle!(app.set_theme(name));
 	if apply {
-		handle!(app.apply_theme(), || {
-			console::debug!("Falling back to previously set theme");
-			match prev_theme {
-				Some(theme) => handle!(app.set_theme(&theme.name)),
-				None => handle!(app.reset_theme())
-			}
-		});
+		handle!(app.apply_theme());
 	}
 }
 

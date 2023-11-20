@@ -20,7 +20,10 @@ pub enum Error {
 	UnknownTheme(String),
 
 	#[error("Current theme is \"{0}\", but that theme doesn't exist!")]
-	UnknownCurrentTheme(String)
+	UnknownCurrentTheme(String),
+
+	#[error("No theme is selected")]
+	NoThemeSelected
 }
 
 pub struct ThemeManager {
@@ -52,7 +55,7 @@ impl ThemeManager {
 		themes.into_iter().collect()
 	}
 
-	pub fn current_theme(&self) -> Result<Option<NamedTheme>, Error> {
+	pub fn current_theme(&self) -> Result<NamedTheme, Error> {
 		if !self.files.current_theme_file().exists() {
 			self.reset_theme()?;
 		}
@@ -61,7 +64,7 @@ impl ThemeManager {
 			fs::read_to_string(self.files.current_theme_file()).map_err(Error::AccessThemeState)?;
 
 		if current_theme.is_empty() {
-			return Ok(None);
+			return Err(Error::NoThemeSelected);
 		}
 
 		let values: Option<Theme> = self.read_theme(&current_theme)?;
@@ -69,10 +72,15 @@ impl ThemeManager {
 			return Err(Error::UnknownCurrentTheme(current_theme));
 		};
 
-		Ok(Some(NamedTheme {
+		Ok(NamedTheme {
 			name: current_theme,
 			values
-		}))
+		})
+	}
+
+	pub fn get_theme(&self, name: &str) -> Result<Theme, Error> {
+		self.read_theme(name)?
+			.ok_or_else(|| Error::UnknownTheme(name.to_string()))
 	}
 
 	pub fn set_theme(&self, name: String) -> Result<(), Error> {
