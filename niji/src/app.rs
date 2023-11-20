@@ -75,6 +75,10 @@ impl NijiApp {
 		Ok(())
 	}
 
+	pub fn list_themes(&self) -> Vec<String> {
+		self.theme_manager.list_themes()
+	}
+
 	pub fn apply_theme(&self) -> Result<(), Error> {
 		let Some(theme) = self.current_theme()? else {
 			console::warn!("No theme is currently set; theme application will be skipped");
@@ -96,7 +100,6 @@ impl NijiApp {
 
 	pub fn set_theme(&self, name: &str) -> Result<(), Error> {
 		self.theme_manager.set_theme(name.to_string())?;
-		self.apply_theme()?;
 		Ok(())
 	}
 }

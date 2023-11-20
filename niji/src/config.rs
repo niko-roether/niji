@@ -100,14 +100,8 @@ pub enum Error {
 	#[error("Failed to read {0}: {1}")]
 	Read(String, io::Error),
 
-	#[error("Failed to write to {0}: {1}")]
-	Write(String, io::Error),
-
 	#[error("Invalid syntax in {0}: {1}")]
-	Parse(String, toml::de::Error),
-
-	#[error("Error while serializing: {0}")]
-	Serialize(#[from] toml::ser::Error)
+	Parse(String, Box<toml::de::Error>)
 }
 
 pub fn read<C, P>(path: P) -> Result<C, Error>
@@ -118,6 +112,6 @@ where
 	let config_str = fs::read_to_string(&path)
 		.map_err(|e| Error::Read(path.as_ref().display().to_string(), e))?;
 	let config = toml::from_str(&config_str)
-		.map_err(|e| Error::Parse(path.as_ref().display().to_string(), e))?;
+		.map_err(|e| Error::Parse(path.as_ref().display().to_string(), Box::new(e)))?;
 	Ok(config)
 }
