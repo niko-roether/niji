@@ -96,12 +96,10 @@ pub fn run() {
 		)
 		.get_matches();
 
-	let app = handle!(NijiApp::init());
-
-	cmd(&app, &matches)
+	cmd(&matches)
 }
 
-fn cmd(app: &NijiApp, args: &ArgMatches) {
+fn cmd(args: &ArgMatches) {
 	let quiet = *args.get_one::<bool>("quiet").unwrap();
 	let verbose = *args.get_one::<bool>("verbose").unwrap();
 	let color = *args.get_one::<bool>("color").unwrap();
@@ -114,9 +112,11 @@ fn cmd(app: &NijiApp, args: &ArgMatches) {
 
 	console::set_color(color);
 
+	let app = handle!(NijiApp::init());
+
 	match args.subcommand() {
-		Some(("apply", _)) => cmd_apply(app),
-		Some(("theme", args)) => cmd_theme(app, args),
+		Some(("apply", _)) => cmd_apply(&app),
+		Some(("theme", args)) => cmd_theme(&app, args),
 		_ => unreachable!()
 	}
 }
