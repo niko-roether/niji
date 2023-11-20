@@ -1,15 +1,6 @@
 #![feature(macro_metavar_expr)]
 
-use std::{path::PathBuf, rc::Rc};
-
 use app::NijiApp;
-use config::{ColorScheme, GeneralConfig, ModuleConfig, Palette, Theme, UiTheme};
-use file_manager::FileManager;
-use files::Files;
-use lua::runtime::{LuaRuntime, LuaRuntimeInit};
-use module::Module;
-use types::color::Color;
-use utils::xdg::XdgDirs;
 
 mod app;
 mod config;

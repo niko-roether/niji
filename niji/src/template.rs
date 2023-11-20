@@ -315,7 +315,7 @@ impl Template {
 	}
 
 	pub fn parse(source: String) -> Result<Self, InitError> {
-		let template = ramhorns::Template::new(source).map_err(|e| InitError::Parse(e))?;
+		let template = ramhorns::Template::new(source).map_err(InitError::Parse)?;
 
 		Ok(Self {
 			ctx: TemplateContext::new(),

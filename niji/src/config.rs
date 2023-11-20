@@ -4,7 +4,7 @@ use niji_macros::IntoLua;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::{files::Files, types::color::Color};
+use crate::types::color::Color;
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 #[lua_with("ToString::to_string")]

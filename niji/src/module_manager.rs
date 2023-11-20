@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf, rc::Rc};
+use std::{path::PathBuf, rc::Rc};
 
 use thiserror::Error;
 
@@ -18,7 +18,7 @@ pub enum Error {
 	UnknownModule(String),
 
 	#[error("Failed to initialize lua runtime: {0}")]
-	RuntimeInitError(mlua::Error),
+	RuntimeInit(mlua::Error),
 
 	#[error("Failed to load module {0}: {1}")]
 	ModuleLoad(String, module::LoadError),
@@ -81,7 +81,7 @@ impl ModuleManager {
 			xdg: Rc::clone(&xdg),
 			file_manager: Rc::clone(&file_manager)
 		})
-		.map_err(Error::RuntimeInitError)?;
+		.map_err(Error::RuntimeInit)?;
 
 		Ok(Self {
 			active_modules,

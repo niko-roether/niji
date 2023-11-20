@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf, rc::Rc};
+use std::{path::PathBuf, rc::Rc};
 
 use mlua::{IntoLua, Lua};
 
@@ -10,7 +10,7 @@ pub struct FilesystemApi;
 
 impl FilesystemApi {
 	fn open_managed(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let mut file_mgr = lua.app_data_mut::<Rc<FileManager>>().unwrap();
+		let file_mgr = lua.app_data_ref::<Rc<FileManager>>().unwrap();
 		let path = PathBuf::from(path);
 
 		file_mgr.manage(&path).map_err(mlua::Error::runtime)?;

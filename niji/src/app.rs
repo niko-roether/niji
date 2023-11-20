@@ -1,9 +1,9 @@
-use std::{collections::HashMap, rc::Rc};
+use std::rc::Rc;
 
 use thiserror::Error;
 
 use crate::{
-	config::{self, Config, GeneralConfig, ModuleConfig, Theme},
+	config::{self, Config, GeneralConfig, ModuleConfig},
 	console,
 	file_manager::{self, FileManager},
 	files::{self, Files},

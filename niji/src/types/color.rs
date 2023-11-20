@@ -1,4 +1,3 @@
-use mlua::FromLua;
 use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::{fmt, mem::transmute, num::ParseIntError, str::FromStr};
 use thiserror::Error;

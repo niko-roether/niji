@@ -43,7 +43,7 @@ impl ThemeManager {
 
 	pub fn current_theme(&self) -> Result<Option<NamedTheme>, Error> {
 		if !self.files.current_theme_file().exists() {
-			self.reset_theme();
+			self.reset_theme()?;
 		}
 
 		let current_theme =
