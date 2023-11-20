@@ -46,6 +46,10 @@ impl Color {
 		Self::blend(col1, col2, 0.5)
 	}
 
+	pub fn with_alpha(self, alpha: f32) -> Self {
+		Self::new_rgba(self.r, self.g, self.b, (alpha * 255.0) as u8)
+	}
+
 	fn into_oklch(self) -> OklchColor {
 		OklchColor::from_srgb(
 			self.r as f32 / 255.0,
