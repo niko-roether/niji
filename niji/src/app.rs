@@ -3,7 +3,7 @@ use std::rc::Rc;
 use thiserror::Error;
 
 use crate::{
-	config::{self, Config, GeneralConfig, ModuleConfig},
+	config::{self, Config},
 	console,
 	file_manager::{self, FileManager},
 	files::{self, Files},
@@ -24,10 +24,10 @@ pub enum Error {
 }
 
 pub struct NijiApp {
-	xdg: Rc<XdgDirs>,
-	files: Rc<Files>,
+	_xdg: Rc<XdgDirs>,
+	_files: Rc<Files>,
 	config: Rc<Config>,
-	file_manager: Rc<FileManager>,
+	_file_manager: Rc<FileManager>,
 	theme_manager: Rc<ThemeManager>,
 	module_manager: Rc<ModuleManager>
 }
@@ -47,10 +47,10 @@ impl NijiApp {
 		})?);
 
 		Ok(Self {
-			xdg,
-			files,
+			_xdg: xdg,
+			_files: files,
 			config,
-			file_manager,
+			_file_manager: file_manager,
 			theme_manager,
 			module_manager
 		})
@@ -58,16 +58,6 @@ impl NijiApp {
 
 	pub fn current_theme(&self) -> Result<Option<NamedTheme>, Error> {
 		Ok(self.theme_manager.current_theme()?)
-	}
-
-	#[inline]
-	pub fn general_config(&self) -> &GeneralConfig {
-		&self.config.general
-	}
-
-	#[inline]
-	pub fn config_for(&self, module: &str) -> Option<&ModuleConfig> {
-		self.config.module_config.get(module)
 	}
 
 	pub fn apply_config(&self) -> Result<(), Error> {

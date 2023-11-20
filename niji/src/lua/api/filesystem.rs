@@ -2,9 +2,9 @@ use std::{path::PathBuf, rc::Rc};
 
 use mlua::{IntoLua, Lua};
 
-use crate::{file_manager::FileManager, utils::xdg::XdgDirs};
+use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
-use super::Module;
+use super::{Module, ModuleContext};
 
 pub struct FilesystemApi;
 
@@ -54,6 +54,16 @@ impl FilesystemApi {
 		Self::io_open(lua, xdg.config_home.join(path), "r".to_string())
 	}
 
+	fn open_output(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
+		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
+		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
+		Self::io_open(
+			lua,
+			files.output_dir().join(&mod_ctx.name).join(path),
+			"w".to_string()
+		)
+	}
+
 	fn io_open(lua: &Lua, path: PathBuf, mode: String) -> mlua::Result<mlua::Value> {
 		lua.globals()
 			.get::<_, mlua::Table>("io")?
@@ -75,6 +85,7 @@ impl Module for FilesystemApi {
 		module.raw_set("open_config", lua.create_function(Self::open_config)?)?;
 		module.raw_set("open_state", lua.create_function(Self::open_state)?)?;
 		module.raw_set("open_data", lua.create_function(Self::open_data)?)?;
+		module.raw_set("open_output", lua.create_function(Self::open_output)?)?;
 
 		module.into_lua(lua)
 	}

@@ -20,9 +20,6 @@ pub enum Error {
 	#[error("Failed to initialize lua runtime: {0}")]
 	RuntimeInit(mlua::Error),
 
-	#[error("Failed to load module {0}: {1}")]
-	ModuleLoad(String, module::LoadError),
-
 	#[error("Failed to execute module {0}: {1}")]
 	ModuleExec(String, module::ExecError)
 }

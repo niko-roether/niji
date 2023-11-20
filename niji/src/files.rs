@@ -1,6 +1,5 @@
 use std::{
-	fs::{self, read_dir},
-	io,
+	fs, io,
 	path::{Path, PathBuf}
 };
 
@@ -13,9 +12,6 @@ use crate::utils::{
 
 #[derive(Debug, Error)]
 pub enum Error {
-	#[error("The HOME environment variable is not set!")]
-	NoHome,
-
 	#[error("Failed to create {0}: {1}")]
 	CreationFailed(String, io::Error)
 }
@@ -96,6 +92,11 @@ impl Files {
 		&self.managed_files_file
 	}
 
+	#[inline]
+	pub fn output_dir(&self) -> &Path {
+		&self.output_dir
+	}
+
 	pub fn iter_themes(&self) -> impl Iterator<Item = PathBuf> + '_ {
 		find_files(&self.themes_dirs)
 	}
@@ -107,12 +108,4 @@ impl Files {
 
 fn init_dir(dir: &Path) -> Result<(), Error> {
 	fs::create_dir_all(dir).map_err(|err| Error::CreationFailed(dir.display().to_string(), err))
-}
-
-fn iter_valid_entries(dir: &Path) -> impl Iterator<Item = PathBuf> {
-	read_dir(dir)
-		.into_iter()
-		.flatten()
-		.flatten()
-		.map(|entry| entry.path())
 }
