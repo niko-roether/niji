@@ -76,6 +76,7 @@ impl ModuleManager {
 
 		let lua_runtime = LuaRuntime::new(LuaRuntimeInit {
 			xdg: Rc::clone(&xdg),
+			files: Rc::clone(&files),
 			file_manager: Rc::clone(&file_manager)
 		})
 		.map_err(Error::RuntimeInit)?;
@@ -88,10 +89,11 @@ impl ModuleManager {
 
 	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), Error> {
 		for (name, module) in self.iter_loaded_modules() {
-			console::debug!("Applying theme to module {name}");
+			console::info!("Applying config to module {name}");
 			module
 				.apply(config, theme)
 				.map_err(|e| Error::ModuleExec(name.to_string(), e))?;
+			println!();
 		}
 		Ok(())
 	}

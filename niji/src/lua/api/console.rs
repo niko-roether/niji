@@ -22,6 +22,7 @@ impl ConsoleApi {
 		Ok(format!("module:{}", module_ctx.name))
 	}
 
+	define_log_function!(debug);
 	define_log_function!(info);
 	define_log_function!(warn);
 	define_log_function!(error);
@@ -45,6 +46,7 @@ impl Module for ConsoleApi {
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {
 		let module = lua.create_table()?;
 
+		module.raw_set("debug", lua.create_function(Self::debug)?)?;
 		module.raw_set("info", lua.create_function(Self::info)?)?;
 		module.raw_set("warn", lua.create_function(Self::warn)?)?;
 		module.raw_set("error", lua.create_function(Self::error)?)?;

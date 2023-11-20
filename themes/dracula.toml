@@ -8,6 +8,7 @@ primary = "#bd93f9"
 text_primary = "#282a36"
 secondary = "#50FA7B"
 border = "#747999"
+shadow = "#21222cee"
 
 info = "#6272a4"
 text_info = "#f8f8f2"

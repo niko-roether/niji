@@ -6,12 +6,15 @@ use std::{
 
 use mlua::{FromLuaMulti, IntoLuaMulti, Lua};
 
-use crate::{config::ModuleConfig, console, file_manager::FileManager, utils::xdg::XdgDirs};
+use crate::{
+	config::ModuleConfig, console, file_manager::FileManager, files::Files, utils::xdg::XdgDirs
+};
 
 use super::api;
 
 pub struct LuaRuntimeInit {
 	pub xdg: Rc<XdgDirs>,
+	pub files: Rc<Files>,
 	pub file_manager: Rc<FileManager>
 }
 
@@ -97,6 +100,7 @@ impl LuaRuntime {
 			&lua,
 			api::Init {
 				xdg: init.xdg,
+				files: init.files,
 				file_manager: init.file_manager
 			}
 		)?;

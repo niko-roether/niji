@@ -31,6 +31,7 @@ pub struct UiTheme {
 	pub primary: Color,
 	pub secondary: Color,
 	pub border: Color,
+	pub shadow: Color,
 	pub text_background: Color,
 	pub text_surface: Color,
 	pub text_primary: Color,

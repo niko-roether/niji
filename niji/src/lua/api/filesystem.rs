@@ -1,4 +1,4 @@
-use std::{path::PathBuf, rc::Rc};
+use std::{fs, path::PathBuf, rc::Rc};
 
 use mlua::{IntoLua, Lua};
 
@@ -58,7 +58,9 @@ impl FilesystemApi {
 		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
 		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
 		let path = files.output_dir().join(&mod_ctx.name).join(path);
+
 		console::info!("Outputting to {}", path.display());
+		fs::create_dir_all(path.parent().unwrap()).map_err(mlua::Error::runtime)?;
 		Self::io_open(lua, path, "w".to_string())
 	}
 

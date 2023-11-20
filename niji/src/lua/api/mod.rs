@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use mlua::Lua;
 
-use crate::{config::ModuleConfig, file_manager::FileManager, utils::xdg::XdgDirs};
+use crate::{config::ModuleConfig, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
 use self::{
 	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi,
@@ -35,6 +35,7 @@ const API_GLOBAL: &str = "niji";
 
 pub struct Init {
 	pub xdg: Rc<XdgDirs>,
+	pub files: Rc<Files>,
 	pub file_manager: Rc<FileManager>
 }
 
@@ -42,6 +43,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	reset_module_context(lua);
 	lua.set_app_data(init.xdg);
 	lua.set_app_data(init.file_manager);
+	lua.set_app_data(init.files);
 
 	let api = lua.create_table()?;
 

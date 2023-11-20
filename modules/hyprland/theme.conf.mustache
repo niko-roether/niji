@@ -1,0 +1,13 @@
+{{#configure_cursor}}
+env = XCURSOR_SIZE,{{cursor_size}}
+exec = hyprctl setcursor {{cursor_theme}} {{cursor_size}}
+{{/configure_cursor}}
+
+general {
+	col.inactive_border = {{border_color}}
+	col.active_border = {{active_border_color}}
+}
+
+decoration {
+	col.shadow = {{shadow_color}}
+}
