@@ -1,6 +1,6 @@
 #![feature(macro_metavar_expr)]
 
-use std::path::PathBuf;
+use std::{path::PathBuf, rc::Rc};
 
 use config::{ColorScheme, GeneralConfig, ModuleConfig, Palette, Theme, UiTheme};
 use file_manager::FileManager;
@@ -27,8 +27,8 @@ fn main() {
 	console::set_color(true);
 
 	let xdg = XdgDirs::new().unwrap();
-	let files = Files::init(&xdg).unwrap();
-	let file_manager = FileManager::new(&files).unwrap();
+	let files = Files::new(&xdg).unwrap();
+	let file_manager = FileManager::new(Rc::new(files)).unwrap();
 
 	let _config = GeneralConfig {
 		icons: "Abc".to_string(),
@@ -38,7 +38,11 @@ fn main() {
 		font_size: 420
 	};
 
-	let lua = LuaRuntime::new(LuaRuntimeInit { xdg, file_manager }).unwrap();
+	let lua = LuaRuntime::new(LuaRuntimeInit {
+		xdg: Rc::new(xdg),
+		file_manager: Rc::new(file_manager)
+	})
+	.unwrap();
 
 	let theme = Theme {
 		ui: UiTheme {

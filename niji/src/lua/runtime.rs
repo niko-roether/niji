@@ -1,6 +1,7 @@
 use std::{
 	env,
-	path::{Path, PathBuf}
+	path::{Path, PathBuf},
+	rc::Rc
 };
 
 use mlua::{FromLuaMulti, IntoLuaMulti, Lua};
@@ -10,8 +11,8 @@ use crate::{config::ModuleConfig, console, file_manager::FileManager, utils::xdg
 use super::api;
 
 pub struct LuaRuntimeInit {
-	pub xdg: XdgDirs,
-	pub file_manager: FileManager
+	pub xdg: Rc<XdgDirs>,
+	pub file_manager: Rc<FileManager>
 }
 
 pub struct LuaRuntime {

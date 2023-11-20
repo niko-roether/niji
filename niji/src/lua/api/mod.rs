@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use mlua::Lua;
 
 use crate::{config::ModuleConfig, file_manager::FileManager, utils::xdg::XdgDirs};
@@ -32,8 +34,8 @@ fn insert_module<M: Module>(lua: &Lua, api: &mlua::Table) -> mlua::Result<()> {
 const API_GLOBAL: &str = "niji";
 
 pub struct Init {
-	pub xdg: XdgDirs,
-	pub file_manager: FileManager
+	pub xdg: Rc<XdgDirs>,
+	pub file_manager: Rc<FileManager>
 }
 
 pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {

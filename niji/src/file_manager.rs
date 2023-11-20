@@ -1,9 +1,10 @@
 use std::{
 	collections::{hash_map::DefaultHasher, HashMap},
-	fs::{self, File, OpenOptions},
+	fs::{self, File},
 	hash::{Hash, Hasher},
 	io::{self, Read},
-	path::{Path, PathBuf}
+	path::{Path, PathBuf},
+	rc::Rc
 };
 use thiserror::Error;
 
@@ -25,52 +26,62 @@ pub enum Error {
 }
 
 pub struct FileManager {
-	managed_files_file: PathBuf,
-	managed_files: HashMap<PathBuf, u64>
+	files: Rc<Files>
 }
 
 impl FileManager {
-	pub fn new(files: &Files) -> Result<Self, Error> {
+	pub fn new(files: Rc<Files>) -> Result<Self, Error> {
 		if !files.managed_files_file().exists() {
 			fs::write(files.managed_files_file(), "").map_err(|e| {
 				Error::Write(files.managed_files_file().to_string_lossy().into_owned(), e)
 			})?;
 		}
 
-		Ok(Self {
-			managed_files_file: files.managed_files_file().to_path_buf(),
-			managed_files: HashMap::new()
-		})
+		Ok(Self { files })
 	}
 
-	pub fn manage(&mut self, path: &Path) -> Result<(), Error> {
+	pub fn manage(&self, path: &Path) -> Result<(), Error> {
+		let mut managed_files = self.managed_files()?;
+
 		if !path.exists() {
 			console::debug!("Creating new managed file at {}", path.display());
-			self.init_new_file(path)
+			self.init_new_file(&mut managed_files, path)
 		} else {
-			self.manage_existing_file(path)
+			self.manage_existing_file(&mut managed_files, path)
 		}
 	}
 
-	fn init_new_file(&mut self, path: &Path) -> Result<(), Error> {
+	fn init_new_file(
+		&self,
+		managed_files: &mut HashMap<PathBuf, u64>,
+		path: &Path
+	) -> Result<(), Error> {
 		fs::write(path, "").map_err(|e| Error::Write(path.to_string_lossy().into_owned(), e))?;
-		self.set_managed(path.to_path_buf())?;
+		self.set_managed(managed_files, path.to_path_buf())?;
 
 		console::info!("niji now manages {}", path.display());
 
 		Ok(())
 	}
 
-	fn manage_existing_file(&mut self, path: &Path) -> Result<(), Error> {
-		if self.is_managed(path)? {
+	fn manage_existing_file(
+		&self,
+		managed_files: &mut HashMap<PathBuf, u64>,
+		path: &Path
+	) -> Result<(), Error> {
+		if self.is_managed(managed_files, path)? {
 			console::debug!("Writing to managed file at {}", path.display());
 			return Ok(());
 		}
 
-		self.backup_and_replace(path)
+		self.backup_and_replace(managed_files, path)
 	}
 
-	fn backup_and_replace(&mut self, path: &Path) -> Result<(), Error> {
+	fn backup_and_replace(
+		&self,
+		managed_files: &mut HashMap<PathBuf, u64>,
+		path: &Path
+	) -> Result<(), Error> {
 		let backup_path = Self::get_backup_path(path);
 
 		console::warn!(
@@ -88,7 +99,7 @@ impl FileManager {
 		fs::copy(path, &backup_path)
 			.map_err(|e| Error::Write(backup_path.to_string_lossy().into_owned(), e))?;
 
-		self.init_new_file(path)?;
+		self.init_new_file(managed_files, path)?;
 
 		console::info!("Backup created at {}", backup_path.display());
 
@@ -105,20 +116,25 @@ impl FileManager {
 		return path.parent().unwrap().join(file_name);
 	}
 
-	fn set_managed(&mut self, path: PathBuf) -> Result<(), Error> {
+	fn set_managed(
+		&self,
+		managed_files: &mut HashMap<PathBuf, u64>,
+		path: PathBuf
+	) -> Result<(), Error> {
 		let path = path.canonicalize().map_err(Error::Io)?;
 
-		self.managed_files
-			.insert(path.clone(), Self::hash_contents(&path)?);
-		self.write_changes()
+		managed_files.insert(path.clone(), Self::hash_contents(&path)?);
+		self.write_managed_files(managed_files)
 	}
 
-	fn is_managed(&mut self, path: &Path) -> Result<bool, Error> {
-		self.update()?;
-
+	fn is_managed(
+		&self,
+		managed_files: &HashMap<PathBuf, u64>,
+		path: &Path
+	) -> Result<bool, Error> {
 		let path = path.canonicalize().map_err(Error::Io)?;
 
-		if let Some(known_hash) = self.managed_files.get(&path) {
+		if let Some(known_hash) = managed_files.get(&path) {
 			let current_hash = Self::hash_contents(&path)?;
 			if current_hash == *known_hash {
 				return Ok(true);
@@ -137,25 +153,25 @@ impl FileManager {
 		Ok(hasher.finish())
 	}
 
-	fn update(&mut self) -> Result<(), Error> {
-		self.managed_files.clear();
+	fn managed_files(&self) -> Result<HashMap<PathBuf, u64>, Error> {
+		let mut managed_files = HashMap::new();
 
 		let mut reader = csv::ReaderBuilder::new()
 			.has_headers(false)
-			.from_path(&self.managed_files_file)
+			.from_path(self.files.managed_files_file())
 			.map_err(Error::CsvAccess)?;
 
 		for result in reader.deserialize::<(PathBuf, u64)>() {
 			let (path, hash) = result?;
-			self.managed_files.insert(path, hash);
+			managed_files.insert(path, hash);
 		}
-		Ok(())
+		Ok(managed_files)
 	}
 
-	fn write_changes(&self) -> Result<(), Error> {
+	fn write_managed_files(&self, managed_files: &HashMap<PathBuf, u64>) -> Result<(), Error> {
 		let mut writer =
-			csv::Writer::from_path(&self.managed_files_file).map_err(Error::CsvAccess)?;
-		for (path, hash) in self.managed_files.iter() {
+			csv::Writer::from_path(self.files.managed_files_file()).map_err(Error::CsvAccess)?;
+		for (path, hash) in managed_files.iter() {
 			writer.serialize((path, hash))?;
 		}
 

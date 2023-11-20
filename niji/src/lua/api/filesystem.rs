@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, rc::Rc};
 
 use mlua::{IntoLua, Lua};
 
@@ -10,7 +10,7 @@ pub struct FilesystemApi;
 
 impl FilesystemApi {
 	fn open_managed(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let mut file_mgr = lua.app_data_mut::<FileManager>().unwrap();
+		let mut file_mgr = lua.app_data_mut::<Rc<FileManager>>().unwrap();
 		let path = PathBuf::from(path);
 
 		file_mgr.manage(&path).map_err(mlua::Error::runtime)?;
@@ -19,7 +19,7 @@ impl FilesystemApi {
 	}
 
 	fn manage_config(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let xdg = lua.app_data_ref::<XdgDirs>().unwrap();
+		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::open_managed(
 			lua,
 			xdg.config_home.join(path).to_string_lossy().into_owned()
@@ -27,7 +27,7 @@ impl FilesystemApi {
 	}
 
 	fn manage_state(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let xdg = lua.app_data_ref::<XdgDirs>().unwrap();
+		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::open_managed(
 			lua,
 			xdg.state_home.join(path).to_string_lossy().into_owned()
@@ -35,22 +35,22 @@ impl FilesystemApi {
 	}
 
 	fn manage_data(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let xdg = lua.app_data_ref::<XdgDirs>().unwrap();
+		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::open_managed(lua, xdg.data_home.join(path).to_string_lossy().into_owned())
 	}
 
 	fn open_config(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let xdg = lua.app_data_ref::<XdgDirs>().unwrap();
+		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::io_open(lua, xdg.config_home.join(path), "r".to_string())
 	}
 
 	fn open_state(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let xdg = lua.app_data_ref::<XdgDirs>().unwrap();
+		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::io_open(lua, xdg.config_home.join(path), "r".to_string())
 	}
 
 	fn open_data(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let xdg = lua.app_data_ref::<XdgDirs>().unwrap();
+		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::io_open(lua, xdg.config_home.join(path), "r".to_string())
 	}
 

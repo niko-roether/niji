@@ -1,4 +1,5 @@
 use std::{
+	cell::Ref,
 	fs::{self, read_dir},
 	io,
 	path::{Path, PathBuf}
@@ -38,7 +39,7 @@ impl Files {
 	const THEMES_DIR: &'static str = "themes";
 	const MODULES_DIR: &'static str = "modules";
 
-	pub fn init(xdg: &XdgDirs) -> Result<Self, InitError> {
+	pub fn new(xdg: &XdgDirs) -> Result<Self, InitError> {
 		let config_dir = xdg.config_home.join(Self::PREFIX);
 		let data_dir = xdg.data_home.join(Self::PREFIX);
 		let state_dir = xdg.state_home.join(Self::PREFIX);

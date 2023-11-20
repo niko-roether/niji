@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf, rc::Rc};
 
 use thiserror::Error;
 
@@ -27,12 +27,11 @@ pub enum Error {
 	ModuleExec(String, module::ExecError)
 }
 
-pub struct ModuleManagerInit<'a> {
-	files: &'a Files,
-	module_names: &'a [String],
-	module_configs: &'a HashMap<String, ModuleConfig>,
-	xdg: XdgDirs,
-	file_manager: FileManager
+pub struct ModuleManagerInit {
+	pub xdg: Rc<XdgDirs>,
+	pub files: Rc<Files>,
+	pub config: Rc<Config>,
+	pub file_manager: Rc<FileManager>
 }
 
 struct ActiveModule {
@@ -47,21 +46,24 @@ pub struct ModuleManager {
 }
 
 impl ModuleManager {
-	pub fn load(
+	pub fn new(
 		ModuleManagerInit {
-			files,
-			module_names,
-			module_configs,
 			xdg,
+			files,
+			config,
 			file_manager
 		}: ModuleManagerInit
 	) -> Result<Self, Error> {
-		let mut active_modules = Vec::<ActiveModule>::with_capacity(module_names.len());
-		for mod_name in module_names {
-			let module_dir = Self::find_module_dir(files, mod_name)
+		let mut active_modules = Vec::<ActiveModule>::with_capacity(config.modules.len());
+		for mod_name in &config.modules {
+			let module_dir = Self::find_module_dir(&files, mod_name)
 				.ok_or_else(|| Error::UnknownModule(mod_name.clone()))?;
 
-			let module_config = module_configs.get(mod_name).cloned().unwrap_or_default();
+			let module_config = config
+				.module_config
+				.get(mod_name)
+				.cloned()
+				.unwrap_or_default();
 
 			console::debug!(
 				"Activating module \"{mod_name}\" at path {} with config {module_config:?}",
@@ -75,8 +77,11 @@ impl ModuleManager {
 			});
 		}
 
-		let lua_runtime = LuaRuntime::new(LuaRuntimeInit { xdg, file_manager })
-			.map_err(Error::RuntimeInitError)?;
+		let lua_runtime = LuaRuntime::new(LuaRuntimeInit {
+			xdg: Rc::clone(&xdg),
+			file_manager: Rc::clone(&file_manager)
+		})
+		.map_err(Error::RuntimeInitError)?;
 
 		Ok(Self {
 			active_modules,
