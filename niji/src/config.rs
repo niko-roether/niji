@@ -29,6 +29,7 @@ pub struct UiTheme {
 	pub background: Color,
 	pub surface: Color,
 	pub primary: Color,
+	pub secondary: Color,
 	pub border: Color,
 	pub text_background: Color,
 	pub text_surface: Color,
@@ -66,6 +67,8 @@ impl fmt::Display for UiTheme {
 			"{}",
 			color_display("Primary", self.primary, self.text_primary)
 		)?;
+		writeln!(f, "Secondary: {}", colored_square(self.secondary))?;
+		writeln!(f, "Border: {}", colored_square(self.border))?;
 
 		writeln!(f)?;
 
@@ -82,50 +85,50 @@ impl fmt::Display for UiTheme {
 }
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
-pub struct Palette {
+pub struct Terminal {
 	pub black: Color,
-	pub dark_red: Color,
-	pub dark_green: Color,
-	pub orange: Color,
-	pub dark_blue: Color,
-	pub purple: Color,
-	pub turquoise: Color,
-	pub light_gray: Color,
-	pub dark_gray: Color,
-	pub bright_red: Color,
-	pub bright_green: Color,
+	pub red: Color,
+	pub green: Color,
 	pub yellow: Color,
-	pub bright_blue: Color,
+	pub blue: Color,
 	pub magenta: Color,
 	pub cyan: Color,
-	pub white: Color
+	pub white: Color,
+	pub bright_black: Color,
+	pub bright_red: Color,
+	pub bright_green: Color,
+	pub bright_yellow: Color,
+	pub bright_blue: Color,
+	pub bright_magenta: Color,
+	pub bright_cyan: Color,
+	pub bright_white: Color
 }
 
 fn colored_square(color: Color) -> String {
 	format!("\x1b[48;2;{};{};{}m   \x1b[0m", color.r, color.g, color.b)
 }
 
-impl fmt::Display for Palette {
+impl fmt::Display for Terminal {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.write_str(&colored_square(self.black))?;
-		f.write_str(&colored_square(self.dark_red))?;
-		f.write_str(&colored_square(self.dark_green))?;
-		f.write_str(&colored_square(self.orange))?;
-		f.write_str(&colored_square(self.dark_blue))?;
-		f.write_str(&colored_square(self.purple))?;
-		f.write_str(&colored_square(self.turquoise))?;
-		f.write_str(&colored_square(self.light_gray))?;
-
-		writeln!(f)?;
-
-		f.write_str(&colored_square(self.dark_gray))?;
-		f.write_str(&colored_square(self.bright_red))?;
-		f.write_str(&colored_square(self.bright_green))?;
+		f.write_str(&colored_square(self.red))?;
+		f.write_str(&colored_square(self.green))?;
 		f.write_str(&colored_square(self.yellow))?;
-		f.write_str(&colored_square(self.bright_blue))?;
+		f.write_str(&colored_square(self.blue))?;
 		f.write_str(&colored_square(self.magenta))?;
 		f.write_str(&colored_square(self.cyan))?;
 		f.write_str(&colored_square(self.white))?;
+
+		writeln!(f)?;
+
+		f.write_str(&colored_square(self.bright_black))?;
+		f.write_str(&colored_square(self.bright_red))?;
+		f.write_str(&colored_square(self.bright_green))?;
+		f.write_str(&colored_square(self.bright_yellow))?;
+		f.write_str(&colored_square(self.bright_blue))?;
+		f.write_str(&colored_square(self.bright_magenta))?;
+		f.write_str(&colored_square(self.bright_cyan))?;
+		f.write_str(&colored_square(self.bright_white))?;
 
 		Ok(())
 	}
@@ -134,12 +137,12 @@ impl fmt::Display for Palette {
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Theme {
 	pub ui: UiTheme,
-	pub palette: Palette
+	pub terminal: Terminal
 }
 
 impl fmt::Display for Theme {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		write!(f, "{}\n{}", self.ui, self.palette)
+		write!(f, "{}\n{}", self.ui, self.terminal)
 	}
 }
 
