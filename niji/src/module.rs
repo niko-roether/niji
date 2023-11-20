@@ -34,11 +34,7 @@ impl<'lua> Module<'lua> {
 		Ok(Self(module))
 	}
 
-	pub fn configure(&self, config: &GeneralConfig) -> Result<(), ExecError> {
-		Ok(self.0.call("configure", config.clone())?)
-	}
-
-	pub fn apply(&self, theme: &Theme) -> Result<(), ExecError> {
-		Ok(self.0.call("apply", theme.clone())?)
+	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), ExecError> {
+		Ok(self.0.call("apply", (config.clone(), theme.clone()))?)
 	}
 }

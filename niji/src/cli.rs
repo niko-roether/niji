@@ -169,7 +169,7 @@ fn cmd_theme_set(app: &NijiApp, args: &ArgMatches) {
 
 	handle!(app.set_theme(name));
 	if apply {
-		handle!(app.apply_theme());
+		handle!(app.apply());
 	}
 }
 

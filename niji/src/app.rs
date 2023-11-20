@@ -63,29 +63,19 @@ impl NijiApp {
 		Ok(self.theme_manager.get_theme(name)?)
 	}
 
-	pub fn apply_config(&self) -> Result<(), Error> {
-		self.module_manager.configure(&self.config.general)?;
-		Ok(())
-	}
-
 	pub fn list_themes(&self) -> Vec<String> {
 		self.theme_manager.list_themes()
 	}
 
-	pub fn apply_theme(&self) -> Result<(), Error> {
+	pub fn apply(&self) -> Result<(), Error> {
 		let theme = self.current_theme()?;
-		self.module_manager.apply(&theme.values)?;
+		self.module_manager
+			.apply(&self.config.general, &theme.values)?;
 		Ok(())
 	}
 
 	pub fn reset_theme(&self) -> Result<(), Error> {
 		Ok(self.theme_manager.reset_theme()?)
-	}
-
-	pub fn apply(&self) -> Result<(), Error> {
-		self.apply_config()?;
-		self.apply_theme()?;
-		Ok(())
 	}
 
 	pub fn set_theme(&self, name: &str) -> Result<(), Error> {

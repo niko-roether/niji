@@ -86,21 +86,11 @@ impl ModuleManager {
 		})
 	}
 
-	pub fn configure(&self, config: &GeneralConfig) -> Result<(), Error> {
-		for (name, module) in self.iter_loaded_modules() {
-			console::debug!("Configuring module {name}");
-			module
-				.configure(config)
-				.map_err(|e| Error::ModuleExec(name.to_string(), e))?;
-		}
-		Ok(())
-	}
-
-	pub fn apply(&self, theme: &Theme) -> Result<(), Error> {
+	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), Error> {
 		for (name, module) in self.iter_loaded_modules() {
 			console::debug!("Applying theme to module {name}");
 			module
-				.apply(theme)
+				.apply(config, theme)
 				.map_err(|e| Error::ModuleExec(name.to_string(), e))?;
 		}
 		Ok(())
