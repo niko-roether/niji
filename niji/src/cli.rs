@@ -29,7 +29,7 @@ macro_rules! handle {
 pub fn run() {
 	let matches = Command::new("niji")
 		.author(AUTHOR)
-		.about("A configurable desktop theming utility")
+		.about("An extensible desktop theming utility")
 		.version(env!("CARGO_PKG_VERSION"))
 		.subcommand_required(true)
 		.arg_required_else_help(true)
