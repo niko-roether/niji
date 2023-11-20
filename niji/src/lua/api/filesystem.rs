@@ -2,9 +2,9 @@ use std::{path::PathBuf, rc::Rc};
 
 use mlua::{IntoLua, Lua};
 
-use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
+use crate::{console, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
-use super::{Module, ModuleContext};
+use super::{console, Module, ModuleContext};
 
 pub struct FilesystemApi;
 
@@ -57,11 +57,9 @@ impl FilesystemApi {
 	fn open_output(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
 		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
 		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
-		Self::io_open(
-			lua,
-			files.output_dir().join(&mod_ctx.name).join(path),
-			"w".to_string()
-		)
+		let path = files.output_dir().join(&mod_ctx.name).join(path);
+		console::info!("Outputting to {}", path.display());
+		Self::io_open(lua, path, "w".to_string())
 	}
 
 	fn io_open(lua: &Lua, path: PathBuf, mode: String) -> mlua::Result<mlua::Value> {
