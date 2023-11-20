@@ -20,6 +20,8 @@ function M.apply(config, theme)
 
 	local output = niji.fs.open_output("theme.conf")
 	output:write(config)
+
+	os.execute("hyprctl reload")
 end
 
 return M;
