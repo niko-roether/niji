@@ -1,4 +1,4 @@
-use std::{path::PathBuf, rc::Rc};
+use std::{collections::HashMap, path::PathBuf, rc::Rc};
 
 use thiserror::Error;
 
@@ -60,7 +60,7 @@ impl ModuleManager {
 				.module_config
 				.get(mod_name)
 				.cloned()
-				.unwrap_or_default();
+				.unwrap_or_else(|| ModuleConfig::Map(HashMap::new()));
 
 			console::debug!(
 				"Activating module \"{mod_name}\" at path {} with config {module_config:?}",
