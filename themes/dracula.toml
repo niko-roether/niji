@@ -7,7 +7,7 @@ text_surface = "#f8f8f2"
 primary = "#bd93f9"
 text_primary = "#282a36"
 secondary = "#50FA7B"
-border = "#747999"
+border = "#282a36"
 shadow = "#21222cee"
 
 info = "#6272a4"
