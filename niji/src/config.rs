@@ -153,7 +153,7 @@ pub struct GeneralConfig {
 	pub cursor: Option<String>,
 	pub cursor_size: Option<u32>,
 	pub font_family: Option<String>,
-	pub font_size: Option<u32>
+	pub font_scale: Option<f32>
 }
 
 #[derive(Debug, Default, Clone, IntoLua, Serialize, Deserialize)]

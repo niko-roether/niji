@@ -64,6 +64,19 @@ impl FilesystemApi {
 		Self::io_open(lua, path, "w".to_string())
 	}
 
+	fn open_config_asset(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
+		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
+		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
+		let path = files
+			.config_file()
+			.parent()
+			.unwrap()
+			.join(&mod_ctx.name)
+			.join(path);
+
+		Self::io_open(lua, path, "r".to_string())
+	}
+
 	fn io_open(lua: &Lua, path: PathBuf, mode: String) -> mlua::Result<mlua::Value> {
 		lua.globals()
 			.get::<_, mlua::Table>("io")?
@@ -86,6 +99,10 @@ impl Module for FilesystemApi {
 		module.raw_set("open_state", lua.create_function(Self::open_state)?)?;
 		module.raw_set("open_data", lua.create_function(Self::open_data)?)?;
 		module.raw_set("open_output", lua.create_function(Self::open_output)?)?;
+		module.raw_set(
+			"open_config_asset",
+			lua.create_function(Self::open_config_asset)?
+		)?;
 
 		module.into_lua(lua)
 	}
