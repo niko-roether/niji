@@ -5,7 +5,7 @@ use mlua::Lua;
 use crate::{config::ModuleConfig, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
 use self::{
-	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi,
+	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi, os::OsApi,
 	template::TemplateApi, xdg::XdgApi
 };
 
@@ -13,6 +13,7 @@ mod color;
 mod console;
 mod filesystem;
 mod module;
+mod os;
 mod template;
 mod xdg;
 
@@ -53,6 +54,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	insert_module::<ConsoleApi>(lua, &api)?;
 	insert_module::<XdgApi>(lua, &api)?;
 	insert_module::<TemplateApi>(lua, &api)?;
+	insert_module::<OsApi>(lua, &api)?;
 
 	lua.globals().set(API_GLOBAL, api)?;
 

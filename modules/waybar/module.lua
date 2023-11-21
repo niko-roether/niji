@@ -23,6 +23,11 @@ function get_font_size(config)
 	return base_size * scale
 end
 
+function restart_waybar()
+	os.execute("killall waybar")
+	niji.os.exec_detached("waybar")
+end
+
 function M.apply(config, theme)
 	local font_size = get_font_size(config)
 	local custom_style = get_custom_style(config)
@@ -53,6 +58,8 @@ function M.apply(config, theme)
 
 	local output = niji.fs.manage_config("waybar/style.css")
 	output:write(style)
+
+	restart_waybar()
 end
 
 return M
