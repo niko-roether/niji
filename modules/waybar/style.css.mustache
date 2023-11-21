@@ -9,7 +9,7 @@
 }
 
 window#waybar {
-	background-color: {{background}};
+	background-color: {{bar_background}};
 	transition-property: background-color;
 	transition-duration: {{transition_duration}};
 }
@@ -66,9 +66,10 @@ window#waybar.hidden {
 	padding: {{padding_y}} {{padding_x}};
 	margin: {{margin_y}} {{margin_x}};
 	border-radius: {{border_radius}};
-	background-color: {{surface}};
-	color: {{text_surface}}
+	background-color: {{background}};
+	color: {{text_background}}
 }
+
 
 tooltip {
 	border-radius: {{border_radius}};
