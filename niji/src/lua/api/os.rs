@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use mlua::{IntoLua, Lua};
 
@@ -16,6 +16,9 @@ impl OsApi {
 
 		Command::new(program)
 			.args(args)
+			.stdin(Stdio::null())
+			.stdout(Stdio::null())
+			.stderr(Stdio::inherit())
 			.spawn()
 			.map_err(mlua::Error::runtime)?;
 
