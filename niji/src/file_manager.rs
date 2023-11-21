@@ -122,8 +122,10 @@ impl FileManager {
 		path: PathBuf
 	) -> Result<(), Error> {
 		let path = path.canonicalize().map_err(Error::Io)?;
+		let hash = Self::hash_contents(&path)?;
 
-		managed_files.insert(path.clone(), Self::hash_contents(&path)?);
+		console::debug!("Hash for newly managed file {} is {hash}", path.display());
+		managed_files.insert(path.clone(), hash);
 		self.write_managed_files(managed_files)
 	}
 
@@ -136,10 +138,18 @@ impl FileManager {
 
 		if let Some(known_hash) = managed_files.get(&path) {
 			let current_hash = Self::hash_contents(&path)?;
+
+			console::debug!(
+				"{} has known hash {known_hash}; current hash is {current_hash}",
+				path.display()
+			);
+
 			if current_hash == *known_hash {
 				return Ok(true);
 			}
 		}
+
+		console::debug!("{} is not in the managed files table", path.display());
 
 		Ok(false)
 	}

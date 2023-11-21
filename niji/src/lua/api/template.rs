@@ -1,7 +1,6 @@
-use std::{any::type_name, collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
 use mlua::{IntoLua, Lua, UserData, UserDataMethods};
-use thiserror::Error;
 
 use crate::{
 	template::{Template, ToTemplateData},
@@ -10,7 +9,43 @@ use crate::{
 
 use super::Module;
 
-fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn ToTemplateData>> {
+fn is_array(table: &mlua::Table) -> bool {
+	for i in 1..=table.clone().pairs::<mlua::Value, mlua::Value>().count() {
+		let Ok(value) = table.raw_get::<_, mlua::Value>(i) else {
+			return false;
+		};
+		if value == mlua::Value::Nil {
+			return false;
+		}
+	}
+	true
+}
+
+fn to_template_vec(table: mlua::Table) -> mlua::Result<Box<dyn ToTemplateData>> {
+	let len = table.raw_len();
+	let mut vec = Vec::with_capacity(len);
+
+	for i in 1..=len {
+		vec.push(get_template_value(table.raw_get(i)?)?.unwrap());
+	}
+
+	Ok(Box::new(vec))
+}
+
+fn to_template_map(table: mlua::Table) -> mlua::Result<Box<dyn ToTemplateData>> {
+	let mut map = HashMap::new();
+
+	for pair in table.pairs::<String, mlua::Value>() {
+		let (key, value) = pair?;
+		if let Some(template_value) = get_template_value(value)? {
+			map.insert(key, template_value);
+		}
+	}
+
+	Ok(Box::new(map))
+}
+
+fn get_template_value(value: mlua::Value) -> mlua::Result<Option<Box<dyn ToTemplateData>>> {
 	let template_val: Box<dyn ToTemplateData> = match value {
 		mlua::Value::Number(num) => Box::new(num),
 		mlua::Value::Integer(int) => Box::new(int),
@@ -20,31 +55,27 @@ fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn ToTemplateData
 			if let Ok(color) = user_data.borrow::<Color>() {
 				Box::new(*color)
 			} else {
-				return Err(mlua::Error::runtime(
-					"This userdata type isn't supported in templates!"
-				));
+				return Err(mlua::Error::runtime(format!(
+					"This userdata type isn't supported in templates: {user_data:?}"
+				)));
 			}
 		}
 		mlua::Value::Table(table) => {
-			let mut is_vec = true;
-			let mut vec = Vec::<Box<dyn ToTemplateData>>::new();
-			let mut map = HashMap::<String, Box<dyn ToTemplateData>>::new();
-
-			for pair in table.pairs::<mlua::Value, mlua::Value>() {
-				let (key, value) = pair?;
-				match (is_vec, key) {}
+			if is_array(&table) {
+				to_template_vec(table)?
+			} else {
+				to_template_map(table)?
 			}
-
-			todo!()
 		}
-		_ => {
-			return Err(mlua::Error::runtime(
-				"This type isn't supported in templates!"
-			))
+		mlua::Value::Nil => return Ok(None),
+		value => {
+			return Err(mlua::Error::runtime(format!(
+				"This type isn't supported in templates: {value:?}"
+			)))
 		}
 	};
 
-	Ok(template_val)
+	Ok(Some(template_val))
 }
 
 impl UserData for Template {
@@ -62,10 +93,11 @@ impl UserData for Template {
 				let mut renderer = this.renderer();
 				for pair in values.pairs::<String, mlua::Value>() {
 					let (key, value) = pair?;
-					let template_value = get_template_value(value)?;
-					renderer
-						.set_value(key, template_value)
-						.map_err(mlua::Error::runtime)?;
+					if let Some(template_value) = get_template_value(value)? {
+						renderer
+							.set_value(key, template_value)
+							.map_err(mlua::Error::runtime)?;
+					}
 				}
 
 				Ok(renderer.render())

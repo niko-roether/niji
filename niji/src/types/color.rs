@@ -135,8 +135,6 @@ mod test {
 	fn should_construct_from_int() {
 		let col = Color::from(0x0a0b0c0d);
 
-		dbg!(col);
-
 		assert_eq!(col.r, 0x0a);
 		assert_eq!(col.g, 0x0b);
 		assert_eq!(col.b, 0x0c);

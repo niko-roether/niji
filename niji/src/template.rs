@@ -153,7 +153,8 @@ impl ramhorns::Content for TemplateData {
 		&self,
 		encoder: &mut E
 	) -> Result<(), E::Error> {
-		template_data_delegate!(self.render_escaped(encoder))
+		// Disable escaping
+		self.render_unescaped(encoder)
 	}
 
 	#[inline]
@@ -197,7 +198,8 @@ impl ramhorns::Content for TemplateData {
 		name: &str,
 		encoder: &mut E
 	) -> Result<bool, E::Error> {
-		template_data_delegate!(self.render_field_escaped(hash, name, encoder))
+		// Disable escaping
+		self.render_field_unescaped(hash, name, encoder)
 	}
 
 	#[inline]
@@ -237,6 +239,9 @@ impl ramhorns::Content for TemplateData {
 		name: &str,
 		encoder: &mut E
 	) -> Result<bool, E::Error> {
+		if name == "." {
+			return self.render_unescaped(encoder).map(|_| true);
+		}
 		template_data_delegate!(self.render_field_unescaped(hash, name, encoder))
 	}
 }
