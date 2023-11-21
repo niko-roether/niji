@@ -1,4 +1,7 @@
+use std::{any::type_name, collections::HashMap, marker::PhantomData};
+
 use mlua::{IntoLua, Lua, UserData, UserDataMethods};
+use thiserror::Error;
 
 use crate::{
 	template::{Template, ToTemplateData},
@@ -18,9 +21,21 @@ fn get_template_value(value: mlua::Value) -> mlua::Result<Box<dyn ToTemplateData
 				Box::new(*color)
 			} else {
 				return Err(mlua::Error::runtime(
-					"This type isn't supported in templates!"
+					"This userdata type isn't supported in templates!"
 				));
 			}
+		}
+		mlua::Value::Table(table) => {
+			let mut is_vec = true;
+			let mut vec = Vec::<Box<dyn ToTemplateData>>::new();
+			let mut map = HashMap::<String, Box<dyn ToTemplateData>>::new();
+
+			for pair in table.pairs::<mlua::Value, mlua::Value>() {
+				let (key, value) = pair?;
+				match (is_vec, key) {}
+			}
+
+			todo!()
 		}
 		_ => {
 			return Err(mlua::Error::runtime(
