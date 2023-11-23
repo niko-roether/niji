@@ -79,9 +79,9 @@ impl Template {
 		self.fmt.insert(type_name, format);
 	}
 
-	pub fn render(&self, value: Value) -> Result<String, RenderError> {
+	pub fn render(&self, value: &Value) -> Result<String, RenderError> {
 		let mut buf = String::new();
-		Self::render_tokens(&mut buf, &self.tokens, &value)?;
+		Self::render_tokens(&mut buf, &self.tokens, value)?;
 		Ok(buf)
 	}
 
