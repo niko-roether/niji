@@ -48,10 +48,7 @@ pub trait Format: Debug {
 			value.display_str(&mut fmt)?;
 			Ok(())
 		})
-		.map_err(|inner| FmtError {
-			type_name: self.type_name(),
-			inner
-		})?;
+		.map_err(|inner| FmtError::new(self.type_name(), inner))?;
 
 		Ok(result)
 	}

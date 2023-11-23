@@ -88,7 +88,7 @@ impl Template {
 	fn render_tokens(buf: &mut String, tokens: &[Token], value: &Value) -> Result<(), RenderError> {
 		for token in tokens {
 			match token {
-				Token::String(string) => buf.push_str(&string),
+				Token::String(string) => buf.push_str(string),
 				Token::Insert(insert) => Self::render_insert(buf, insert, value)?,
 				Token::Section(section) => Self::render_section(buf, section, value)?
 			}
