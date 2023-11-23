@@ -39,7 +39,7 @@ pub trait Format: Debug {
 
 	fn get_placeholder(&self, name: &str) -> Option<FmtValue>;
 
-	fn fmt(&self, fmtstr: Option<&str>) -> Result<String, FmtError> {
+	fn format(&self, fmtstr: Option<&str>) -> Result<String, FmtError> {
 		let fmtstr = fmtstr.unwrap_or_else(|| self.default_fmtstr());
 		let result = strfmt_map(fmtstr, |mut fmt| {
 			let value = self

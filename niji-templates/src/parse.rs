@@ -198,7 +198,7 @@ fn parse_name(source: &mut Source) -> ParseResult<Name> {
 	if src.peek() == Some('.') {
 		src.next().unwrap();
 		*source = src;
-		return Ok(Some(Name::Inherent));
+		return Ok(Some(Name(vec![])));
 	}
 
 	let mut segments = Vec::<String>::with_capacity(1);
@@ -215,7 +215,7 @@ fn parse_name(source: &mut Source) -> ParseResult<Name> {
 	}
 
 	*source = src;
-	Ok(Some(Name::Full(segments)))
+	Ok(Some(Name(segments)))
 }
 
 fn parse_tag(source: &mut Source, state: &State, operator: Option<char>) -> ParseResult<Name> {
@@ -527,12 +527,12 @@ mod tests {
 			Template::new(vec![
 				Token::String("Abc ".to_string()),
 				Token::Insert(Insert {
-					name: Name::Full(vec!["value1".to_string()]),
+					name: Name(vec!["value1".to_string()]),
 					format: None
 				}),
 				Token::String(" def ".to_string()),
 				Token::Insert(Insert {
-					name: Name::Full(vec!["value2".to_string()]),
+					name: Name(vec!["value2".to_string()]),
 					format: None
 				})
 			])
@@ -546,7 +546,7 @@ mod tests {
 		assert_eq!(
 			template,
 			Template::new(vec![Token::Insert(Insert {
-				name: Name::Inherent,
+				name: Name(vec![]),
 				format: None
 			})])
 		);
@@ -559,7 +559,7 @@ mod tests {
 		assert_eq!(
 			template,
 			Template::new(vec![Token::Insert(Insert {
-				name: Name::Full(vec!["abc".to_string(), "def".to_string()]),
+				name: Name(vec!["abc".to_string(), "def".to_string()]),
 				format: None
 			})])
 		);
@@ -572,13 +572,13 @@ mod tests {
 		assert_eq!(
 			template,
 			Template::new(vec![Token::Section(Section {
-				name: Name::Full(vec!["abc".to_string()]),
+				name: Name(vec!["abc".to_string()]),
 				inverted: false,
 				content: vec![Token::Section(Section {
-					name: Name::Full(vec!["def".to_string()]),
+					name: Name(vec!["def".to_string()]),
 					inverted: true,
 					content: vec![Token::Insert(Insert {
-						name: Name::Full(vec!["value".to_string()]),
+						name: Name(vec!["value".to_string()]),
 						format: None
 					})]
 				})]
@@ -596,11 +596,11 @@ mod tests {
 			template,
 			Template::new(vec![
 				Token::Insert(Insert {
-					name: Name::Full(vec!["value".to_string()]),
+					name: Name(vec!["value".to_string()]),
 					format: None
 				}),
 				Token::Insert(Insert {
-					name: Name::Full(vec!["value2".to_string()]),
+					name: Name(vec!["value2".to_string()]),
 					format: None
 				})
 			])
@@ -614,7 +614,7 @@ mod tests {
 		assert_eq!(
 			template,
 			Template::new(vec![Token::Insert(Insert {
-				name: Name::Full(vec!["value".to_string()]),
+				name: Name(vec!["value".to_string()]),
 				format: Some("{a}".to_string())
 			})])
 		)
