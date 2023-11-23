@@ -1,31 +1,41 @@
-use std::str::FromStr;
+use std::fmt;
 
-use thiserror::Error;
-
-struct Section {
-	name: String,
-	content: Vec<Token>
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum Name {
+	Full(Vec<String>),
+	Inherent
 }
 
-enum Token {
+impl fmt::Display for Name {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::Inherent => write!(f, "."),
+			Self::Full(segments) => write!(f, "{}", segments.join("."))
+		}
+	}
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct Section {
+	pub name: Name,
+	pub inverted: bool,
+	pub content: Vec<Token>
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum Token {
 	String(String),
-	Value(String),
+	Value(Name),
 	Section(Section)
 }
 
-#[derive(Debug, Error)]
-pub enum ParseError {}
-
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Template {
 	tokens: Vec<Token>
 }
 
-impl FromStr for Template {
-	type Err = ParseError;
-
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let mut tokens = Vec::<Token>::new();
-
-		Ok(Self { tokens })
+impl Template {
+	pub(crate) fn new(tokens: Vec<Token>) -> Self {
+		Self { tokens }
 	}
 }
