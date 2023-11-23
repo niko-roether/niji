@@ -310,7 +310,10 @@ fn parse_delimiter_definition(source: &mut Source) -> ParseResult<String> {
 	let mut src = source.clone();
 	let mut delimiter = String::new();
 
-	while src.peek().is_some() && !src.peek().unwrap().is_whitespace() {
+	while let Some(ch) = src.peek() {
+		if ch.is_whitespace() || ch == '=' {
+			break;
+		}
 		delimiter.push(src.next().unwrap());
 	}
 
@@ -324,18 +327,14 @@ fn parse_delimiter_definition(source: &mut Source) -> ParseResult<String> {
 
 fn parse_instruction(source: &mut Source, state: &mut State) -> ParseResult<()> {
 	let mut src = source.clone();
+	let instr_start = format!("{}=", state.start_delimiter);
+	let instr_end = format!("={}", state.end_delimiter);
 
-	if !has_delimiter(&mut src, &state.start_delimiter) {
+	if !has_delimiter(&mut src, &instr_start) {
 		return Ok(None);
 	}
 
 	skip_whitespace(&mut src);
-
-	if src.peek() == Some('=') {
-		src.next().unwrap();
-	} else {
-		return Ok(None);
-	}
 
 	skip_whitespace(&mut src);
 
@@ -356,9 +355,10 @@ fn parse_instruction(source: &mut Source, state: &mut State) -> ParseResult<()> 
 	};
 
 	skip_whitespace(&mut src);
-	if !has_delimiter(&mut src, &state.end_delimiter) {
+
+	if !has_delimiter(&mut src, &instr_end) {
 		return Err(ParseError::new(
-			ParseErrorKind::ExpectedClosingDelim(state.end_delimiter.to_string()),
+			ParseErrorKind::ExpectedClosingDelim(instr_end),
 			src.position
 		));
 	}
@@ -479,7 +479,7 @@ mod tests {
 
 	#[test]
 	fn delimiter_reassignment() {
-		let template: Template = "{{=<% %>}}<% value %><%= || || %>||value2||"
+		let template: Template = "{{=.% %.=}}.%value%..%= || || =%.||value2||"
 			.parse()
 			.unwrap();
 
