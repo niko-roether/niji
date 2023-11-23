@@ -20,7 +20,7 @@ function M.apply(config, theme)
 
 	niji.fs.write_output("theme.conf", config)
 
-	os.execute("hyprctl reload")
+	os.execute("hyprctl reload > /dev/null")
 end
 
 return M;

@@ -32,9 +32,6 @@ function M.apply(config, theme)
 	local font_size = get_font_size(config)
 	local custom_style = get_custom_style(config)
 
-	print(niji.mod.config.icon_font)
-
-
 	local style = style_css:render {
 		icon_font = niji.mod.config.icon_font,
 		font = config.font_family or "sans-serif",
