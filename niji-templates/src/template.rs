@@ -121,6 +121,11 @@ impl Template {
 					Self::render_tokens(buf, &section.content, value)?
 				}
 			}
+			(invert, Value::Nil) => {
+				if invert {
+					Self::render_tokens(buf, &section.content, value)?
+				}
+			}
 			(false, Value::Vec(vec)) => {
 				for val in vec {
 					Self::render_tokens(buf, &section.content, val)?;
@@ -144,7 +149,8 @@ impl Template {
 			Value::Map(..) => return Err(RenderError::CannotInsert("map")),
 			Value::Bool(bool) => buf.push_str(&bool.to_string()),
 			Value::String(string) => buf.push_str(string),
-			Value::Fmt(fmt_val) => buf.push_str(&fmt_val.format(insert.format.as_deref())?)
+			Value::Fmt(fmt_val) => buf.push_str(&fmt_val.format(insert.format.as_deref())?),
+			Value::Nil => ()
 		}
 
 		Ok(())
@@ -156,6 +162,7 @@ impl Template {
 		}
 
 		match value {
+			Value::Nil => Err(RenderError::CannotIndex("nil")),
 			Value::Bool(..) => Err(RenderError::CannotIndex("bool")),
 			Value::String(..) => Err(RenderError::CannotIndex("string")),
 			Value::Fmt(value) => Err(RenderError::CannotIndex(value.type_name())),

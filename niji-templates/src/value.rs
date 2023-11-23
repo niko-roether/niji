@@ -2,13 +2,15 @@ use std::collections::HashMap;
 
 use crate::fmt::Format;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum Value {
 	String(String),
 	Bool(bool),
 	Vec(Vec<Value>),
 	Map(HashMap<String, Value>),
-	Fmt(Box<dyn Format>)
+	Fmt(Box<dyn Format>),
+	#[default]
+	Nil
 }
 
 macro_rules! value_from_string {
@@ -64,6 +66,18 @@ where
 {
 	fn from(value: HashMap<String, V>) -> Self {
 		value.into_iter().collect()
+	}
+}
+
+impl<V> From<Option<V>> for Value
+where
+	V: Into<Value>
+{
+	fn from(value: Option<V>) -> Self {
+		match value {
+			Some(v) => v.into(),
+			None => Value::Nil
+		}
 	}
 }
 
