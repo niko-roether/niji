@@ -18,7 +18,7 @@ impl OsApi {
 			.args(args)
 			.stdin(Stdio::null())
 			.stdout(Stdio::null())
-			.stderr(Stdio::inherit())
+			.stderr(Stdio::null())
 			.spawn()
 			.map_err(mlua::Error::runtime)?;
 

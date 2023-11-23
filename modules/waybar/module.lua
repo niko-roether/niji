@@ -62,8 +62,7 @@ function M.apply(config, theme)
 		custom_style = custom_style
 	}
 
-	local output = niji.fs.manage_config("waybar/style.css")
-	output:write(style)
+	local output = niji.fs.write_config("waybar/style.css", style)
 
 	restart_waybar()
 end

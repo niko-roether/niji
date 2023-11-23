@@ -18,8 +18,7 @@ function M.apply(config, theme)
 		shadow_color = theme.ui.shadow
 	}
 
-	local output = niji.fs.open_output("theme.conf")
-	output:write(config)
+	niji.fs.write_output("theme.conf", config)
 
 	os.execute("hyprctl reload")
 end

@@ -40,23 +40,25 @@ impl FileManager {
 		Ok(Self { files })
 	}
 
-	pub fn manage(&self, path: &Path) -> Result<(), Error> {
+	pub fn write_managed(&self, path: &Path, string: &str) -> Result<(), Error> {
 		let mut managed_files = self.managed_files()?;
 
 		if !path.exists() {
 			console::debug!("Creating new managed file at {}", path.display());
-			self.init_new_file(&mut managed_files, path)
+			self.init_new_file(&mut managed_files, path, string)
 		} else {
-			self.manage_existing_file(&mut managed_files, path)
+			self.manage_existing_file(&mut managed_files, path, string)
 		}
 	}
 
 	fn init_new_file(
 		&self,
 		managed_files: &mut HashMap<PathBuf, u64>,
-		path: &Path
+		path: &Path,
+		string: &str
 	) -> Result<(), Error> {
-		fs::write(path, "").map_err(|e| Error::Write(path.to_string_lossy().into_owned(), e))?;
+		fs::write(path, string)
+			.map_err(|e| Error::Write(path.to_string_lossy().into_owned(), e))?;
 		self.set_managed(managed_files, path.to_path_buf())?;
 
 		console::info!("niji now manages {}", path.display());
@@ -67,20 +69,22 @@ impl FileManager {
 	fn manage_existing_file(
 		&self,
 		managed_files: &mut HashMap<PathBuf, u64>,
-		path: &Path
+		path: &Path,
+		string: &str
 	) -> Result<(), Error> {
 		if self.is_managed(managed_files, path)? {
 			console::debug!("Writing to managed file at {}", path.display());
 			return Ok(());
 		}
 
-		self.backup_and_replace(managed_files, path)
+		self.backup_and_replace(managed_files, path, string)
 	}
 
 	fn backup_and_replace(
 		&self,
 		managed_files: &mut HashMap<PathBuf, u64>,
-		path: &Path
+		path: &Path,
+		string: &str
 	) -> Result<(), Error> {
 		let backup_path = Self::get_backup_path(path);
 
@@ -99,7 +103,7 @@ impl FileManager {
 		fs::copy(path, &backup_path)
 			.map_err(|e| Error::Write(backup_path.to_string_lossy().into_owned(), e))?;
 
-		self.init_new_file(managed_files, path)?;
+		self.init_new_file(managed_files, path, string)?;
 
 		console::info!("Backup created at {}", backup_path.display());
 
