@@ -38,8 +38,8 @@ pub(crate) enum Token {
 
 #[derive(Debug, Error)]
 pub enum RenderError {
-	#[error("Type {0} cannot be indexed")]
-	CannotIndex(&'static str),
+	#[error("Couldn't resolve name {0}")]
+	NameNotFound(String),
 
 	#[error("Cannot directly insert type {0}")]
 	CannotInsert(&'static str),
@@ -81,31 +81,39 @@ impl Template {
 
 	pub fn render(&self, value: &Value) -> Result<String, RenderError> {
 		let mut buf = String::new();
-		Self::render_tokens(&mut buf, &self.tokens, value)?;
+		self.render_tokens(&mut buf, &self.tokens, &[value])?;
 		Ok(buf)
 	}
 
-	fn render_tokens(buf: &mut String, tokens: &[Token], value: &Value) -> Result<(), RenderError> {
+	fn render_tokens(
+		&self,
+		buf: &mut String,
+		tokens: &[Token],
+		context: &[&Value]
+	) -> Result<(), RenderError> {
 		for token in tokens {
 			match token {
 				Token::String(string) => buf.push_str(string),
-				Token::Insert(insert) => Self::render_insert(buf, insert, value)?,
-				Token::Section(section) => Self::render_section(buf, section, value)?
+				Token::Insert(insert) => self.render_insert(buf, insert, context)?,
+				Token::Section(section) => self.render_section(buf, section, context)?
 			}
 		}
 		Ok(())
 	}
 
 	fn render_section(
+		&self,
 		buf: &mut String,
 		section: &Section,
-		value: &Value
+		context: &[&Value]
 	) -> Result<(), RenderError> {
-		let value = Self::get_named_value(&section.name.0, value)?;
+		let Some(value) = Self::get_named_value(&section.name.0, context)? else {
+			return Err(RenderError::NameNotFound(section.name.to_string()));
+		};
 
 		match (section.inverted, value) {
 			(false, Value::String(..) | Value::Fmt(..) | Value::Map(..)) => {
-				Self::render_tokens(buf, &section.content, value)?
+				self.render_tokens(buf, &section.content, &[&[value], context].concat())?
 			}
 			(true, Value::String(..)) => {
 				return Err(RenderError::CannotCreateInvertedSection("string"))
@@ -118,22 +126,22 @@ impl Template {
 			}
 			(invert, Value::Bool(bool)) => {
 				if bool ^ invert {
-					Self::render_tokens(buf, &section.content, value)?
+					self.render_tokens(buf, &section.content, &[&[value], context].concat())?
 				}
 			}
 			(invert, Value::Nil) => {
 				if invert {
-					Self::render_tokens(buf, &section.content, value)?
+					self.render_tokens(buf, &section.content, &[&[value], context].concat())?
 				}
 			}
 			(false, Value::Vec(vec)) => {
 				for val in vec {
-					Self::render_tokens(buf, &section.content, val)?;
+					self.render_tokens(buf, &section.content, &[&[val], context].concat())?;
 				}
 			}
 			(true, Value::Vec(vec)) => {
 				for val in vec.iter().rev() {
-					Self::render_tokens(buf, &section.content, val)?;
+					self.render_tokens(buf, &section.content, &[&[val], context].concat())?;
 				}
 			}
 		}
@@ -141,31 +149,51 @@ impl Template {
 		Ok(())
 	}
 
-	fn render_insert(buf: &mut String, insert: &Insert, value: &Value) -> Result<(), RenderError> {
-		let value = Self::get_named_value(&insert.name.0, value)?;
+	fn render_insert(
+		&self,
+		buf: &mut String,
+		insert: &Insert,
+		context: &[&Value]
+	) -> Result<(), RenderError> {
+		let Some(value) = Self::get_named_value(&insert.name.0, context)? else {
+			return Err(RenderError::NameNotFound(insert.name.to_string()));
+		};
 
 		match value {
 			Value::Vec(..) => return Err(RenderError::CannotInsert("array")),
 			Value::Map(..) => return Err(RenderError::CannotInsert("map")),
 			Value::Bool(bool) => buf.push_str(&bool.to_string()),
 			Value::String(string) => buf.push_str(string),
-			Value::Fmt(fmt_val) => buf.push_str(&fmt_val.format(insert.format.as_deref())?),
+			Value::Fmt(fmt_val) => buf.push_str(
+				&fmt_val.format(
+					self.fmt
+						.get(fmt_val.type_name())
+						.or(insert.format.as_ref())
+						.map(String::as_str)
+				)?
+			),
 			Value::Nil => ()
 		}
 
 		Ok(())
 	}
 
-	fn get_named_value<'a>(name: &'a [String], value: &'a Value) -> Result<&'a Value, RenderError> {
+	fn get_named_value<'a>(
+		name: &'a [String],
+		context: &[&'a Value]
+	) -> Result<Option<&'a Value>, RenderError> {
+		let Some(&value) = context.get(0) else {
+			return Ok(None);
+		};
+
 		if name.is_empty() {
-			return Ok(value);
+			return Ok(Some(value));
 		}
 
 		match value {
-			Value::Nil => Err(RenderError::CannotIndex("nil")),
-			Value::Bool(..) => Err(RenderError::CannotIndex("bool")),
-			Value::String(..) => Err(RenderError::CannotIndex("string")),
-			Value::Fmt(value) => Err(RenderError::CannotIndex(value.type_name())),
+			Value::Nil | Value::Bool(..) | Value::Fmt(..) | Value::String(..) => {
+				Self::get_named_value(name, &context[1..])
+			}
 			Value::Vec(vec) => {
 				let index: usize = name[0]
 					.parse()
@@ -174,13 +202,13 @@ impl Template {
 					return Err(RenderError::IndexOutOfBounds(index, vec.len()));
 				}
 
-				Self::get_named_value(&name[1..], &vec[index])
+				Self::get_named_value(&name[1..], &[&[&vec[index]], &context[1..]].concat())
 			}
 			Value::Map(map) => {
 				let Some(value) = map.get(&name[0]) else {
-					return Err(RenderError::UnknownKey(name[0].clone()));
+					return Self::get_named_value(name, &context[1..]);
 				};
-				Self::get_named_value(&name[1..], value)
+				Self::get_named_value(&name[1..], &[&[value], &context[1..]].concat())
 			}
 		}
 	}
