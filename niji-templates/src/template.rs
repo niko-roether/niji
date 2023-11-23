@@ -75,7 +75,7 @@ impl Template {
 	}
 
 	#[inline]
-	pub fn set_fromat(&mut self, type_name: String, format: String) {
+	pub fn set_format(&mut self, type_name: String, format: String) {
 		self.fmt.insert(type_name, format);
 	}
 
