@@ -1,18 +1,29 @@
 use std::collections::HashMap;
 
+use crate::fmt::Format;
+
 #[derive(Debug)]
 pub enum Value {
 	String(String),
 	Bool(bool),
 	Vec(Vec<Value>),
-	Map(HashMap<String, Value>)
+	Map(HashMap<String, Value>),
+	Fmt(Box<dyn Format>)
 }
 
-impl From<String> for Value {
-	fn from(value: String) -> Self {
-		Self::String(value)
-	}
+macro_rules! value_from_string {
+    ($($ty:ty),*) => {
+        $(
+            impl From<$ty> for Value {
+                fn from(val: $ty) -> Value {
+                    Value::String(val.to_string())
+                }
+            }
+         )*
+    };
 }
+
+value_from_string!(i8, u8, i16, u16, i32, u32, i64, u64, f32, f64, char, String);
 
 impl From<bool> for Value {
 	fn from(value: bool) -> Self {
@@ -53,5 +64,14 @@ where
 {
 	fn from(value: HashMap<String, V>) -> Self {
 		value.into_iter().collect()
+	}
+}
+
+impl<V> From<V> for Value
+where
+	V: Format + 'static
+{
+	fn from(value: V) -> Self {
+		Self::Fmt(Box::new(value))
 	}
 }

@@ -467,6 +467,7 @@ dependencies = [
 name = "niji-templates"
 version = "0.1.0"
 dependencies = [
+ "strfmt",
  "thiserror",
 ]
 
