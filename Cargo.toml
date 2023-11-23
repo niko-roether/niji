@@ -1,3 +1,3 @@
 [workspace]
 resolver = "2"
-members = ["niji", "niji-macros", "niji-templates"]
+members = ["niji", "niji-macros", "niji-templates", "niji-console"]
