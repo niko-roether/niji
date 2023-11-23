@@ -9,6 +9,39 @@ pub enum FmtValue {
 	Float(f64)
 }
 
+macro_rules! fmt_value_from_int {
+    ($($ty:ty),*) => {
+        $(
+            impl From<$ty> for FmtValue {
+                fn from(value: $ty) -> Self {
+                    Self::Int(value as i64)
+                }
+            }
+         )*
+    };
+}
+
+macro_rules! fmt_value_from_float {
+    ($($ty:ty),*) => {
+        $(
+            impl From<$ty> for FmtValue {
+                fn from(value: $ty) -> Self {
+                    Self::Float(value as f64)
+                }
+            }
+         )*
+    };
+}
+
+fmt_value_from_int!(i8, u8, i16, u16, i32, u32, i64, u64);
+fmt_value_from_float!(f32, f64);
+
+impl From<String> for FmtValue {
+	fn from(value: String) -> Self {
+		Self::String(value)
+	}
+}
+
 impl DisplayStr for FmtValue {
 	fn display_str(&self, f: &mut Formatter) -> strfmt::Result<()> {
 		match self {
