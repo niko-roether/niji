@@ -55,6 +55,7 @@ function M.apply(config, theme)
 		padding_y = niji.mod.config.padding_y or "4px",
 		margin_x = niji.mod.config.margin_x or "3px",
 		margin_y = niji.mod.config.margin_y or "3px",
+		workspace_button_margin = niji.mod.config.workspace_button_margin or "6px",
 		border_radius = niji.mod.config.border_radius or "4px",
 		border_width = niji.mod.config.border_width or "2px",
 		custom_modules = niji.mod.config.custom_modules or {},

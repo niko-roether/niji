@@ -19,17 +19,23 @@ window#waybar.hidden {
 }
 
 #workspaces {
-	background-color: transparent;
+	background-color: {{background}};
+	border-radius: {{border_radius}};
+	margin: {{margin_y}} 0;
 }
 
 #workspaces button {
 	all: initial;
 	min-width: 0;
 	padding: {{padding_y}} {{padding_x}};
-	margin: {{margin_y}} {{margin_x}};
+	margin-left: {{workspace_button_margin}};
 	border-radius: {{border_radius}};
 	background-color: {{surface}};
 	color: {{text_surface}};
+}
+
+#workspaces button:first-child {
+	margin-left: 0;
 }
 
 #workspaces button.focused,
@@ -45,7 +51,7 @@ window#waybar.hidden {
 
 #workspace button.urgent {
 	background-color: {{warning}};
-	color: {{text_warning}}
+	color: {{text_warning}};
 }
 
 {{#custom_modules}}
@@ -67,7 +73,7 @@ window#waybar.hidden {
 	margin: {{margin_y}} {{margin_x}};
 	border-radius: {{border_radius}};
 	background-color: {{background}};
-	color: {{text_background}}
+	color: {{text_background}};
 }
 
 
