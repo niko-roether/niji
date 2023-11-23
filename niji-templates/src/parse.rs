@@ -6,7 +6,7 @@ use std::{
 
 use thiserror::Error;
 
-use crate::template::{Name, Section, Template, Token};
+use crate::template::{Insert, Name, Section, Template, Token};
 
 // Tokens := (Token | SetDelimiters)*
 // Token := Section | Value | String
@@ -35,7 +35,16 @@ pub enum ParseErrorKind {
 	MissingStartDelimiterDef,
 
 	#[error("Missing a definition for the end delimiter")]
-	MissingEndDelimiterDef
+	MissingEndDelimiterDef,
+
+	#[error("Unterminated string literal")]
+	UnterminatedStrLit,
+
+	#[error("Expected string literal")]
+	ExpectedStrLit,
+
+	#[error("'{0}' cannot be used in a delimiter")]
+	ForbiddenDelimiterChar(char)
 }
 
 #[derive(Debug, Error)]
@@ -240,9 +249,85 @@ fn parse_tag(source: &mut Source, state: &State, operator: Option<char>) -> Pars
 	Ok(Some(name))
 }
 
-#[inline]
-fn parse_value(source: &mut Source, state: &State) -> ParseResult<Name> {
-	parse_tag(source, state, None)
+fn parse_str_lit(source: &mut Source) -> ParseResult<String> {
+	let mut src = source.clone();
+	let mut str = String::new();
+	let mut escape = false;
+	let mut complete = false;
+
+	if src.next() != Some('"') {
+		return Ok(None);
+	}
+
+	for ch in &mut src {
+		if escape {
+			str.push(ch);
+			escape = false;
+			continue;
+		}
+		if ch == '\\' {
+			escape = true;
+			continue;
+		}
+		if ch == '"' {
+			complete = true;
+			break;
+		}
+		str.push(ch)
+	}
+
+	if !complete {
+		return Err(ParseError::new(
+			ParseErrorKind::UnterminatedStrLit,
+			src.position
+		));
+	}
+
+	*source = src;
+	Ok(Some(str))
+}
+
+fn parse_insert(source: &mut Source, state: &State) -> ParseResult<Insert> {
+	let mut src = source.clone();
+
+	if !has_delimiter(&mut src, &state.start_delimiter) {
+		return Ok(None);
+	}
+
+	skip_whitespace(&mut src);
+
+	let Some(name) = parse_name(&mut src)? else {
+		return Err(ParseError::new(ParseErrorKind::ExpectedName, src.position));
+	};
+
+	skip_whitespace(&mut src);
+
+	let mut format = None;
+	if src.peek() == Some(':') {
+		src.next().unwrap();
+		skip_whitespace(&mut src);
+
+		let Some(format_str) = parse_str_lit(&mut src)? else {
+			return Err(ParseError::new(
+				ParseErrorKind::ExpectedStrLit,
+				src.position
+			));
+		};
+
+		skip_whitespace(&mut src);
+
+		format = Some(format_str)
+	}
+
+	if !has_delimiter(&mut src, &state.end_delimiter) {
+		return Err(ParseError::new(
+			ParseErrorKind::ExpectedClosingDelim(state.end_delimiter.clone()),
+			src.position
+		));
+	}
+
+	*source = src;
+	Ok(Some(Insert { name, format }))
 }
 
 fn parse_section(source: &mut Source, state: &mut State) -> ParseResult<Section> {
@@ -319,6 +404,13 @@ fn parse_delimiter_definition(source: &mut Source) -> ParseResult<String> {
 
 	if delimiter.is_empty() {
 		return Ok(None);
+	}
+
+	if delimiter.contains(':') {
+		return Err(ParseError::new(
+			ParseErrorKind::ForbiddenDelimiterChar(':'),
+			source.position
+		));
 	}
 
 	*source = src;
@@ -401,8 +493,8 @@ fn parse_string(source: &mut Source, state: &State) -> ParseResult<String> {
 fn parse_token(source: &mut Source, state: &mut State) -> ParseResult<Token> {
 	if let Some(section) = parse_section(source, state)? {
 		Ok(Some(Token::Section(section)))
-	} else if let Some(value) = parse_value(source, state)? {
-		Ok(Some(Token::Value(value)))
+	} else if let Some(value) = parse_insert(source, state)? {
+		Ok(Some(Token::Insert(value)))
 	} else if let Some(string) = parse_string(source, state)? {
 		Ok(Some(Token::String(string)))
 	} else {
@@ -422,6 +514,8 @@ fn parse_template(source: &mut Source, state: &mut State) -> ParseResult<Vec<Tok
 
 #[cfg(test)]
 mod tests {
+	use crate::template::Insert;
+
 	use super::*;
 
 	#[test]
@@ -432,9 +526,15 @@ mod tests {
 			template,
 			Template::new(vec![
 				Token::String("Abc ".to_string()),
-				Token::Value(Name::Full(vec!["value1".to_string()])),
+				Token::Insert(Insert {
+					name: Name::Full(vec!["value1".to_string()]),
+					format: None
+				}),
 				Token::String(" def ".to_string()),
-				Token::Value(Name::Full(vec!["value2".to_string()]))
+				Token::Insert(Insert {
+					name: Name::Full(vec!["value2".to_string()]),
+					format: None
+				})
 			])
 		);
 	}
@@ -443,7 +543,13 @@ mod tests {
 	fn inherent_values() {
 		let template: Template = "{{.}}".parse().unwrap();
 
-		assert_eq!(template, Template::new(vec![Token::Value(Name::Inherent)]));
+		assert_eq!(
+			template,
+			Template::new(vec![Token::Insert(Insert {
+				name: Name::Inherent,
+				format: None
+			})])
+		);
 	}
 
 	#[test]
@@ -452,10 +558,10 @@ mod tests {
 
 		assert_eq!(
 			template,
-			Template::new(vec![Token::Value(Name::Full(vec![
-				"abc".to_string(),
-				"def".to_string()
-			]))])
+			Template::new(vec![Token::Insert(Insert {
+				name: Name::Full(vec!["abc".to_string(), "def".to_string()]),
+				format: None
+			})])
 		);
 	}
 
@@ -471,7 +577,10 @@ mod tests {
 				content: vec![Token::Section(Section {
 					name: Name::Full(vec!["def".to_string()]),
 					inverted: true,
-					content: vec![Token::Value(Name::Full(vec!["value".to_string()]))]
+					content: vec![Token::Insert(Insert {
+						name: Name::Full(vec!["value".to_string()]),
+						format: None
+					})]
 				})]
 			})])
 		);
@@ -486,9 +595,28 @@ mod tests {
 		assert_eq!(
 			template,
 			Template::new(vec![
-				Token::Value(Name::Full(vec!["value".to_string()])),
-				Token::Value(Name::Full(vec!["value2".to_string()]))
+				Token::Insert(Insert {
+					name: Name::Full(vec!["value".to_string()]),
+					format: None
+				}),
+				Token::Insert(Insert {
+					name: Name::Full(vec!["value2".to_string()]),
+					format: None
+				})
 			])
 		);
+	}
+
+	#[test]
+	fn format_definition() {
+		let template: Template = "{{value : \"{a}\"}}".parse().unwrap();
+
+		assert_eq!(
+			template,
+			Template::new(vec![Token::Insert(Insert {
+				name: Name::Full(vec!["value".to_string()]),
+				format: Some("{a}".to_string())
+			})])
+		)
 	}
 }

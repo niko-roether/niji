@@ -23,9 +23,15 @@ pub(crate) struct Section {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct Insert {
+	pub name: Name,
+	pub format: Option<String>
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Token {
 	String(String),
-	Value(Name),
+	Insert(Insert),
 	Section(Section)
 }
 
