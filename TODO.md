@@ -1,2 +1,1 @@
-- make apply -M suck less
 - gtk module(s)

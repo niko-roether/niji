@@ -1,4 +1,4 @@
-use std::{path::PathBuf, rc::Rc};
+use std::{collections::HashSet, path::PathBuf, rc::Rc, sync::Mutex};
 
 use log::{debug, error, info, warn};
 use niji_console::heading;
@@ -29,13 +29,15 @@ pub struct ModuleManagerInit {
 	pub file_manager: Rc<FileManager>
 }
 
-struct ActiveModule {
+#[derive(Clone)]
+struct ModuleDescriptor {
 	name: String,
 	path: PathBuf
 }
 
 pub struct ModuleManager {
-	active_modules: Vec<ActiveModule>,
+	files: Rc<Files>,
+	active_modules: Mutex<Vec<ModuleDescriptor>>,
 	lua_runtime: LuaRuntime
 }
 
@@ -48,20 +50,9 @@ impl ModuleManager {
 			file_manager
 		}: ModuleManagerInit
 	) -> Result<Self, Error> {
-		let mut active_modules = Vec::<ActiveModule>::with_capacity(config.modules.len());
+		let mut active_modules = Vec::<ModuleDescriptor>::with_capacity(config.modules.len());
 		for mod_name in &config.modules {
-			let module_dir = Self::find_module_dir(&files, mod_name)
-				.ok_or_else(|| Error::UnknownModule(mod_name.clone()))?;
-
-			debug!(
-				"Activating module \"{mod_name}\" at path {}",
-				module_dir.display()
-			);
-
-			active_modules.push(ActiveModule {
-				name: mod_name.to_string(),
-				path: module_dir
-			});
+			Self::activate(&files, &mut active_modules, mod_name)?;
 		}
 
 		let lua_runtime = LuaRuntime::new(LuaRuntimeInit {
@@ -72,7 +63,8 @@ impl ModuleManager {
 		.map_err(Error::RuntimeInit)?;
 
 		Ok(Self {
-			active_modules,
+			files: Rc::clone(&files),
+			active_modules: Mutex::new(active_modules),
 			lua_runtime
 		})
 	}
@@ -82,61 +74,111 @@ impl ModuleManager {
 		config: &Config,
 		theme: &Theme,
 		reload: bool,
-		filter: Option<&[&str]>
+		modules: Option<&[String]>
 	) -> Result<(), Error> {
-		for ActiveModule { name, path } in &self.active_modules {
-			heading!("{name}");
+		let mut remaining = HashSet::<String>::new();
+		if let Some(modules) = modules {
+			remaining.extend(modules.iter().cloned())
+		}
 
-			let module = match Module::load(&self.lua_runtime, path) {
-				Ok(module) => module,
-				Err(error) => {
-					error!("{error}");
-					println!();
-					continue;
-				}
-			};
-
-			if let Some(filter) = filter {
-				if !filter.contains(&name.as_str()) {
-					continue;
-				}
-			}
-
-			let mut module_config = config.global.clone();
-			if let Some(specific) = config.module_config.get(name) {
-				module_config.extend(specific.clone().into_iter());
-			}
-
-			if let Err(err) = module.apply(module_config, theme.clone()) {
-				error!("{err}");
-				error!("Aborting module execution");
-				println!();
+		for module_descr in &*self.active_modules.lock().unwrap() {
+			if modules.is_some() && !remaining.remove(&module_descr.name.clone()) {
 				continue;
 			}
-			if reload {
-				if config.disable_reloads.is_disabled(name) {
-					info!(
-						"Reloading is disabled for module {name}. You will only see the changes \
-						 after a restart"
-					)
-				} else if module.can_reload() {
-					info!("Reloading...");
-					if let Err(err) = module.reload() {
-						error!("{err}");
-						error!("Reloading of {name} failed");
-						println!();
-					}
-				} else {
-					warn!(
-						"Module {name} does not support reloading. You will only see the changes \
-						 on a restart."
-					)
-				}
-			}
-			info!("Done!");
-			println!();
+
+			self.apply_module(module_descr, config, theme, reload);
 		}
+
+		if modules.is_some() {
+			for mod_name in remaining {
+				let module_descr = Self::activate(
+					&self.files,
+					&mut self.active_modules.lock().unwrap(),
+					&mod_name
+				)?;
+				self.apply_module(&module_descr, config, theme, reload);
+			}
+		}
+
 		Ok(())
+	}
+
+	fn activate(
+		files: &Files,
+		active_modules: &mut Vec<ModuleDescriptor>,
+		mod_name: &str
+	) -> Result<ModuleDescriptor, Error> {
+		let module_dir = Self::find_module_dir(files, mod_name)
+			.ok_or_else(|| Error::UnknownModule(mod_name.to_string()))?;
+
+		debug!(
+			"Activating module \"{mod_name}\" at path {}",
+			module_dir.display()
+		);
+
+		let module_descr = ModuleDescriptor {
+			name: mod_name.to_string(),
+			path: module_dir
+		};
+
+		active_modules.push(module_descr.clone());
+
+		Ok(module_descr)
+	}
+
+	fn apply_module(
+		&self,
+		module_descr: &ModuleDescriptor,
+		config: &Config,
+		theme: &Theme,
+		reload: bool
+	) {
+		heading!("{}", module_descr.name);
+
+		let module = match Module::load(&self.lua_runtime, &module_descr.path) {
+			Ok(module) => module,
+			Err(error) => {
+				error!("{error}");
+				println!();
+				return;
+			}
+		};
+
+		let mut module_config = config.global.clone();
+		if let Some(specific) = config.module_config.get(&module_descr.name) {
+			module_config.extend(specific.clone());
+		}
+
+		if let Err(err) = module.apply(module_config, theme.clone()) {
+			error!("{err}");
+			error!("Aborting module execution");
+			println!();
+			return;
+		}
+		if reload {
+			if config.disable_reloads.is_disabled(&module_descr.name) {
+				info!(
+					"Reloading is disabled for module {}. You will only see the changes after a \
+					 restart",
+					module_descr.name
+				)
+			} else if module.can_reload() {
+				info!("Reloading...");
+				if let Err(err) = module.reload() {
+					error!("{err}");
+					error!("Reloading of {} failed", module_descr.name);
+					println!();
+				}
+			} else {
+				warn!(
+					"Module {} does not support reloading. You will only see the changes on a \
+					 restart.",
+					module_descr.name
+				)
+			}
+		}
+		info!("Done!");
+		println!();
 	}
 
 	fn find_module_dir(files: &Files, name: &str) -> Option<PathBuf> {

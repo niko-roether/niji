@@ -161,11 +161,11 @@ fn cmd(args: &ArgMatches) {
 
 fn cmd_apply(app: &NijiApp, args: &ArgMatches) {
 	let no_reload = args.get_one::<bool>("no_reload").unwrap();
-	let filter: Option<Vec<&str>> = args
+	let modules: Option<Vec<String>> = args
 		.get_many::<String>("modules")
-		.map(|m| m.map(String::as_str).collect());
+		.map(|v| v.cloned().collect());
 
-	handle!(app.apply(!no_reload, filter.as_deref()))
+	handle!(app.apply(!no_reload, modules.as_deref()))
 }
 
 fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
