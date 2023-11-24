@@ -168,6 +168,37 @@ impl Console {
 		}
 	}
 
+	pub fn heading(&self, args: &Arguments) -> Result<(), io::Error> {
+		let stdout = &mut self.stdout.lock().unwrap();
+
+		let mut decoration_color = ColorSpec::new();
+		decoration_color
+			.set_fg(Some(Color::Black))
+			.set_intense(true);
+
+		stdout.set_color(&decoration_color).unwrap();
+
+		write!(stdout, " ==== [ ")?;
+
+		stdout
+			.set_color(
+				ColorSpec::new()
+					.set_fg(Some(Color::White))
+					.set_intense(true)
+					.set_bold(true)
+			)
+			.unwrap();
+
+		write!(stdout, "{args}")?;
+
+		stdout.set_color(&decoration_color).unwrap();
+
+		writeln!(stdout, " ] ====")?;
+
+		stdout.reset().unwrap();
+		Ok(())
+	}
+
 	pub fn flush(&self) -> Result<(), io::Error> {
 		let stdout = &mut self.stdout.lock().unwrap();
 		let stderr = &mut self.stderr.lock().unwrap();

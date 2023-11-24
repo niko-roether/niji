@@ -7,3 +7,10 @@ macro_rules! prompt {
         $crate::__private_api::prompt(&format_args!($($arg)+), None).unwrap()
     }
 }
+
+#[macro_export]
+macro_rules! heading {
+    ($($arg:tt)+) => {
+        $crate::__private_api::heading(&format_args!($($arg)+)).unwrap()
+    }
+}

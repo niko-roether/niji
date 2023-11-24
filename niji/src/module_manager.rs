@@ -1,6 +1,7 @@
 use std::{collections::HashMap, path::PathBuf, rc::Rc};
 
 use log::{debug, error, info};
+use niji_console::heading;
 use thiserror::Error;
 
 use crate::{
@@ -89,10 +90,11 @@ impl ModuleManager {
 
 	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), Error> {
 		for (name, module) in self.iter_loaded_modules() {
-			info!("Applying config to module {name}");
+			heading!("{name}");
 			module
 				.apply(config, theme)
 				.map_err(|e| Error::ModuleExec(name.to_string(), e))?;
+			info!("Done!");
 			println!();
 		}
 		Ok(())

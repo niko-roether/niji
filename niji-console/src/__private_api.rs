@@ -36,6 +36,10 @@ pub fn prompt(args: &Arguments, default: Option<bool>) -> Result<bool, io::Error
 	get_console().prompt(args, default)
 }
 
+pub fn heading(args: &Arguments) -> Result<(), io::Error> {
+	get_console().heading(args)
+}
+
 pub fn flush() -> Result<(), io::Error> {
 	get_console().flush()
 }
