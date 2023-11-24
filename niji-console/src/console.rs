@@ -1,6 +1,6 @@
 use std::{
 	fmt::Arguments,
-	io::{self, Write},
+	io::{self, IsTerminal, Write},
 	sync::Mutex
 };
 
@@ -13,8 +13,20 @@ pub struct Console {
 
 impl Console {
 	pub fn new(color_choice: ColorChoice) -> Self {
-		let stdout = Mutex::new(BufferedStandardStream::stdout(color_choice));
-		let stderr = Mutex::new(BufferedStandardStream::stderr(color_choice));
+		let mut stdout_color = color_choice;
+		let mut stderr_color = color_choice;
+
+		if color_choice == ColorChoice::Auto {
+			if !io::stdout().is_terminal() {
+				stdout_color = ColorChoice::Never;
+			}
+			if !io::stderr().is_terminal() {
+				stderr_color = ColorChoice::Never;
+			}
+		}
+
+		let stdout = Mutex::new(BufferedStandardStream::stdout(stdout_color));
+		let stderr = Mutex::new(BufferedStandardStream::stderr(stderr_color));
 
 		Self { stdout, stderr }
 	}
