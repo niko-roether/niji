@@ -8,14 +8,8 @@ pub struct OsApi;
 
 impl OsApi {
 	fn exec_detached(_: &Lua, command: String) -> mlua::Result<()> {
-		let mut parts = command.split(' ').filter(|s| !s.is_empty());
-		let Some(program) = parts.next() else {
-			return Ok(());
-		};
-		let args = parts;
-
-		Command::new(program)
-			.args(args)
+		Command::new("sh")
+			.args(["-c", &command])
 			.stdin(Stdio::null())
 			.stdout(Stdio::null())
 			.stderr(Stdio::null())
