@@ -14,6 +14,8 @@ impl FilesystemApi {
 		let file_mgr = lua.app_data_ref::<Rc<FileManager>>().unwrap();
 		let path = PathBuf::from(path);
 
+		fs::create_dir_all(path.parent().unwrap()).map_err(mlua::Error::runtime)?;
+
 		file_mgr
 			.write_managed(&path, &content)
 			.map_err(mlua::Error::runtime)?;
