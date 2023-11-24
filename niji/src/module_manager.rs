@@ -104,7 +104,12 @@ impl ModuleManager {
 				continue;
 			}
 			if reload {
-				if module.can_reload() {
+				if config.disable_reloads.is_disabled(name) {
+					info!(
+						"Reloading is disabled for module {name}. You will only see the changes \
+						 after a restart"
+					)
+				} else if module.can_reload() {
 					info!("Reloading...");
 					if let Err(err) = module.reload() {
 						error!("{err}");
@@ -113,7 +118,7 @@ impl ModuleManager {
 					}
 				} else {
 					warn!(
-						"Module {name} does not support reloading! You might only see the changes \
+						"Module {name} does not support reloading. You will only see the changes \
 						 on a restart."
 					)
 				}

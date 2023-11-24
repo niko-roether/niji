@@ -162,9 +162,34 @@ pub enum ModuleConfigValue {
 
 pub type ModuleConfig = HashMap<String, ModuleConfigValue>;
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum DisableReloads {
+	#[default]
+	None,
+
+	All,
+
+	#[serde(untagged)]
+	Blacklist(Vec<String>)
+}
+
+impl DisableReloads {
+	pub fn is_disabled(&self, name: &str) -> bool {
+		match self {
+			Self::None => false,
+			Self::All => true,
+			Self::Blacklist(blacklist) => blacklist.contains(&name.to_string())
+		}
+	}
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
 	pub modules: Vec<String>,
+
+	#[serde(default)]
+	pub disable_reloads: DisableReloads,
 
 	#[serde(default)]
 	pub global: ModuleConfig,
