@@ -1,5 +1,11 @@
-use std::{io, path::Path};
+use std::{
+	fs::File,
+	io::{self, BufRead, BufReader},
+	path::Path,
+	process::{Command, Stdio}
+};
 
+use log::debug;
 use thiserror::Error;
 
 use crate::{
@@ -11,6 +17,9 @@ use crate::{
 pub enum LoadError {
 	#[error("Failed to read module files: {0}")]
 	FileReadErr(#[from] io::Error),
+
+	#[error("Missing dependency: {0}")]
+	MissingDependency(String),
 
 	#[error("{0}")]
 	LuaErr(#[from] mlua::Error)
@@ -28,7 +37,10 @@ pub enum ExecError {
 pub struct Module<'lua>(LuaModule<'lua>);
 
 impl<'lua> Module<'lua> {
+	const DEPS_FILE: &'static str = "deps.txt";
+
 	pub fn load(runtime: &'lua LuaRuntime, path: &Path) -> Result<Self, LoadError> {
+		Self::check_dependencies(path)?;
 		let module = runtime.load_lua_module(path)?;
 		Ok(Self(module))
 	}
@@ -47,5 +59,40 @@ impl<'lua> Module<'lua> {
 
 	pub fn reload(&self) -> Result<(), ExecError> {
 		Ok(self.0.call("reload", ())?)
+	}
+
+	fn check_dependencies(path: &Path) -> Result<(), LoadError> {
+		let deps_file = path.join(Self::DEPS_FILE);
+		if !deps_file.exists() {
+			return Ok(());
+		}
+
+		let reader = BufReader::new(File::open(deps_file)?).lines();
+		for dependency in reader {
+			Self::check_dependency(&dependency?)?;
+		}
+
+		Ok(())
+	}
+
+	fn check_dependency(program: &str) -> Result<(), LoadError> {
+		debug!("Checking for module dependency {program}...");
+
+		let output = Command::new("/bin/which")
+			.arg(program)
+			.stdout(Stdio::piped())
+			.output()
+			.expect("Failed to run /bin/which");
+
+		if !output.status.success() {
+			return Err(LoadError::MissingDependency(program.to_string()));
+		}
+
+		debug!(
+			"Found {program} at {}",
+			String::from_utf8_lossy(&output.stdout).trim()
+		);
+
+		Ok(())
 	}
 }

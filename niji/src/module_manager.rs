@@ -84,9 +84,20 @@ impl ModuleManager {
 		reload: bool,
 		filter: Option<&[&str]>
 	) -> Result<(), Error> {
-		for (name, module) in self.iter_loaded_modules() {
+		for ActiveModule { name, path } in &self.active_modules {
+			heading!("{name}");
+
+			let module = match Module::load(&self.lua_runtime, path) {
+				Ok(module) => module,
+				Err(error) => {
+					error!("{error}");
+					println!();
+					continue;
+				}
+			};
+
 			if let Some(filter) = filter {
-				if !filter.contains(&name) {
+				if !filter.contains(&name.as_str()) {
 					continue;
 				}
 			}
@@ -96,7 +107,6 @@ impl ModuleManager {
 				module_config.extend(specific.clone().into_iter());
 			}
 
-			heading!("{name}");
 			if let Err(err) = module.apply(module_config, theme.clone()) {
 				error!("{err}");
 				error!("Aborting module execution");
@@ -127,20 +137,6 @@ impl ModuleManager {
 			println!();
 		}
 		Ok(())
-	}
-
-	fn iter_loaded_modules(&self) -> impl Iterator<Item = (&str, Module)> {
-		self.active_modules
-			.iter()
-			.filter_map(
-				|ActiveModule { path, name }| match Module::load(&self.lua_runtime, path) {
-					Ok(m) => Some((name.as_str(), m)),
-					Err(err) => {
-						error!("{err}");
-						None
-					}
-				}
-			)
 	}
 
 	fn find_module_dir(files: &Files, name: &str) -> Option<PathBuf> {
