@@ -1,35 +1,22 @@
 local M = {}
 
-local template = niji.template.load("kitty.conf.mustache")
+local template = niji.template.load("niji.conf.mustache")
 template:set_format("color", "#{rx}{gx}{bx}")
 
-local function get_socket_name(pid)
-	local prefix = niji.mod.config.rc_prefix or "unix:/tmp/kitty-rc-"
-	return prefix .. pid
-end
-
-local function reload(path)
-	if niji.mod.config.rc == false then
-		return
-	end
-	local password = niji.mod.config.rc_password or "niji-reload"
-	local pids = io.popen("pidof kitty -S \\n", "r")
-
-	local pid = pids:read("*l")
-	while pid do
-		local socket_name = get_socket_name(pid)
-		local socket = io.popen("netcat " .. socket_name)
-
-		socket:write("kitty @ set-colors --password \"" .. password .. "\" " .. path)
-
-		pid = pids:read("*l")
-	end
+local function set_theme()
+	os.execute("kitten themes --reload-in=all niji")
 end
 
 function M.apply(config, theme)
-	local config = template:render {
+	local theme = template:render {
 		background = theme.ui.background,
 		foreground = theme.ui.text_background,
+		url = theme.ui.secondary,
+		alert = theme.ui.warning,
+		primary = theme.ui.primary,
+		text_primary = theme.ui.text_primary,
+		surface = theme.ui.surface,
+		text_surface = theme.ui.text_surface,
 		black = theme.terminal.black,
 		red = theme.terminal.red,
 		green = theme.terminal.green,
@@ -48,8 +35,11 @@ function M.apply(config, theme)
 		bright_white = theme.terminal.bright_white
 	}
 
-	local path = niji.fs.write_output("kitty.conf", config);
-	reload(path)
+	local path = niji.fs.write_config("kitty/themes/niji.conf", theme)
+
+	if niji.mod.config.set_theme ~= false then
+		set_theme()
+	end
 end
 
 return M

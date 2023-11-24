@@ -1,9 +1,13 @@
-allow_remote_control yes
-remote_control_password "niji-refresh" set-colors
-listen_on unix:/tmp/kitty-rc-{kitty_pid}
-
 background {{background}}
 foreground {{foreground}}
+url_color {{url}}
+bell_border_color {{alert}}
+visual_bell_color {{alert}}
+
+active_tab_foreground {{text_primary}}
+active_tab_background {{primary}}
+inactive_tab_foreground {{text_surface}}
+inactive_tab_background {{surface}}
 
 color0 {{black}}
 color1 {{red}}
@@ -14,7 +18,7 @@ color5 {{magenta}}
 color6 {{cyan}}
 color7 {{white}}
 color8 {{bright_black}}
-color9 {{bright_black}}
+color9 {{bright_red}}
 color10 {{bright_green}}
 color11 {{bright_yellow}}
 color12 {{bright_blue}}
