@@ -1,3 +1,4 @@
+- Make detached commands run through sh
 - config rework (phase out niji.mod.config, instead passed config, which is combined from global and module-specific stuff from config.toml)
 - module dependecy checking
 - gtk module(s)
