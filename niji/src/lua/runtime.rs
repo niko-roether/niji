@@ -54,20 +54,35 @@ impl<'lua> LuaModule<'lua> {
 		Ok(())
 	}
 
-	pub fn call<A, R>(&self, key: &str, args: A) -> mlua::Result<R>
+	pub fn has_function(&'lua self, key: &str) -> mlua::Result<bool> {
+		let table = self.get_table()?;
+
+		let Some(value) = table.get::<_, Option<mlua::Value>>(key)? else {
+			return Ok(false);
+		};
+
+		Ok(matches!(value, mlua::Value::Function(..)))
+	}
+
+	pub fn call<A, R>(&'lua self, key: &str, args: A) -> mlua::Result<R>
 	where
 		A: IntoLuaMulti<'lua>,
 		R: FromLuaMulti<'lua>
 	{
+		let table = self.get_table()?;
+
+		let function: mlua::Function = table.get(key)?;
+		self.in_context(self.lua, move || function.call(args))
+	}
+
+	fn get_table(&'lua self) -> mlua::Result<&mlua::Table> {
 		let Some(table) = &self.table else {
 			return Err(mlua::Error::runtime(format!(
 				"Module {} is not loaded yet!",
 				self.name
 			)));
 		};
-
-		let function: mlua::Function = table.get(key)?;
-		self.in_context(self.lua, || function.call(args))
+		Ok(table)
 	}
 
 	fn in_context<R>(

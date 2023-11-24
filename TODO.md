@@ -1,3 +1,3 @@
-- split off `reload` method
+- provide a way to disable reloads per module
 - module dependecy checking
 - gtk module(s)

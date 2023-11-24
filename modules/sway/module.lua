@@ -21,6 +21,9 @@ function M.apply(config, theme)
 	}
 
 	niji.fs.write_output("theme", theme)
+end
+
+function M.reload()
 	os.execute("swaymsg reload -q")
 end
 

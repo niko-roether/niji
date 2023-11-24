@@ -1,6 +1,6 @@
 use std::{path::PathBuf, rc::Rc};
 
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use niji_console::heading;
 use thiserror::Error;
 
@@ -81,6 +81,7 @@ impl ModuleManager {
 		&self,
 		config: &Config,
 		theme: &Theme,
+		reload: bool,
 		filter: Option<&[&str]>
 	) -> Result<(), Error> {
 		for (name, module) in self.iter_loaded_modules() {
@@ -101,6 +102,21 @@ impl ModuleManager {
 				error!("Aborting module execution");
 				println!();
 				continue;
+			}
+			if reload {
+				if module.can_reload() {
+					info!("Reloading...");
+					if let Err(err) = module.reload() {
+						error!("{err}");
+						error!("Reloading of {name} failed");
+						println!();
+					}
+				} else {
+					warn!(
+						"Module {name} does not support reloading! You might only see the changes \
+						 on a restart."
+					)
+				}
 			}
 			info!("Done!");
 			println!();

@@ -3,10 +3,6 @@ local M = {}
 local template = niji.template.load("niji.conf.mustache")
 template:set_format("color", "#{rx}{gx}{bx}")
 
-local function set_theme()
-	os.execute("kitten themes --reload-in=all niji")
-end
-
 function M.apply(config, theme)
 	local theme = template:render {
 		background = theme.ui.background,
@@ -36,10 +32,10 @@ function M.apply(config, theme)
 	}
 
 	niji.fs.write_config("kitty/themes/niji.conf", theme)
+end
 
-	if config.set_theme ~= false then
-		set_theme()
-	end
+function M.reload()
+	os.execute("kitten themes --reload-in=all niji")
 end
 
 return M

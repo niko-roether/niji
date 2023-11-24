@@ -18,7 +18,10 @@ pub enum LoadError {
 
 #[derive(Debug, Error)]
 pub enum ExecError {
-	#[error("{0}")]
+	#[error("Module is missing an apply function")]
+	NoApply,
+
+	#[error(transparent)]
 	LuaErr(#[from] mlua::Error)
 }
 
@@ -30,7 +33,19 @@ impl<'lua> Module<'lua> {
 		Ok(Self(module))
 	}
 
+	pub fn can_reload(&self) -> bool {
+		self.0.has_function("reload").unwrap_or(false)
+	}
+
 	pub fn apply(&self, config: ModuleConfig, theme: Theme) -> Result<(), ExecError> {
+		if !self.0.has_function("apply")? {
+			return Err(ExecError::NoApply);
+		}
+
 		Ok(self.0.call("apply", (config, theme))?)
+	}
+
+	pub fn reload(&self) -> Result<(), ExecError> {
+		Ok(self.0.call("reload", ())?)
 	}
 }

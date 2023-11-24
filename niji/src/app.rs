@@ -67,10 +67,10 @@ impl NijiApp {
 		self.theme_manager.list_themes()
 	}
 
-	pub fn apply(&self, filter: Option<&[&str]>) -> Result<(), Error> {
+	pub fn apply(&self, reload: bool, filter: Option<&[&str]>) -> Result<(), Error> {
 		let theme = self.current_theme()?;
 		self.module_manager
-			.apply(&self.config, &theme.values, filter)?;
+			.apply(&self.config, &theme.values, reload, filter)?;
 		Ok(())
 	}
 

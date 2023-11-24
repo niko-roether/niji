@@ -68,6 +68,16 @@ pub fn run() {
 							 apply to multiple modules. If not set, all modules will be applied."
 						)
 				)
+				.arg(
+					Arg::new("no_reload")
+						.long("no-reload")
+						.short('K')
+						.action(ArgAction::SetTrue)
+						.help(
+							"Do not reload the module targets to apply the changes immediately. \
+							 Changes will only take effect after a restart."
+						)
+				)
 		)
 		.subcommand(
 			Command::new("theme")
@@ -90,11 +100,22 @@ pub fn run() {
 						.arg_required_else_help(true)
 						.arg(Arg::new("name").help("The name of the theme to change to"))
 						.arg(
-							Arg::new("apply")
+							Arg::new("no_apply")
 								.long("no-apply")
 								.short('N')
-								.action(ArgAction::SetFalse)
+								.action(ArgAction::SetTrue)
 								.help("Don't apply the theme after setting it")
+								.conflicts_with("no_reload")
+						)
+						.arg(
+							Arg::new("no_reload")
+								.long("no-reload")
+								.short('K')
+								.action(ArgAction::SetTrue)
+								.help(
+									"Do not reload the module targets to apply the changes \
+									 immediately. Changes will only take effect after a restart."
+								)
 						)
 				)
 				.subcommand(Command::new("list").about("List the names of available themes"))
@@ -139,11 +160,12 @@ fn cmd(args: &ArgMatches) {
 }
 
 fn cmd_apply(app: &NijiApp, args: &ArgMatches) {
+	let no_reload = args.get_one::<bool>("no_reload").unwrap();
 	let filter: Option<Vec<&str>> = args
 		.get_many::<String>("modules")
 		.map(|m| m.map(String::as_str).collect());
 
-	handle!(app.apply(filter.as_deref()))
+	handle!(app.apply(!no_reload, filter.as_deref()))
 }
 
 fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
@@ -186,11 +208,12 @@ fn cmd_theme_show(app: &NijiApp, args: &ArgMatches) {
 
 fn cmd_theme_set(app: &NijiApp, args: &ArgMatches) {
 	let name = args.get_one::<String>("name").unwrap().as_str();
-	let apply = *args.get_one::<bool>("apply").unwrap();
+	let no_apply = *args.get_one::<bool>("no_apply").unwrap();
+	let no_reload = *args.get_one::<bool>("no_reload").unwrap();
 
 	handle!(app.set_theme(name));
-	if apply {
-		handle!(app.apply(None));
+	if !no_apply {
+		handle!(app.apply(!no_reload, None));
 	}
 }
 
