@@ -3,8 +3,9 @@
 	border-radius: 0;
 	min-height: 0;
 	font-family:
+		{{#font}} "{{.}}", {{/font}}
 		{{#icon_font}} "{{.}}", {{/icon_font}}
-		"{{font}}";
+		sans-serif;
 	font-size: {{font_size}};
 }
 
@@ -57,16 +58,16 @@ window#waybar.hidden {
 {{#custom_modules}}
 #{{.}},
 {{/custom_modules}}
-#memory
+#memory,
 #battery,
+#idle_inhibitor,
 #backlight,
 #pulseaudio,
 #network,
 #clock,
 #tray,
 #cpu,
-#temperature,
-#memory
+#temperature
 {
 	border-radius: {{border_radius}};
 	padding: {{padding_y}} {{padding_x}};

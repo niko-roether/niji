@@ -3,7 +3,7 @@ local M = {}
 local style_css = niji.template.load("style.css.mustache")
 style_css:set_format("color", "rgba({r}, {g}, {b}, {af})")
 
-function get_custom_style(config)
+local function get_custom_style(config)
 	local custom_style = "";
 	if config.custom_style_file ~= nil then
 		local file = niji.fs.open_config_asset(config.custom_style_file)
@@ -16,14 +16,14 @@ function get_custom_style(config)
 	return custom_style
 end
 
-function get_font_size(config)
+local function get_font_size(config)
 	local base_size = niji.mod.config.font_size or 18
 	local scale = config.font_scale or 1
 
 	return (base_size * scale) .. "px"
 end
 
-function restart_waybar()
+local function restart_waybar()
 	os.execute("killall waybar")
 	niji.os.exec_detached("waybar")
 end
@@ -34,7 +34,7 @@ function M.apply(config, theme)
 
 	local style = style_css:render {
 		icon_font = niji.mod.config.icon_font,
-		font = config.font_family or "sans-serif",
+		font = config.font_family,
 		font_size = font_size,
 		transition_duration = niji.mod.config.transition_duration or "200ms",
 		hidden_opacity = niji.mod.config.hidden_opacity or 0.5,

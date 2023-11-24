@@ -76,6 +76,8 @@ impl FileManager {
 	) -> Result<(), Error> {
 		if self.is_managed(managed_files, path)? {
 			debug!("Writing to managed file at {}", path.display());
+			fs::write(path, string).map_err(|e| Error::Write(path.display().to_string(), e))?;
+			self.set_managed(managed_files, path.to_path_buf())?;
 			return Ok(());
 		}
 

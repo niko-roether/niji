@@ -35,7 +35,7 @@ impl Console {
 	pub fn log_warn(&self, args: &Arguments) -> io::Result<()> {
 		Self::log(
 			&mut self.stdout.lock().unwrap(),
-			"WARN ",
+			" WARN",
 			ColorSpec::new()
 				.set_fg(Some(Color::Yellow))
 				.set_intense(true)
@@ -48,7 +48,7 @@ impl Console {
 	pub fn log_info(&self, args: &Arguments) -> io::Result<()> {
 		Self::log(
 			&mut self.stdout.lock().unwrap(),
-			"INFO ",
+			" INFO",
 			ColorSpec::new()
 				.set_fg(Some(Color::Blue))
 				.set_intense(true)

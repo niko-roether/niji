@@ -107,9 +107,7 @@ impl Template {
 		section: &Section,
 		context: &[&Value]
 	) -> Result<(), RenderError> {
-		let Some(value) = Self::get_named_value(&section.name.0, context)? else {
-			return Err(RenderError::NameNotFound(section.name.to_string()));
-		};
+		let value = Self::get_named_value(&section.name.0, context)?;
 
 		match (section.inverted, value) {
 			(false, Value::String(..) | Value::Fmt(..) | Value::Map(..)) => {
@@ -155,9 +153,7 @@ impl Template {
 		insert: &Insert,
 		context: &[&Value]
 	) -> Result<(), RenderError> {
-		let Some(value) = Self::get_named_value(&insert.name.0, context)? else {
-			return Err(RenderError::NameNotFound(insert.name.to_string()));
-		};
+		let value = Self::get_named_value(&insert.name.0, context)?;
 
 		match value {
 			Value::Vec(..) => return Err(RenderError::CannotInsert("array")),
@@ -181,13 +177,13 @@ impl Template {
 	fn get_named_value<'a>(
 		name: &'a [String],
 		context: &[&'a Value]
-	) -> Result<Option<&'a Value>, RenderError> {
+	) -> Result<&'a Value, RenderError> {
 		let Some(&value) = context.get(0) else {
-			return Ok(None);
+			return Ok(&Value::Nil);
 		};
 
 		if name.is_empty() {
-			return Ok(Some(value));
+			return Ok(value);
 		}
 
 		match value {
