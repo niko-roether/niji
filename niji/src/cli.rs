@@ -65,7 +65,8 @@ pub fn run() {
 						.action(ArgAction::Append)
 						.help(
 							"The module to apply the config to. Can be set multiple times to \
-							 apply to multiple modules. If not set, all modules will be applied."
+							 apply to multiple modules. If not set, all active modules will be \
+							 applied."
 						)
 				)
 				.arg(
