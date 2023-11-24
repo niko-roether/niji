@@ -14,7 +14,7 @@ function M.apply(config, theme)
 		cursor_theme = config.cursor,
 		cursor_size = config.cursor_size,
 		border_color = theme.ui.background,
-		active_border_color = theme.ui.surface,
+		active_border_color = theme.ui[niji.mod.config.focused_color or "surface"],
 		shadow_color = theme.ui.shadow
 	}
 
