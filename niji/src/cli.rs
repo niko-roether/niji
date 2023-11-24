@@ -38,6 +38,7 @@ pub fn run() {
 				.short('q')
 				.action(ArgAction::SetTrue)
 				.conflicts_with("verbose")
+				.global(true)
 				.help("Disables all log messages")
 		)
 		.arg(
@@ -46,6 +47,7 @@ pub fn run() {
 				.short('v')
 				.action(ArgAction::SetTrue)
 				.conflicts_with("quiet")
+				.global(true)
 				.help("Prints additional debug output")
 		)
 		.arg(
@@ -53,6 +55,7 @@ pub fn run() {
 				.long("no-color")
 				.short('b')
 				.action(ArgAction::SetTrue)
+				.global(true)
 				.help("Disable color output")
 		)
 		.subcommand(
