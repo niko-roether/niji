@@ -8,38 +8,28 @@ pub(crate) fn set_console(console: Console) {
 	unsafe { CONSOLE = Some(console) }
 }
 
-pub(crate) fn get_console() -> &'static Console {
-	unsafe { CONSOLE.as_ref().expect("Console was not initialized") }
+pub(crate) fn get_console() -> Option<&'static Console> {
+	unsafe { CONSOLE.as_ref() }
 }
 
-pub fn log_error(args: &Arguments) -> Result<(), io::Error> {
-	get_console().log_error(args)
+macro_rules! api_fn {
+	($fn:ident($($arg:ident : $ty:ty),*) -> $out:ty : $default:expr) => {
+        pub fn $fn($($arg: $ty),*) -> Result<$out, io::Error> {
+            if let Some(console) = get_console() {
+                console.$fn($($arg),*)
+            } else {
+                Ok($default)
+            }
+        }
+    };
 }
 
-pub fn log_warn(args: &Arguments) -> Result<(), io::Error> {
-	get_console().log_warn(args)
-}
-
-pub fn log_info(args: &Arguments) -> Result<(), io::Error> {
-	get_console().log_info(args)
-}
-
-pub fn log_debug(args: &Arguments) -> Result<(), io::Error> {
-	get_console().log_debug(args)
-}
-
-pub fn log_trace(args: &Arguments) -> Result<(), io::Error> {
-	get_console().log_trace(args)
-}
-
-pub fn prompt(args: &Arguments, default: Option<bool>) -> Result<bool, io::Error> {
-	get_console().prompt(args, default)
-}
-
-pub fn heading(args: &Arguments) -> Result<(), io::Error> {
-	get_console().heading(args)
-}
-
-pub fn flush() -> Result<(), io::Error> {
-	get_console().flush()
-}
+api_fn!(log_error(args: &Arguments) -> () : ());
+api_fn!(log_warn(args: &Arguments) -> () : ());
+api_fn!(log_info(args: &Arguments) -> () : ());
+api_fn!(log_debug(args: &Arguments) -> () : ());
+api_fn!(log_trace(args: &Arguments) -> () : ());
+api_fn!(prompt(args: &Arguments, default: Option<bool>) -> bool : default.unwrap_or(false));
+api_fn!(heading(args: &Arguments) -> () : ());
+api_fn!(println(args: Option<&Arguments>) -> () : ());
+api_fn!(flush() -> () : ());

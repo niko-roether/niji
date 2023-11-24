@@ -211,6 +211,17 @@ impl Console {
 		Ok(())
 	}
 
+	pub fn println(&self, args: Option<&Arguments>) -> Result<(), io::Error> {
+		let stdout = &mut self.stdout.lock().unwrap();
+
+		match args {
+			Some(args) => writeln!(stdout, "{args}")?,
+			None => writeln!(stdout)?
+		}
+
+		Ok(())
+	}
+
 	pub fn flush(&self) -> Result<(), io::Error> {
 		let stdout = &mut self.stdout.lock().unwrap();
 		let stderr = &mut self.stderr.lock().unwrap();

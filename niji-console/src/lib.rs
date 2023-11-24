@@ -12,7 +12,9 @@ mod macros;
 
 pub fn init(level: LevelFilter, color_choice: ColorChoice) {
 	let console = Console::new(color_choice);
-	__private_api::set_console(console);
+	if level != LevelFilter::Off {
+		__private_api::set_console(console);
+	}
 
 	let logger = Box::new(Logger::new(level));
 	log::set_logger(Box::leak(logger)).unwrap();

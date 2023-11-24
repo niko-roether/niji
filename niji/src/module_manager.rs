@@ -139,7 +139,7 @@ impl ModuleManager {
 			Ok(module) => module,
 			Err(error) => {
 				error!("{error}");
-				println!();
+				niji_console::println!();
 				return;
 			}
 		};
@@ -152,7 +152,7 @@ impl ModuleManager {
 		if let Err(err) = module.apply(module_config, theme.clone()) {
 			error!("{err}");
 			error!("Aborting module execution");
-			println!();
+			niji_console::println!();
 			return;
 		}
 		if reload {
@@ -167,7 +167,7 @@ impl ModuleManager {
 				if let Err(err) = module.reload() {
 					error!("{err}");
 					error!("Reloading of {} failed", module_descr.name);
-					println!();
+					niji_console::println!();
 				}
 			} else {
 				warn!(
@@ -178,7 +178,7 @@ impl ModuleManager {
 			}
 		}
 		info!("Done!");
-		println!();
+		niji_console::println!();
 	}
 
 	fn find_module_dir(files: &Files, name: &str) -> Option<PathBuf> {

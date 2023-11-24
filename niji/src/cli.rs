@@ -185,7 +185,7 @@ fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
 
 fn cmd_theme_get(app: &NijiApp) {
 	let theme = handle!(app.current_theme());
-	println!("{}", theme.name);
+	niji_console::println!("{}", theme.name);
 }
 
 fn cmd_theme_show(app: &NijiApp, args: &ArgMatches) {
@@ -205,9 +205,9 @@ fn cmd_theme_show(app: &NijiApp, args: &ArgMatches) {
 		}
 	};
 
-	println!("Theme \"{resolved_name}\":");
-	println!();
-	println!("{theme}")
+	niji_console::println!("Theme \"{resolved_name}\":");
+	niji_console::println!();
+	niji_console::println!("{theme}")
 }
 
 fn cmd_theme_set(app: &NijiApp, args: &ArgMatches) {
@@ -226,7 +226,7 @@ fn cmd_theme_list(app: &NijiApp) {
 
 	for theme in app.list_themes() {
 		empty = false;
-		println!("{theme}")
+		niji_console::println!("{theme}")
 	}
 
 	if empty {

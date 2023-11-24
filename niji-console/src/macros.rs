@@ -14,3 +14,13 @@ macro_rules! heading {
         $crate::__private_api::heading(&format_args!($($arg)+)).unwrap()
     }
 }
+
+#[macro_export]
+macro_rules! println {
+	($($arg:tt)+) => {
+		$crate::__private_api::println(Some(&format_args!($($arg)+))).unwrap()
+	};
+    () => {
+        $crate::__private_api::println(None).unwrap()
+    }
+}
