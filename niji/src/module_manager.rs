@@ -88,8 +88,19 @@ impl ModuleManager {
 		})
 	}
 
-	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), Error> {
+	pub fn apply(
+		&self,
+		config: &GeneralConfig,
+		theme: &Theme,
+		filter: Option<&[&str]>
+	) -> Result<(), Error> {
 		for (name, module) in self.iter_loaded_modules() {
+			if let Some(filter) = filter {
+				if !filter.contains(&name) {
+					continue;
+				}
+			}
+
 			heading!("{name}");
 			module
 				.apply(config, theme)

@@ -58,6 +58,16 @@ pub fn run() {
 		.subcommand(
 			Command::new("apply")
 				.about("Apply (or re-apply) the current theme and and configuration")
+				.arg(
+					Arg::new("modules")
+						.long("module")
+						.short('M')
+						.action(ArgAction::Append)
+						.help(
+							"The module to apply the config to. Can be set multiple times to \
+							 apply to multiple modules. If not set, all modules will be applied."
+						)
+				)
 		)
 		.subcommand(
 			Command::new("theme")
@@ -122,14 +132,18 @@ fn cmd(args: &ArgMatches) {
 	let app = handle!(NijiApp::init());
 
 	match args.subcommand() {
-		Some(("apply", _)) => cmd_apply(&app),
+		Some(("apply", args)) => cmd_apply(&app, args),
 		Some(("theme", args)) => cmd_theme(&app, args),
 		_ => unreachable!()
 	}
 }
 
-fn cmd_apply(app: &NijiApp) {
-	handle!(app.apply())
+fn cmd_apply(app: &NijiApp, args: &ArgMatches) {
+	let filter: Option<Vec<&str>> = args
+		.get_many::<String>("modules")
+		.map(|m| m.map(String::as_str).collect());
+
+	handle!(app.apply(filter.as_deref()))
 }
 
 fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
@@ -176,7 +190,7 @@ fn cmd_theme_set(app: &NijiApp, args: &ArgMatches) {
 
 	handle!(app.set_theme(name));
 	if apply {
-		handle!(app.apply());
+		handle!(app.apply(None));
 	}
 }
 
