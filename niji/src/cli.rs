@@ -1,9 +1,8 @@
 use clap::{Arg, ArgAction, ArgMatches, Command};
+use log::{error, LevelFilter};
+use niji_console::ColorChoice;
 
-use crate::{
-	app::NijiApp,
-	console::{self, LogLevel}
-};
+use crate::app::NijiApp;
 
 const AUTHOR: &str = "Nicholas Roether <nicholas.roether@t-online.de>";
 
@@ -12,7 +11,7 @@ macro_rules! handle {
 		match $expr {
 			Ok(val) => val,
 			Err(err) => {
-				crate::console::error!("{err}");
+				log::error!("{err}");
 
 				#[allow(clippy::redundant_closure_call)]
 				$cleanup();
@@ -50,10 +49,10 @@ pub fn run() {
 				.help("Prints additional debug output")
 		)
 		.arg(
-			Arg::new("color")
+			Arg::new("no_color")
 				.long("no-color")
 				.short('b')
-				.action(ArgAction::SetFalse)
+				.action(ArgAction::SetTrue)
 				.help("Disable color output")
 		)
 		.subcommand(
@@ -102,15 +101,23 @@ pub fn run() {
 fn cmd(args: &ArgMatches) {
 	let quiet = *args.get_one::<bool>("quiet").unwrap();
 	let verbose = *args.get_one::<bool>("verbose").unwrap();
-	let color = *args.get_one::<bool>("color").unwrap();
+	let no_color = *args.get_one::<bool>("no_color").unwrap();
 
-	if quiet {
-		console::set_log_level(LogLevel::Quiet);
+	let level = if quiet {
+		LevelFilter::Off
 	} else if verbose {
-		console::set_log_level(LogLevel::Verbose)
-	}
+		LevelFilter::Debug
+	} else {
+		LevelFilter::Info
+	};
 
-	console::set_color(color);
+	let color_choice = if no_color {
+		ColorChoice::Never
+	} else {
+		ColorChoice::Auto
+	};
+
+	niji_console::init(level, color_choice);
 
 	let app = handle!(NijiApp::init());
 
@@ -182,7 +189,7 @@ fn cmd_theme_list(app: &NijiApp) {
 	}
 
 	if empty {
-		console::error!("No usable themes were found");
+		error!("No usable themes were found");
 	}
 }
 

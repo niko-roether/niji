@@ -1,146 +1,118 @@
 use std::{
 	fmt::Arguments,
-	io::{self, Write}
+	io::{self, Write},
+	sync::Mutex
 };
 
-use log::LevelFilter;
 use termcolor::{BufferedStandardStream, Color, ColorChoice, ColorSpec, WriteColor};
 
 pub struct Console {
-	level: LevelFilter,
-	stdout: BufferedStandardStream,
-	stderr: BufferedStandardStream
+	stdout: Mutex<BufferedStandardStream>,
+	stderr: Mutex<BufferedStandardStream>
 }
 
 impl Console {
-	pub fn new(level: LevelFilter, color_choice: ColorChoice) -> Self {
-		let stdout = BufferedStandardStream::stdout(color_choice);
-		let stderr = BufferedStandardStream::stderr(color_choice);
+	pub fn new(color_choice: ColorChoice) -> Self {
+		let stdout = Mutex::new(BufferedStandardStream::stdout(color_choice));
+		let stderr = Mutex::new(BufferedStandardStream::stderr(color_choice));
 
-		Self {
-			level,
-			stdout,
-			stderr
-		}
+		Self { stdout, stderr }
 	}
 
-	pub fn log_error(&mut self, args: &Arguments) -> io::Result<()> {
-		self.stdout
-			.set_color(
-				ColorSpec::new()
-					.set_fg(Some(Color::Red))
-					.set_intense(true)
-					.set_bold(true)
-			)
-			.unwrap();
+	pub fn log_error(&self, args: &Arguments) -> io::Result<()> {
+		Self::log(
+			&mut self.stderr.lock().unwrap(),
+			"ERROR",
+			ColorSpec::new()
+				.set_fg(Some(Color::Red))
+				.set_intense(true)
+				.set_bold(true),
+			args,
+			ColorSpec::new().set_fg(Some(Color::Red))
+		)
+	}
 
-		write!(&mut self.stderr, "ERROR")?;
+	pub fn log_warn(&self, args: &Arguments) -> io::Result<()> {
+		Self::log(
+			&mut self.stdout.lock().unwrap(),
+			"WARN ",
+			ColorSpec::new()
+				.set_fg(Some(Color::Yellow))
+				.set_intense(true)
+				.set_bold(true),
+			args,
+			ColorSpec::new().set_fg(Some(Color::Yellow))
+		)
+	}
 
-		self.stderr
-			.set_color(ColorSpec::new().set_fg(Some(Color::Red)))
-			.unwrap();
+	pub fn log_info(&self, args: &Arguments) -> io::Result<()> {
+		Self::log(
+			&mut self.stdout.lock().unwrap(),
+			"INFO ",
+			ColorSpec::new()
+				.set_fg(Some(Color::Blue))
+				.set_intense(true)
+				.set_bold(true),
+			args,
+			ColorSpec::new()
+				.set_fg(Some(Color::White))
+				.set_intense(true)
+		)
+	}
 
-		writeln!(&mut self.stderr, ": {args}")?;
+	pub fn log_debug(&self, args: &Arguments) -> io::Result<()> {
+		Self::log(
+			&mut self.stdout.lock().unwrap(),
+			"DEBUG",
+			ColorSpec::new().set_fg(Some(Color::White)),
+			args,
+			ColorSpec::new().set_fg(Some(Color::White))
+		)
+	}
 
-		self.stderr.reset().unwrap();
+	pub fn log_trace(&self, args: &Arguments) -> io::Result<()> {
+		Self::log(
+			&mut self.stdout.lock().unwrap(),
+			"TRACE",
+			ColorSpec::new().set_fg(Some(Color::White)),
+			args,
+			ColorSpec::new().set_fg(Some(Color::White))
+		)
+	}
+
+	fn log(
+		out: &mut BufferedStandardStream,
+		tag: &str,
+		tag_color: &ColorSpec,
+		message: &Arguments,
+		message_color: &ColorSpec
+	) -> io::Result<()> {
+		out.set_color(tag_color).unwrap();
+
+		write!(out, "{tag}")?;
+
+		out.set_color(
+			ColorSpec::new()
+				.set_fg(Some(Color::Black))
+				.set_intense(true)
+		)
+		.unwrap();
+
+		write!(out, " - ")?;
+
+		out.set_color(message_color).unwrap();
+
+		writeln!(out, "{message}")?;
+
+		out.reset().unwrap();
 		Ok(())
 	}
 
-	pub fn log_warn(&mut self, args: &Arguments) -> io::Result<()> {
-		self.stdout
-			.set_color(
-				ColorSpec::new()
-					.set_fg(Some(Color::Yellow))
-					.set_intense(true)
-					.set_bold(true)
-			)
-			.unwrap();
+	pub fn prompt(&self, args: &Arguments, default: Option<bool>) -> io::Result<bool> {
+		let stdout = &mut self.stdout.lock().unwrap();
 
-		write!(&mut self.stderr, "WARNING")?;
-
-		self.stderr
-			.set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
-			.unwrap();
-
-		writeln!(&mut self.stderr, ": {args}")?;
-
-		self.stderr.reset().unwrap();
-		Ok(())
-	}
-
-	pub fn log_info(&mut self, args: &Arguments) -> io::Result<()> {
-		self.stdout
-			.set_color(
-				ColorSpec::new()
-					.set_fg(Some(Color::Blue))
-					.set_intense(true)
-					.set_bold(true)
-			)
-			.unwrap();
-
-		write!(&mut self.stdout, "INFO")?;
-
-		self.stdout
-			.set_color(
-				ColorSpec::new()
-					.set_fg(Some(Color::White))
-					.set_intense(true)
-			)
-			.unwrap();
-
-		writeln!(&mut self.stdout, ": {args}")?;
-
-		self.stdout.reset().unwrap();
-		Ok(())
-	}
-
-	pub fn log_debug(&mut self, args: &Arguments) -> io::Result<()> {
-		self.stdout
-			.set_color(
-				ColorSpec::new()
-					.set_fg(Some(Color::White))
-					.set_intense(true)
-					.set_bold(true)
-			)
-			.unwrap();
-
-		write!(&mut self.stdout, "DEBUG")?;
-
-		self.stdout
-			.set_color(ColorSpec::new().set_fg(Some(Color::White)))
-			.unwrap();
-
-		writeln!(&mut self.stdout, ": {args}")?;
-
-		self.stdout.reset().unwrap();
-		Ok(())
-	}
-
-	pub fn log_trace(&mut self, args: &Arguments) -> io::Result<()> {
-		self.stdout
-			.set_color(
-				ColorSpec::new()
-					.set_fg(Some(Color::White))
-					.set_intense(true)
-					.set_bold(true)
-			)
-			.unwrap();
-
-		write!(&mut self.stdout, "TRACE")?;
-
-		self.stdout
-			.set_color(ColorSpec::new().set_fg(Some(Color::White)))
-			.unwrap();
-
-		writeln!(&mut self.stdout, ": {args}")?;
-
-		self.stdout.reset().unwrap();
-		Ok(())
-	}
-
-	pub fn prompt(&mut self, args: &Arguments, default: Option<bool>) -> io::Result<bool> {
 		loop {
-			self.stdout
+			stdout
 				.set_color(
 					ColorSpec::new()
 						.set_fg(Some(Color::White))
@@ -148,9 +120,9 @@ impl Console {
 				)
 				.unwrap();
 
-			write!(&mut self.stdout, "{args} ")?;
+			write!(stdout, "{args} ")?;
 
-			self.stdout
+			stdout
 				.set_color(
 					ColorSpec::new()
 						.set_fg(Some(Color::Blue))
@@ -160,12 +132,12 @@ impl Console {
 				.unwrap();
 
 			match default {
-				Some(true) => write!(&mut self.stdout, "[Y/n]")?,
-				Some(false) => write!(&mut self.stdout, "[y/N]")?,
-				None => write!(&mut self.stdout, "[y/n]")?
+				Some(true) => write!(stdout, "[Y/n]")?,
+				Some(false) => write!(stdout, "[y/N]")?,
+				None => write!(stdout, "[y/n]")?
 			};
 
-			self.stdout
+			stdout
 				.set_color(
 					ColorSpec::new()
 						.set_fg(Some(Color::White))
@@ -173,8 +145,8 @@ impl Console {
 				)
 				.unwrap();
 
-			write!(&mut self.stdout, ": ")?;
-			self.stdout.flush()?;
+			write!(stdout, ": ")?;
+			stdout.flush()?;
 
 			let mut response = String::new();
 			io::stdin().read_line(&mut response)?;
@@ -192,18 +164,16 @@ impl Console {
 				_ => ()
 			}
 
-			self.stdout.reset().unwrap();
+			stdout.reset().unwrap();
 		}
 	}
-}
 
-#[cfg(test)]
-mod tests {
-	use super::*;
+	pub fn flush(&self) -> Result<(), io::Error> {
+		let stdout = &mut self.stdout.lock().unwrap();
+		let stderr = &mut self.stderr.lock().unwrap();
 
-	#[test]
-	fn test_fn() {
-		let mut console = Console::new(LevelFilter::Info, ColorChoice::Auto);
-		console.prompt(&format_args!("Test"), None).unwrap();
+		stdout.flush()?;
+		stderr.flush()?;
+		Ok(())
 	}
 }

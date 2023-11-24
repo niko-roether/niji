@@ -1,3 +1,5 @@
+use log::{debug, info, warn};
+use niji_console::prompt;
 use std::{
 	collections::{hash_map::DefaultHasher, HashMap},
 	fs::{self, File},
@@ -8,7 +10,7 @@ use std::{
 };
 use thiserror::Error;
 
-use crate::{console, files::Files};
+use crate::files::Files;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -44,7 +46,7 @@ impl FileManager {
 		let mut managed_files = self.managed_files()?;
 
 		if !path.exists() {
-			console::debug!("Creating new managed file at {}", path.display());
+			debug!("Creating new managed file at {}", path.display());
 			self.init_new_file(&mut managed_files, path, string)
 		} else {
 			self.manage_existing_file(&mut managed_files, path, string)
@@ -61,7 +63,7 @@ impl FileManager {
 			.map_err(|e| Error::Write(path.to_string_lossy().into_owned(), e))?;
 		self.set_managed(managed_files, path.to_path_buf())?;
 
-		console::info!("niji now manages {}", path.display());
+		info!("niji now manages {}", path.display());
 
 		Ok(())
 	}
@@ -73,7 +75,7 @@ impl FileManager {
 		string: &str
 	) -> Result<(), Error> {
 		if self.is_managed(managed_files, path)? {
-			console::debug!("Writing to managed file at {}", path.display());
+			debug!("Writing to managed file at {}", path.display());
 			return Ok(());
 		}
 
@@ -88,7 +90,7 @@ impl FileManager {
 	) -> Result<(), Error> {
 		let backup_path = Self::get_backup_path(path);
 
-		console::warn!(
+		warn!(
 			"In order to apply your configuration, niji needs to write to {}. This would \
 			 overwrite a previous version of that file that is not managed by niji. You can \
 			 choose to let niji overwrite the file, or cancel the process. If you overwrite the \
@@ -96,7 +98,7 @@ impl FileManager {
 			path.display(),
 			backup_path.display()
 		);
-		if !console::prompt!(default = false, "Backup and overwrite {}?", path.display()) {
+		if !prompt!(default: false, "Backup and overwrite {}?", path.display()) {
 			return Err(Error::CancelledByUser(path.to_string_lossy().into_owned()));
 		}
 
@@ -105,7 +107,7 @@ impl FileManager {
 
 		self.init_new_file(managed_files, path, string)?;
 
-		console::info!("Backup created at {}", backup_path.display());
+		info!("Backup created at {}", backup_path.display());
 
 		Ok(())
 	}
@@ -128,7 +130,7 @@ impl FileManager {
 		let path = path.canonicalize().map_err(Error::Io)?;
 		let hash = Self::hash_contents(&path)?;
 
-		console::debug!("Hash for newly managed file {} is {hash}", path.display());
+		debug!("Hash for newly managed file {} is {hash}", path.display());
 		managed_files.insert(path.clone(), hash);
 		self.write_managed_files(managed_files)
 	}
@@ -143,7 +145,7 @@ impl FileManager {
 		if let Some(known_hash) = managed_files.get(&path) {
 			let current_hash = Self::hash_contents(&path)?;
 
-			console::debug!(
+			debug!(
 				"{} has known hash {known_hash}; current hash is {current_hash}",
 				path.display()
 			);
@@ -153,7 +155,7 @@ impl FileManager {
 			}
 		}
 
-		console::debug!("{} is not in the managed files table", path.display());
+		debug!("{} is not in the managed files table", path.display());
 
 		Ok(false)
 	}

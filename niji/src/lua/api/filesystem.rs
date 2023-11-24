@@ -1,8 +1,9 @@
 use std::{fs, path::PathBuf, rc::Rc};
 
+use log::info;
 use mlua::{IntoLua, Lua};
 
-use crate::{console, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
+use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
 use super::{Module, ModuleContext};
 
@@ -80,7 +81,7 @@ impl FilesystemApi {
 		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
 		let path = files.output_dir().join(&mod_ctx.name).join(path);
 
-		console::info!("Outputting to {}", path.display());
+		info!("Outputting to {}", path.display());
 		fs::create_dir_all(path.parent().unwrap()).map_err(mlua::Error::runtime)?;
 		fs::write(path, content).map_err(mlua::Error::runtime)?;
 		Ok(())

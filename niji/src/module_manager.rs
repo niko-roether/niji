@@ -1,10 +1,10 @@
 use std::{collections::HashMap, path::PathBuf, rc::Rc};
 
+use log::{debug, error, info};
 use thiserror::Error;
 
 use crate::{
 	config::{Config, GeneralConfig, ModuleConfig, Theme},
-	console,
 	file_manager::FileManager,
 	files::Files,
 	lua::runtime::{LuaRuntime, LuaRuntimeInit},
@@ -62,7 +62,7 @@ impl ModuleManager {
 				.cloned()
 				.unwrap_or_else(|| ModuleConfig::Map(HashMap::new()));
 
-			console::debug!(
+			debug!(
 				"Activating module \"{mod_name}\" at path {} with config {module_config:?}",
 				module_dir.display()
 			);
@@ -89,7 +89,7 @@ impl ModuleManager {
 
 	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), Error> {
 		for (name, module) in self.iter_loaded_modules() {
-			console::info!("Applying config to module {name}");
+			info!("Applying config to module {name}");
 			module
 				.apply(config, theme)
 				.map_err(|e| Error::ModuleExec(name.to_string(), e))?;
@@ -105,7 +105,7 @@ impl ModuleManager {
 				match Module::load(&self.lua_runtime, path, config.clone()) {
 					Ok(m) => Some((name.as_str(), m)),
 					Err(err) => {
-						console::error!("{err}");
+						error!("{err}");
 						None
 					}
 				}

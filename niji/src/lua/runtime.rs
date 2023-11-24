@@ -4,11 +4,10 @@ use std::{
 	rc::Rc
 };
 
+use log::debug;
 use mlua::{FromLuaMulti, IntoLuaMulti, Lua};
 
-use crate::{
-	config::ModuleConfig, console, file_manager::FileManager, files::Files, utils::xdg::XdgDirs
-};
+use crate::{config::ModuleConfig, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
 use super::api;
 
@@ -53,7 +52,7 @@ impl<'lua> LuaModule<'lua> {
 		let table: mlua::Table = self.in_context(self.lua, || chunk.call(()))?;
 		self.table = Some(table);
 
-		console::debug!("Loaded lua module {}", self.directory.display());
+		debug!("Loaded lua module {}", self.directory.display());
 		Ok(())
 	}
 

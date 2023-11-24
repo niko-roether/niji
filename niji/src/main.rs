@@ -3,7 +3,6 @@
 mod app;
 mod cli;
 mod config;
-mod console;
 mod file_manager;
 mod files;
 mod lua;

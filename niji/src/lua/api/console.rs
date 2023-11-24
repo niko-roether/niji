@@ -1,6 +1,5 @@
 use mlua::{IntoLua, Lua};
-
-use crate::console;
+use niji_console::prompt;
 
 use super::{Module, ModuleContext};
 
@@ -10,7 +9,7 @@ macro_rules! define_log_function {
 	($name:ident) => {
 		fn $name(lua: &Lua, message: mlua::Value) -> mlua::Result<()> {
 			let source = Self::get_source(lua)?;
-			console::$name!(source = &source, "{}", message.to_string()?);
+			log::$name!(target: &source, "{}", message.to_string()?);
 			Ok(())
 		}
 	};
@@ -27,13 +26,12 @@ impl ConsoleApi {
 	define_log_function!(warn);
 	define_log_function!(error);
 
-	fn prompt(lua: &Lua, (message, default): (mlua::Value, Option<bool>)) -> mlua::Result<bool> {
-		let source = Self::get_source(lua)?;
+	fn prompt(_: &Lua, (message, default): (mlua::Value, Option<bool>)) -> mlua::Result<bool> {
 		let message = message.to_string()?;
 		let result = if let Some(default) = default {
-			console::prompt!(source = &source, default = default, "{message}")
+			prompt!(default: default, "{message}")
 		} else {
-			console::prompt!(source = &source, "{message}")
+			prompt!("{message}")
 		};
 
 		Ok(result)

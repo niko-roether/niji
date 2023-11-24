@@ -1,10 +1,10 @@
 use std::{collections::HashSet, ffi::OsString, fs, io, path::PathBuf, rc::Rc};
 
+use log::debug;
 use thiserror::Error;
 
 use crate::{
 	config::{self, Theme},
-	console,
 	files::Files
 };
 
@@ -49,7 +49,7 @@ impl ThemeManager {
 			};
 			let name = os_name.to_string_lossy().into_owned();
 			if themes.insert(name.clone()) {
-				console::debug!("Found theme {name} at {}", path.display());
+				debug!("Found theme {name} at {}", path.display());
 			}
 		}
 		themes.into_iter().collect()
@@ -113,7 +113,7 @@ impl ThemeManager {
 			return Ok(None);
 		};
 
-		console::debug!("Reading theme \"{name}\" from {}", path.display());
+		debug!("Reading theme \"{name}\" from {}", path.display());
 
 		Ok(Some(
 			config::read(path).map_err(|e| Error::ThemeRead(name.to_string(), e))?
