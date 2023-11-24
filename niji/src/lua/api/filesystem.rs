@@ -10,7 +10,7 @@ use super::{Module, ModuleContext};
 pub struct FilesystemApi;
 
 impl FilesystemApi {
-	fn write(lua: &Lua, (path, content): (String, String)) -> mlua::Result<()> {
+	fn write(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let file_mgr = lua.app_data_ref::<Rc<FileManager>>().unwrap();
 		let path = PathBuf::from(path);
 
@@ -18,11 +18,11 @@ impl FilesystemApi {
 			.write_managed(&path, &content)
 			.map_err(mlua::Error::runtime)?;
 
-		fs::write(path, content).map_err(mlua::Error::runtime)?;
-		Ok(())
+		fs::write(&path, content).map_err(mlua::Error::runtime)?;
+		Ok(path.to_string_lossy().into_owned())
 	}
 
-	fn write_config(lua: &Lua, (path, content): (String, String)) -> mlua::Result<()> {
+	fn write_config(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::write(
 			lua,
@@ -33,7 +33,7 @@ impl FilesystemApi {
 		)
 	}
 
-	fn write_state(lua: &Lua, (path, content): (String, String)) -> mlua::Result<()> {
+	fn write_state(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::write(
 			lua,
@@ -44,7 +44,7 @@ impl FilesystemApi {
 		)
 	}
 
-	fn write_data(lua: &Lua, (path, content): (String, String)) -> mlua::Result<()> {
+	fn write_data(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let xdg = lua.app_data_ref::<Rc<XdgDirs>>().unwrap();
 		Self::write(
 			lua,
@@ -76,15 +76,15 @@ impl FilesystemApi {
 			.into_lua(lua)
 	}
 
-	fn write_output(lua: &Lua, (path, content): (String, String)) -> mlua::Result<()> {
+	fn write_output(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
 		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
 		let path = files.output_dir().join(&mod_ctx.name).join(path);
 
 		info!("Outputting to {}", path.display());
 		fs::create_dir_all(path.parent().unwrap()).map_err(mlua::Error::runtime)?;
-		fs::write(path, content).map_err(mlua::Error::runtime)?;
-		Ok(())
+		fs::write(&path, content).map_err(mlua::Error::runtime)?;
+		Ok(path.to_string_lossy().into_owned())
 	}
 
 	fn read_config_asset(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
