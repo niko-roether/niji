@@ -9,16 +9,16 @@ function M.apply(config, theme)
 		niji.console.debug("No cursor theme set, skipping cursor config")
 	end
 
-	local config = template:render {
+	local theme_conf = template:render {
 		configure_cursor = configure_cursor,
 		cursor_theme = config.cursor,
 		cursor_size = config.cursor_size,
 		border_color = theme.ui.background,
-		active_border_color = theme.ui[niji.mod.config.focused_color or "surface"],
+		active_border_color = theme.ui[config.focused_color or "surface"],
 		shadow_color = theme.ui.shadow
 	}
 
-	niji.fs.write_output("theme.conf", config)
+	niji.fs.write_output("theme.conf", theme_conf)
 
 	os.execute("hyprctl reload > /dev/null")
 end

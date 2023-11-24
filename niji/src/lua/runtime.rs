@@ -7,9 +7,9 @@ use std::{
 use log::debug;
 use mlua::{FromLuaMulti, IntoLuaMulti, Lua};
 
-use crate::{config::ModuleConfig, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
+use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
-use super::api;
+use super::api::{self, ModuleContext};
 
 pub struct LuaRuntimeInit {
 	pub xdg: Rc<XdgDirs>,
@@ -26,14 +26,13 @@ pub struct LuaModule<'lua> {
 	lua: &'lua Lua,
 	name: String,
 	directory: PathBuf,
-	config: ModuleConfig,
 	table: Option<mlua::Table<'lua>>
 }
 
 impl<'lua> LuaModule<'lua> {
 	const ENTRY_POINT: &'static str = "module.lua";
 
-	fn new(lua: &'lua Lua, directory: PathBuf, config: ModuleConfig) -> Self {
+	fn new(lua: &'lua Lua, directory: PathBuf) -> Self {
 		Self {
 			lua,
 			name: directory
@@ -42,7 +41,6 @@ impl<'lua> LuaModule<'lua> {
 				.to_string_lossy()
 				.into_owned(),
 			directory,
-			config,
 			table: None
 		}
 	}
@@ -79,13 +77,18 @@ impl<'lua> LuaModule<'lua> {
 	) -> mlua::Result<R> {
 		let prev_dir = env::current_dir().unwrap();
 		env::set_current_dir(&self.directory).unwrap();
-		api::set_module_context(lua, self.name.clone(), self.config.clone());
+		api::set_module_context(
+			lua,
+			ModuleContext {
+				name: self.name.clone(),
+				path: self.directory.clone()
+			}
+		);
 
 		let result: R = cb()?;
 
-		env::set_current_dir(prev_dir).unwrap();
 		api::reset_module_context(lua);
-
+		env::set_current_dir(prev_dir).unwrap();
 		Ok(result)
 	}
 }
@@ -107,12 +110,8 @@ impl LuaRuntime {
 		Ok(Self { lua })
 	}
 
-	pub fn load_lua_module<'lua>(
-		&'lua self,
-		path: &Path,
-		config: ModuleConfig
-	) -> mlua::Result<LuaModule<'lua>> {
-		let mut module = LuaModule::new(&self.lua, path.to_path_buf(), config);
+	pub fn load_lua_module<'lua>(&'lua self, path: &Path) -> mlua::Result<LuaModule<'lua>> {
+		let mut module = LuaModule::new(&self.lua, path.to_path_buf());
 		module.load()?;
 		Ok(module)
 	}

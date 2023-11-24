@@ -1,25 +1,25 @@
-use std::rc::Rc;
+use std::{path::PathBuf, rc::Rc};
 
 use mlua::Lua;
 
-use crate::{config::ModuleConfig, file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
+use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
 use self::{
-	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module::ModuleApi, os::OsApi,
-	template::TemplateApi, xdg::XdgApi
+	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module_meta::ModuleMetaApi,
+	os::OsApi, template::TemplateApi, xdg::XdgApi
 };
 
 mod color;
 mod console;
 mod filesystem;
-mod module;
+mod module_meta;
 mod os;
 mod template;
 mod xdg;
 
 pub struct ModuleContext {
-	name: String,
-	config: ModuleConfig
+	pub name: String,
+	pub path: PathBuf
 }
 
 trait Module: Sized {
@@ -50,7 +50,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 
 	insert_module::<ColorApi>(lua, &api)?;
 	insert_module::<FilesystemApi>(lua, &api)?;
-	insert_module::<ModuleApi>(lua, &api)?;
+	insert_module::<ModuleMetaApi>(lua, &api)?;
 	insert_module::<ConsoleApi>(lua, &api)?;
 	insert_module::<XdgApi>(lua, &api)?;
 	insert_module::<TemplateApi>(lua, &api)?;
@@ -61,11 +61,8 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	Ok(())
 }
 
-pub fn set_module_context(lua: &Lua, module_name: String, config: ModuleConfig) {
-	lua.set_app_data(ModuleContext {
-		name: module_name,
-		config
-	});
+pub fn set_module_context(lua: &Lua, ctx: ModuleContext) {
+	lua.set_app_data(ctx);
 }
 
 pub fn reset_module_context(lua: &Lua) {

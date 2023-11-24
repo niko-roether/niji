@@ -70,7 +70,7 @@ impl NijiApp {
 	pub fn apply(&self, filter: Option<&[&str]>) -> Result<(), Error> {
 		let theme = self.current_theme()?;
 		self.module_manager
-			.apply(&self.config.general, &theme.values, filter)?;
+			.apply(&self.config, &theme.values, filter)?;
 		Ok(())
 	}
 

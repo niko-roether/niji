@@ -4,9 +4,9 @@ local template = niji.template.load("theme.mustache")
 template:set_format("color", "{rx}{gx}{bx}")
 
 function M.apply(config, theme)
-	local focused_color = niji.mod.config.focused_color or "surface";
+	local focused_color = config.focused_color or "surface";
 	local focused_text_color = "text" .. focused_color;
-	local indicator_color = niji.mod.config.indicator_color or "surface";
+	local indicator_color = config.indicator_color or "surface";
 
 	local theme = template:render {
 		unfocused = theme.ui.background,
@@ -14,7 +14,7 @@ function M.apply(config, theme)
 		focused = theme.ui[focused_color],
 		text_focused = theme.ui[focused_text_color],
 		font = config.font_family,
-		font_size = niji.mod.config.font_size or 12,
+		font_size = (config.font_size or 12) * (config.font_scale or 1),
 		notify = theme.ui.warning,
 		text_notify = theme.ui.text_warning,
 		indicator = theme.ui[indicator_color]

@@ -147,32 +147,27 @@ impl fmt::Display for Theme {
 	}
 }
 
-#[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
-pub struct GeneralConfig {
-	pub icons: Option<String>,
-	pub cursor: Option<String>,
-	pub cursor_size: Option<u32>,
-	pub font_family: Option<String>,
-	pub font_scale: Option<f32>
-}
-
 #[derive(Debug, Default, Clone, IntoLua, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum ModuleConfig {
+pub enum ModuleConfigValue {
 	#[default]
 	Nil,
 	String(String),
 	Int(i64),
 	Float(f64),
 	Bool(bool),
-	Vec(Vec<ModuleConfig>),
-	Map(HashMap<String, ModuleConfig>)
+	Vec(Vec<ModuleConfigValue>),
+	Map(HashMap<String, ModuleConfigValue>)
 }
+
+pub type ModuleConfig = HashMap<String, ModuleConfigValue>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
 	pub modules: Vec<String>,
-	pub general: GeneralConfig,
+
+	#[serde(default)]
+	pub global: ModuleConfig,
 
 	#[serde(flatten)]
 	pub module_config: HashMap<String, ModuleConfig>

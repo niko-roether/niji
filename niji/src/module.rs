@@ -3,7 +3,7 @@ use std::{io, path::Path};
 use thiserror::Error;
 
 use crate::{
-	config::{GeneralConfig, ModuleConfig, Theme},
+	config::{ModuleConfig, Theme},
 	lua::runtime::{LuaModule, LuaRuntime}
 };
 
@@ -25,16 +25,12 @@ pub enum ExecError {
 pub struct Module<'lua>(LuaModule<'lua>);
 
 impl<'lua> Module<'lua> {
-	pub fn load(
-		runtime: &'lua LuaRuntime,
-		path: &Path,
-		config: ModuleConfig
-	) -> Result<Self, LoadError> {
-		let module = runtime.load_lua_module(path, config)?;
+	pub fn load(runtime: &'lua LuaRuntime, path: &Path) -> Result<Self, LoadError> {
+		let module = runtime.load_lua_module(path)?;
 		Ok(Self(module))
 	}
 
-	pub fn apply(&self, config: &GeneralConfig, theme: &Theme) -> Result<(), ExecError> {
-		Ok(self.0.call("apply", (config.clone(), theme.clone()))?)
+	pub fn apply(&self, config: ModuleConfig, theme: Theme) -> Result<(), ExecError> {
+		Ok(self.0.call("apply", (config, theme))?)
 	}
 }

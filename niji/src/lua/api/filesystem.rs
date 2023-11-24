@@ -3,9 +3,11 @@ use std::{fs, path::PathBuf, rc::Rc};
 use log::info;
 use mlua::{IntoLua, Lua};
 
-use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
+use crate::{
+	file_manager::FileManager, files::Files, lua::api::ModuleContext, utils::xdg::XdgDirs
+};
 
-use super::{Module, ModuleContext};
+use super::Module;
 
 pub struct FilesystemApi;
 

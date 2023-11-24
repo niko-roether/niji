@@ -17,7 +17,7 @@ local function get_custom_style(config)
 end
 
 local function get_font_size(config)
-	local base_size = niji.mod.config.font_size or 18
+	local base_size = config.font_size or 18
 	local scale = config.font_scale or 1
 
 	return (base_size * scale) .. "px"
@@ -33,11 +33,11 @@ function M.apply(config, theme)
 	local custom_style = get_custom_style(config)
 
 	local style = style_css:render {
-		icon_font = niji.mod.config.icon_font,
+		icon_font = config.icon_font,
 		font = config.font_family,
 		font_size = font_size,
-		transition_duration = niji.mod.config.transition_duration or "200ms",
-		hidden_opacity = niji.mod.config.hidden_opacity or 0.5,
+		transition_duration = config.transition_duration or "200ms",
+		hidden_opacity = config.hidden_opacity or 0.5,
 		bar_background = "transparent",
 		background = theme.ui.background,
 		text_background = theme.ui.text_background,
@@ -48,14 +48,14 @@ function M.apply(config, theme)
 		secondary = theme.ui.secondary,
 		warning = theme.ui.warning,
 		text_warning = theme.ui.text_warning,
-		padding_x = niji.mod.config.padding_x or "12px",
-		padding_y = niji.mod.config.padding_y or "4px",
-		margin_x = niji.mod.config.margin_x or "3px",
-		margin_y = niji.mod.config.margin_y or "3px",
-		workspace_button_margin = niji.mod.config.workspace_button_margin or "6px",
-		border_radius = niji.mod.config.border_radius or "4px",
-		border_width = niji.mod.config.border_width or "2px",
-		custom_modules = niji.mod.config.custom_modules or {},
+		padding_x = config.padding_x or "12px",
+		padding_y = config.padding_y or "4px",
+		margin_x = config.margin_x or "3px",
+		margin_y = config.margin_y or "3px",
+		workspace_button_margin = config.workspace_button_margin or "6px",
+		border_radius = config.border_radius or "4px",
+		border_width = config.border_width or "2px",
+		custom_modules = config.custom_modules or {},
 		custom_style = custom_style
 	}
 

@@ -1,26 +1,20 @@
 use mlua::{IntoLua, Lua};
 use niji_console::prompt;
 
-use super::{Module, ModuleContext};
+use super::Module;
 
 pub struct ConsoleApi;
 
 macro_rules! define_log_function {
 	($name:ident) => {
-		fn $name(lua: &Lua, message: mlua::Value) -> mlua::Result<()> {
-			let source = Self::get_source(lua)?;
-			log::$name!(target: &source, "{}", message.to_string()?);
+		fn $name(_: &Lua, message: mlua::Value) -> mlua::Result<()> {
+			log::$name!("{}", message.to_string()?);
 			Ok(())
 		}
 	};
 }
 
 impl ConsoleApi {
-	fn get_source(lua: &Lua) -> mlua::Result<String> {
-		let module_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
-		Ok(format!("module:{}", module_ctx.name))
-	}
-
 	define_log_function!(debug);
 	define_log_function!(info);
 	define_log_function!(warn);

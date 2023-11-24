@@ -35,9 +35,9 @@ function M.apply(config, theme)
 		bright_white = theme.terminal.bright_white
 	}
 
-	local path = niji.fs.write_config("kitty/themes/niji.conf", theme)
+	niji.fs.write_config("kitty/themes/niji.conf", theme)
 
-	if niji.mod.config.set_theme ~= false then
+	if config.set_theme ~= false then
 		set_theme()
 	end
 end

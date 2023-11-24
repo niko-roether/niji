@@ -1,15 +1,15 @@
-use std::{collections::HashMap, path::PathBuf, rc::Rc};
+use std::{path::PathBuf, rc::Rc};
 
 use log::{debug, error, info};
 use niji_console::heading;
 use thiserror::Error;
 
 use crate::{
-	config::{Config, GeneralConfig, ModuleConfig, Theme},
+	config::{Config, Theme},
 	file_manager::FileManager,
 	files::Files,
 	lua::runtime::{LuaRuntime, LuaRuntimeInit},
-	module::{self, Module},
+	module::Module,
 	utils::xdg::XdgDirs
 };
 
@@ -19,10 +19,7 @@ pub enum Error {
 	UnknownModule(String),
 
 	#[error("Failed to initialize lua runtime: {0}")]
-	RuntimeInit(mlua::Error),
-
-	#[error("Failed to execute module {0}: {1}")]
-	ModuleExec(String, module::ExecError)
+	RuntimeInit(mlua::Error)
 }
 
 pub struct ModuleManagerInit {
@@ -34,8 +31,7 @@ pub struct ModuleManagerInit {
 
 struct ActiveModule {
 	name: String,
-	path: PathBuf,
-	config: ModuleConfig
+	path: PathBuf
 }
 
 pub struct ModuleManager {
@@ -57,21 +53,14 @@ impl ModuleManager {
 			let module_dir = Self::find_module_dir(&files, mod_name)
 				.ok_or_else(|| Error::UnknownModule(mod_name.clone()))?;
 
-			let module_config = config
-				.module_config
-				.get(mod_name)
-				.cloned()
-				.unwrap_or_else(|| ModuleConfig::Map(HashMap::new()));
-
 			debug!(
-				"Activating module \"{mod_name}\" at path {} with config {module_config:?}",
+				"Activating module \"{mod_name}\" at path {}",
 				module_dir.display()
 			);
 
 			active_modules.push(ActiveModule {
 				name: mod_name.to_string(),
-				path: module_dir,
-				config: module_config
+				path: module_dir
 			});
 		}
 
@@ -90,7 +79,7 @@ impl ModuleManager {
 
 	pub fn apply(
 		&self,
-		config: &GeneralConfig,
+		config: &Config,
 		theme: &Theme,
 		filter: Option<&[&str]>
 	) -> Result<(), Error> {
@@ -101,10 +90,18 @@ impl ModuleManager {
 				}
 			}
 
+			let mut module_config = config.global.clone();
+			if let Some(specific) = config.module_config.get(name) {
+				module_config.extend(specific.clone().into_iter());
+			}
+
 			heading!("{name}");
-			module
-				.apply(config, theme)
-				.map_err(|e| Error::ModuleExec(name.to_string(), e))?;
+			if let Err(err) = module.apply(module_config, theme.clone()) {
+				error!("{err}");
+				error!("Aborting module execution");
+				println!();
+				continue;
+			}
 			info!("Done!");
 			println!();
 		}
@@ -114,15 +111,15 @@ impl ModuleManager {
 	fn iter_loaded_modules(&self) -> impl Iterator<Item = (&str, Module)> {
 		self.active_modules
 			.iter()
-			.filter_map(|ActiveModule { path, config, name }| {
-				match Module::load(&self.lua_runtime, path, config.clone()) {
+			.filter_map(
+				|ActiveModule { path, name }| match Module::load(&self.lua_runtime, path) {
 					Ok(m) => Some((name.as_str(), m)),
 					Err(err) => {
 						error!("{err}");
 						None
 					}
 				}
-			})
+			)
 	}
 
 	fn find_module_dir(files: &Files, name: &str) -> Option<PathBuf> {
