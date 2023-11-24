@@ -6,6 +6,7 @@ template:set_format("color", "{rx}{gx}{bx}")
 function M.apply(config, theme)
 	local focused_color = niji.mod.config.focused_color or "surface";
 	local focused_text_color = "text" .. focused_color;
+	local indicator_color = niji.mod.config.indicator_color or "surface";
 
 	local theme = template:render {
 		unfocused = theme.ui.background,
@@ -15,7 +16,8 @@ function M.apply(config, theme)
 		font = config.font_family,
 		font_size = niji.mod.config.font_size or 12,
 		notify = theme.ui.warning,
-		text_notify = theme.ui.text_warning
+		text_notify = theme.ui.text_warning,
+		indicator = theme.ui[indicator_color]
 	}
 
 	niji.fs.write_output("theme", theme)
