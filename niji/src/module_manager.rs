@@ -149,7 +149,7 @@ impl ModuleManager {
 			module_config.extend(specific.clone());
 		}
 
-		if let Err(err) = module.apply(module_config, theme.clone()) {
+		if let Err(err) = module.apply(module_config.clone(), theme.clone()) {
 			error!("{err}");
 			error!("Aborting module execution");
 			niji_console::println!();
@@ -164,7 +164,7 @@ impl ModuleManager {
 				)
 			} else if module.can_reload() {
 				info!("Reloading...");
-				if let Err(err) = module.reload() {
+				if let Err(err) = module.reload(module_config) {
 					error!("{err}");
 					error!("Reloading of {} failed", module_descr.name);
 					niji_console::println!();

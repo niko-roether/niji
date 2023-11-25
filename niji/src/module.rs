@@ -57,8 +57,8 @@ impl<'lua> Module<'lua> {
 		Ok(self.0.call("apply", (config, theme))?)
 	}
 
-	pub fn reload(&self) -> Result<(), ExecError> {
-		Ok(self.0.call("reload", ())?)
+	pub fn reload(&self, config: ModuleConfig) -> Result<(), ExecError> {
+		Ok(self.0.call("reload", config)?)
 	}
 
 	fn check_dependencies(path: &Path) -> Result<(), LoadError> {
