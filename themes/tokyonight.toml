@@ -10,6 +10,8 @@ secondary = "#73daca"
 border = "#1a1b26"
 shadow = "#21222cee"
 
+success = "#73daca"
+text_success = "#e0af68"
 info = "#7aa2f7"
 text_info = "#1a1b26"
 warning = "#e0af68"

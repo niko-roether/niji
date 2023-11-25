@@ -35,9 +35,11 @@ pub struct UiTheme {
 	pub text_background: Color,
 	pub text_surface: Color,
 	pub text_primary: Color,
+	pub success: Color,
 	pub info: Color,
 	pub warning: Color,
 	pub error: Color,
+	pub text_success: Color,
 	pub text_info: Color,
 	pub text_warning: Color,
 	pub text_error: Color
