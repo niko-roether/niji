@@ -1,1 +1,3 @@
 - gtk module(s)
+- lower/uppercase arguments convention
+- rename modules to targets
