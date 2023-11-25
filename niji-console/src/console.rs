@@ -219,6 +219,7 @@ impl Console {
 			None => writeln!(stdout)?
 		}
 
+		stdout.flush()?;
 		Ok(())
 	}
 

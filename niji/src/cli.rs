@@ -190,6 +190,15 @@ fn cmd_theme_get(app: &NijiApp) {
 
 fn cmd_theme_show(app: &NijiApp, args: &ArgMatches) {
 	let name = args.get_one::<String>("name");
+	let no_color = args.get_one::<bool>("no_color").unwrap();
+
+	if *no_color {
+		error!(
+			"Theme display is not supported in no-color mode. You can query the theme name by \
+			 using `niji theme get`."
+		);
+		return;
+	}
 
 	let resolved_name;
 
