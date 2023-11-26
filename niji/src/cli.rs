@@ -75,7 +75,7 @@ pub fn run() {
 				.arg(
 					Arg::new("no_reload")
 						.long("no-reload")
-						.short('K')
+						.short('k')
 						.action(ArgAction::SetTrue)
 						.help(
 							"Do not reload the module targets to apply the changes immediately. \
@@ -106,7 +106,7 @@ pub fn run() {
 						.arg(
 							Arg::new("no_apply")
 								.long("no-apply")
-								.short('N')
+								.short('n')
 								.action(ArgAction::SetTrue)
 								.help("Don't apply the theme after setting it")
 								.conflicts_with("no_reload")
@@ -114,7 +114,7 @@ pub fn run() {
 						.arg(
 							Arg::new("no_reload")
 								.long("no-reload")
-								.short('K')
+								.short('k')
 								.action(ArgAction::SetTrue)
 								.help(
 									"Do not reload the module targets to apply the changes \
