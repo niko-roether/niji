@@ -106,7 +106,8 @@ pub struct TemplateApi;
 
 impl TemplateApi {
 	fn load(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let template = load_template(path).map_err(mlua::Error::runtime)?;
+		let template = load_template(&path)
+			.map_err(|e| mlua::Error::runtime(format!("Failed to load template {path}: {e}")))?;
 
 		LuaTemplate(template).into_lua(lua)
 	}

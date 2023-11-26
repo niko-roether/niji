@@ -31,6 +31,10 @@ impl Color {
 		Self::from_oklch(self.into_oklch().darken(amount), self.a)
 	}
 
+	pub fn shade(self, lightness: f32) -> Self {
+		Self::from_oklch(self.into_oklch().shade(lightness), self.a)
+	}
+
 	pub fn blend(col1: Self, col2: Self, t: f32) -> Self {
 		let alpha1 = col1.alpha();
 		let alpha2 = col2.alpha();

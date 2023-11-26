@@ -1,0 +1,154 @@
+$primary: {{primary}};
+$drop_target_color: {{drop_target_color}};
+$indicator: {{indicator}};
+$titlebar-indicator: {{titlebar_indicator}};
+$inverse-indicator: {{inverse_indicator}};
+$applet-primary: {{applet_primary}};
+
+$background: {{background}};
+$surface: {{surface}};
+$base: {{base}};
+$base-alt: {{base_alt}};
+
+$tooltip: {{tooltip}};
+$osd: {{osd}};
+$scrim: {{scrim}};
+$scrim-alt: {{scrim_alt}};
+$scrim-inverse: {{scrim_inverse}};
+$titlebar: {{titlebar}};
+$titlebar-backdrop: {{titlebar_backdrop}};
+$titlebar-primary: {{titlebar_primary}};
+$popover: {{popover}};
+$panel-solid: {{panel_solid}};
+$panel: {{panel}};
+
+$button: {{button}};
+$entry: {{entry}};
+
+$link: {{link}};
+$link-visited: {{link_visited}};
+
+$warning: {{warning}};
+$error: {{error}};
+$success: {{success}};
+
+$suggested: {{suggested}};
+$destructive: {{destructive}};
+
+$assets-color: {{assets_color}};
+
+$frame: {{frame}};
+$border: {{border}};
+$shade: {{shade}};
+$window-border: {{window_border}};
+$solid-border: {{solid_border}};
+$border-alt: {{border_alt}};
+
+$overlay-normal: {{overlay_normal}};
+$overlay-hover: {{overlay_hover}};
+$overlay-focus: {{overlay_focus}};
+$overlay-focus-hover: {{overlay_focus_hover}};
+$overlay-active: {{overlay_active}};
+$overlay-checked: {{overlay_checked}};
+$overlay-selected: {{overlay_selected}};
+
+$text: {{text}};
+$text-secondary: {{text_secondary}};
+$text-disabled: {{text_disabled}};
+$text-secondary-disabled: {{text_secondary_disabled}};
+$track: {{track}};
+$track-disabled: {{track_disabled}};
+$divider: {{divider}};
+$fill: {{fill}};
+
+$titlebar-text: {{titlebar_text}};
+$titlebar-text-secondary: {{titlebar_text_secondary}};
+$titlebar-text-disabled: {{titlebar_text_disabled}};
+$titlebar-text-secondary-disabled: {{titlebar_text_secondary_disabled}};
+$titlebar-track: {{titlebar_track}};
+$titlebar-track-disabled: {{titlebar_track_disabled}};
+$titlebar-divider: {{titlebar_divider}};
+$titlebar-fill: {{titlebar_fill}};
+
+$panel-text: {{panel_text}};
+$panel-text-secondary: {{panel_text_secondary}};
+$panel-text-disabled: {{panel_text_disabled}};
+$panel-text-secondary-disabled: {{panel_text_secondary_disabled}};
+$panel-track: {{panel_track}};
+$panel-track-disabled: {{panel_track_disabled}};
+$panel-divider: {{panel_divider}};
+$panel-fill: {{panel_fill}};
+
+$titlebutton-close: {{titlebutton_close}};
+$titlebutton-max: {{titlebutton_max}};
+$titlebutton-min: {{titlebutton_min}};
+
+@function on($color, $state: "") {
+	@if $color == $primary {
+		@return {{on_primary}};
+	}
+	@if $color == $background {
+		@return {{on_background}};
+	}
+	@if $color == $surface {
+		@return {{on_surface}};
+	}
+	@if $color == $warning {
+		@return {{on_warning}};
+	}
+	@if $color == $error {
+		@return  {{on_error}};
+	}
+	@if $color == $success {
+		@return {{on_success}};
+	}
+	@return {{on_background}};
+}
+
+$red-light: {{red_light}};
+$red-dark: {{red_dark}};
+$pink-light: {{pink_light}};
+$pink-dark: {{pink_dark}};
+$purple-light: {{purple_light}};
+$purple-dark: {{purple_dark}};
+$blue-light: {{blue_light}};
+$blue-dark: {{blue_dark}};
+$teal-light: {{teal_light}};
+$teal-dark: {{teal_dark}};
+$green-light: {{green_light}};
+$green-dark: {{green_dark}};
+$yellow-light: {{yellow_light}};
+$yellow-dark: {{yellow_dark}};
+$orange-light: {{orange_light}};
+$orange-dark: {{orange_dark}};
+
+$grey-050: {{grey_050}};
+$grey-100: {{grey_100}};
+$grey-150: {{grey_150}};
+$grey-200: {{grey_200}};
+$grey-250: {{grey_250}};
+$grey-300: {{grey_300}};
+$grey-350: {{grey_350}};
+$grey-400: {{grey_400}};
+$grey-450: {{grey_450}};
+$grey-500: {{grey_500}};
+$grey-550: {{grey_550}};
+$grey-600: {{grey_600}};
+$grey-650: {{grey_650}};
+$grey-700: {{grey_700}};
+$grey-750: {{grey_750}};
+$grey-800: {{grey_800}};
+$grey-850: {{grey_850}};
+$grey-900: {{grey_900}};
+$grey-950: {{grey_950}};
+
+$white: {{white}};
+$black: {{black}};
+
+$button-close: {{button_close}};
+$button-max: {{button_max}};
+$button-min: {{button_min}};
+
+$links: {{links}};
+
+$placeholder_text_color: {{placeholder_text_color}};
