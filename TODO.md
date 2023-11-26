@@ -1,4 +1,3 @@
-- gtk module(s)
 - lower/uppercase arguments convention
 - rename modules to targets
 - Syntax for defining default format in templates
