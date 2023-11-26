@@ -30,7 +30,7 @@ local function background_colors(theme)
 end
 
 local function fill_color(theme)
-	return by_scheme(theme, theme.ui.background:darken(0.3), theme.ui.background:lighten(0.3))
+	return by_scheme(theme, theme.ui.background:darken(0.1), theme.ui.background:lighten(0.1))
 end
 
 local function text_colors(theme)
@@ -69,7 +69,7 @@ function M.make_colors(theme)
 		scrim = bg.black[2],
 		scrim_alt = bg.black[3],
 		scrim_inverse = bg.white[2],
-		titlebar = by_scheme(theme, bg[3], bg[2]),
+		titlebar = by_scheme(theme, bg[2], bg[1]),
 		titlebar_backdrop = by_scheme(theme, bg[2], bg[1]),
 		titlebar_primary = theme.ui.primary,
 		popover = bg[1],
