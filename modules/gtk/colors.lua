@@ -44,12 +44,24 @@ local function text_colors(theme)
 	}
 end
 
+local function overlay_colors(theme)
+	local col = niji.col.new("#000")
+	if theme.ui.color_scheme == "dark" then col = niji.col.new("#fff") end
+	return {
+		col:with_alpha(0.04),
+		col:with_alpha(0.08),
+		col:with_alpha(0.12),
+		col:with_alpha(0.16)
+	}
+end
+
 function M.make_colors(theme)
 	local tooltip_opacity = 0.9
 	local panel_opacity = 0.9
 	local bg = background_colors(theme)
 	local fill = fill_color(theme)
 	local txt = text_colors(theme)
+	local overlay = overlay_colors(theme)
 
 	return {
 		primary = theme.ui.primary,
@@ -97,13 +109,13 @@ function M.make_colors(theme)
 		solid_border = theme.ui.border,
 		border_alt = theme.ui.border:darken(0.1),
 
-		overlay_normal = "gtkalpha(currentColor, 0.05)",
-		overlay_hover = "gtkalpha(currentColor, 0.08)",
-		overlay_focus = "gtkalpha(currentColor, 0.08)",
-		overlay_focus_hover = "gtkalpha(currentColor, 0.16)",
-		overlay_active = "gtkalpha(currentColor, 0.12)",
-		overlay_checked = "gtkalpha(currentColor, 0.1)",
-		overlay_selected = "gtkalpha(currentColor, 0.06)",
+		overlay_normal = "transparent",
+		overlay_hover = overlay[2],
+		overlay_focus = overlay[1],
+		overlay_focus_hover = overlay[3],
+		overlay_active = overlay[4],
+		overlay_checked = overlay[4],
+		overlay_selected = overlay[1],
 
 		text = txt[1],
 		text_secondary = txt[2],
