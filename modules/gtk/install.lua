@@ -28,10 +28,11 @@ local function cleanup_tmp()
 	os.execute("rm -rf " .. THEME_LOCATION_TMP)
 end
 
-local function apply_tweaks(config)
+local function apply_tweaks(config, theme)
 	niji.console.debug("Injecting tweaks")
 
 	local tweaks = tweaks_temp_template:render {
+		variant = theme.ui.color_scheme,
 		opacity = config.opacity or "default",
 		compact = config.compact or "false",
 		translucent = config.translucent or "false",
@@ -111,7 +112,7 @@ local function install_gtk3(color_scheme)
 
 	local src_assets = THEME_LOCATION_TMP .. "/assets/gtk"
 	local dest_assets = dest .. "/assets"
-	os.execute("cp -rf " .. src_assets .. "/assets " .. dest_assets)
+	os.execute("cp -rf " .. src_assets .. "/assets-Grey " .. dest_assets)
 	os.execute("cp -rf " .. src_assets .. "/scalable " .. dest_assets)
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-3.0/gtk-" .. color .. ".scss", dest .. "/gtk.css")
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-3.0/gtk-Dark.scss", dest .. "/gtk-dark.css")
@@ -128,7 +129,7 @@ local function install_gtk4(color_scheme)
 
 	local src_assets = THEME_LOCATION_TMP .. "/assets/gtk"
 	local dest_assets = dest .. "/assets"
-	os.execute("cp -rf " .. src_assets .. "/assets " .. dest_assets)
+	os.execute("cp -rf " .. src_assets .. "/assets-Grey " .. dest_assets)
 	os.execute("cp -rf " .. src_assets .. "/scalable " .. dest_assets)
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-4.0/gtk-" .. color .. ".scss", dest .. "/gtk.css")
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-4.0/gtk-Dark.scss", dest .. "/gtk-dark.css")
@@ -139,13 +140,13 @@ function M.install(config, theme)
 	niji.console.debug("Install location is " .. THEME_LOCATION)
 
 	tmp_copy_theme()
-	apply_tweaks(config)
+	apply_tweaks(config, theme)
 	inject_colors(theme)
 	prepare_output_theme()
 	-- install_gnome_shell(theme.color_scheme)
 	install_gtk3(theme.color_scheme)
 	install_gtk4(theme.color_scheme)
-	-- cleanup_tmp()
+	cleanup_tmp()
 end
 
 return M
