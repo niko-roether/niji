@@ -1,54 +1,6 @@
-use ultraviolet as uv;
+use oklab::{oklab_to_srgb, srgb_to_oklab, Oklab, RGB};
 
 use crate::utils::lerp;
-
-const SRGB_BREAK_X: f32 = 0.0031308;
-const SRGB_BREAK_Y: f32 = 0.04045;
-const SRGB_A: f32 = 0.005;
-const SRGB_GAMMA: f32 = 2.4;
-const SRGB_THETA: f32 = 12.92;
-
-fn srgb_oetf(x: f32) -> f32 {
-	let y = if x < SRGB_BREAK_X {
-		SRGB_THETA * x
-	} else {
-		(1.0 + SRGB_A) * x.powf(1.0 / SRGB_GAMMA) - SRGB_A
-	};
-
-	f32::min(f32::max(y, 0.0), 1.0)
-}
-
-fn srgb_eotf(y: f32) -> f32 {
-	if y < SRGB_BREAK_Y {
-		y / SRGB_THETA
-	} else {
-		((y * SRGB_A) / (1.0 + SRGB_A)).powf(SRGB_GAMMA)
-	}
-}
-
-const LSRGB_LMS_MAT: uv::Mat3 = uv::Mat3::new(
-	uv::Vec3::new(0.41222147, 0.2119035, 0.08830246),
-	uv::Vec3::new(0.53633254, 0.6806995, 0.28171884),
-	uv::Vec3::new(0.05144599, 0.10736957, 0.6299787)
-);
-
-const LMS_OKLAB_MAT: uv::Mat3 = uv::Mat3::new(
-	uv::Vec3::new(0.21045426, 1.9779985, 0.02590404),
-	uv::Vec3::new(0.7936178, -2.4285922, 0.78277177),
-	uv::Vec3::new(-0.00407205, 0.45059337, -0.80867577)
-);
-
-const OKLAB_LMS_MAT: uv::Mat3 = uv::Mat3::new(
-	uv::Vec3::new(1.0, 1.0, 1.0),
-	uv::Vec3::new(0.39633778, -0.10556135, -0.08948418),
-	uv::Vec3::new(0.21580376, -0.06385417, -1.2914856)
-);
-
-const LMS_LSRGB_MAT: uv::Mat3 = uv::Mat3::new(
-	uv::Vec3::new(4.0767417, -1.268438, -0.00419609),
-	uv::Vec3::new(-3.3077116, 2.6097574, -0.7034186),
-	uv::Vec3::new(0.23096993, -0.3413194, 1.7076147)
-);
 
 #[derive(Debug, Clone, Copy)]
 pub struct OklchColor {
@@ -62,36 +14,25 @@ impl OklchColor {
 		Self { l, c, h }
 	}
 
-	pub fn from_srgb(r: f32, g: f32, b: f32) -> Self {
-		let mut rgb = uv::Vec3::new(r, g, b);
-		rgb.apply(srgb_eotf); // linearize components
-
-		let mut lms = LSRGB_LMS_MAT * rgb;
-		lms.apply(f32::cbrt); // nonlinear transform
-
-		let lab = LMS_OKLAB_MAT * lms;
+	pub fn from_srgb(r: u8, g: u8, b: u8) -> Self {
+		let lab = srgb_to_oklab(RGB { r, g, b });
 
 		// Convert to polar representation
-		let c = f32::sqrt(lab.y.powi(2) + lab.z.powi(2));
-		let h = f32::atan2(lab.y, lab.z);
+		let c = f32::sqrt(lab.a.powi(2) + lab.b.powi(2));
+		let h = f32::atan2(lab.b, lab.a);
 
-		Self::new(lab.x, c, h)
+		Self::new(lab.l, c, h)
 	}
 
-	pub fn into_srgb(self) -> (f32, f32, f32) {
+	pub fn into_srgb(self) -> (u8, u8, u8) {
 		// Convert to cartesian representation
 		let a = self.c * f32::cos(self.h);
 		let b = self.c * f32::sin(self.h);
-		let lab = uv::Vec3::new(self.l, a, b);
+		let lab = Oklab { l: self.l, a, b };
 
-		let mut lms = OKLAB_LMS_MAT * lab;
-		lms.apply(|c| c.powi(3)); // Inverse nonlinear transform
+		let rgb = oklab_to_srgb(lab);
 
-		let mut rgb = LMS_LSRGB_MAT * lms;
-		rgb.apply(srgb_oetf); // Gamma-compress components
-		rgb.apply(|c| c.clamp(0.0, 1.0)); // Clamp to fit into sRGB gamut
-
-		(rgb.x, rgb.y, rgb.z)
+		(rgb.r, rgb.g, rgb.b)
 	}
 
 	#[inline]
@@ -129,5 +70,17 @@ impl OklchColor {
 			lerp(col1.chroma(), col2.chroma(), t),
 			lerp(col1.hue(), col2.hue(), t)
 		)
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn srgb_conversion() {
+		let color = OklchColor::from_srgb(174, 49, 39);
+
+		assert_eq!(color.into_srgb(), (174, 49, 39))
 	}
 }

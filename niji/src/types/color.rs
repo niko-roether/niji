@@ -55,21 +55,12 @@ impl Color {
 	}
 
 	fn into_oklch(self) -> OklchColor {
-		OklchColor::from_srgb(
-			self.r as f32 / 255.0,
-			self.g as f32 / 255.0,
-			self.b as f32 / 255.0
-		)
+		OklchColor::from_srgb(self.r, self.g, self.b)
 	}
 
 	fn from_oklch(color: OklchColor, a: u8) -> Self {
 		let (r, g, b) = color.into_srgb();
-		Self::new_rgba(
-			f32::round(r * 255.0) as u8,
-			f32::round(g * 255.0) as u8,
-			f32::round(b * 255.0) as u8,
-			a
-		)
+		Self::new_rgba(r, g, b, a)
 	}
 }
 
