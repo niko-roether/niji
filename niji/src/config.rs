@@ -139,6 +139,9 @@ impl fmt::Display for Terminal {
 
 #[derive(Debug, Clone, IntoLua, Serialize, Deserialize)]
 pub struct Theme {
+	#[serde(skip)]
+	pub name: Option<String>,
+
 	pub ui: UiTheme,
 	pub terminal: Terminal
 }

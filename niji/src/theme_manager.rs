@@ -30,12 +30,6 @@ pub struct ThemeManager {
 	files: Rc<Files>
 }
 
-#[derive(Debug, Clone)]
-pub struct NamedTheme {
-	pub name: String,
-	pub values: Theme
-}
-
 impl ThemeManager {
 	pub fn new(files: Rc<Files>) -> Self {
 		Self { files }
@@ -55,7 +49,7 @@ impl ThemeManager {
 		themes.into_iter().collect()
 	}
 
-	pub fn current_theme(&self) -> Result<NamedTheme, Error> {
+	pub fn current_theme(&self) -> Result<Theme, Error> {
 		if !self.files.current_theme_file().exists() {
 			self.reset_theme()?;
 		}
@@ -67,15 +61,14 @@ impl ThemeManager {
 			return Err(Error::NoThemeSelected);
 		}
 
-		let values: Option<Theme> = self.read_theme(&current_theme)?;
-		let Some(values) = values else {
+		let theme: Option<Theme> = self.read_theme(&current_theme)?;
+		let Some(mut theme) = theme else {
 			return Err(Error::UnknownCurrentTheme(current_theme));
 		};
 
-		Ok(NamedTheme {
-			name: current_theme,
-			values
-		})
+		theme.name = Some(current_theme);
+
+		Ok(theme)
 	}
 
 	pub fn get_theme(&self, name: &str) -> Result<Theme, Error> {

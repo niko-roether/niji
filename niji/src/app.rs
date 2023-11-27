@@ -7,7 +7,7 @@ use crate::{
 	file_manager::{self, FileManager},
 	files::{self, Files},
 	module_manager::{self, ModuleManager, ModuleManagerInit},
-	theme_manager::{self, NamedTheme, ThemeManager},
+	theme_manager::{self, ThemeManager},
 	utils::xdg::{self, XdgDirs}
 };
 
@@ -55,7 +55,7 @@ impl NijiApp {
 		})
 	}
 
-	pub fn current_theme(&self) -> Result<NamedTheme, Error> {
+	pub fn current_theme(&self) -> Result<Theme, Error> {
 		Ok(self.theme_manager.current_theme()?)
 	}
 
@@ -70,7 +70,7 @@ impl NijiApp {
 	pub fn apply(&self, reload: bool, modules: Option<&[String]>) -> Result<(), Error> {
 		let theme = self.current_theme()?;
 		self.module_manager
-			.apply(&self.config, &theme.values, reload, modules)?;
+			.apply(&self.config, &theme, reload, modules)?;
 		Ok(())
 	}
 
