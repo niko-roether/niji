@@ -7,7 +7,7 @@ use crate::{
 	file_manager::FileManager, files::Files, lua::api::ModuleContext, utils::xdg::XdgDirs
 };
 
-use super::Module;
+use super::ApiModule;
 
 pub struct FilesystemApi;
 
@@ -107,7 +107,7 @@ impl FilesystemApi {
 	}
 }
 
-impl Module for FilesystemApi {
+impl ApiModule for FilesystemApi {
 	const NAMESPACE: &'static str = "fs";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {

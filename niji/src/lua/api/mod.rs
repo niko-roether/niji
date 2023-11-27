@@ -6,7 +6,7 @@ use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
 
 use self::{
 	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module_meta::ModuleMetaApi,
-	os::OsApi, template::TemplateApi, xdg::XdgApi
+	os::OsApi, template::TemplateApi, util::UtilApi, xdg::XdgApi
 };
 
 mod color;
@@ -15,6 +15,7 @@ mod filesystem;
 mod module_meta;
 mod os;
 mod template;
+mod util;
 mod xdg;
 
 pub struct ModuleContext {
@@ -22,13 +23,13 @@ pub struct ModuleContext {
 	pub path: PathBuf
 }
 
-trait Module: Sized {
+trait ApiModule: Sized {
 	const NAMESPACE: &'static str;
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value>;
 }
 
-fn insert_module<M: Module>(lua: &Lua, api: &mlua::Table) -> mlua::Result<()> {
+fn insert_module<M: ApiModule>(lua: &Lua, api: &mlua::Table) -> mlua::Result<()> {
 	api.raw_set(M::NAMESPACE, M::build(lua)?)
 }
 
@@ -55,6 +56,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	insert_module::<XdgApi>(lua, &api)?;
 	insert_module::<TemplateApi>(lua, &api)?;
 	insert_module::<OsApi>(lua, &api)?;
+	insert_module::<UtilApi>(lua, &api)?;
 
 	lua.globals().set(API_GLOBAL, api)?;
 

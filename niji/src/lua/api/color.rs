@@ -4,7 +4,7 @@ use mlua::{FromLua, IntoLua, Lua, UserData, UserDataFields, UserDataMethods};
 
 use crate::types::color::Color;
 
-use super::Module;
+use super::ApiModule;
 
 impl UserData for Color {
 	fn add_fields<'lua, F: UserDataFields<'lua, Self>>(fields: &mut F) {
@@ -58,7 +58,7 @@ impl ColorApi {
 	}
 }
 
-impl Module for ColorApi {
+impl ApiModule for ColorApi {
 	const NAMESPACE: &'static str = "col";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {

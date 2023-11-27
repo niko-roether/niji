@@ -4,7 +4,7 @@ use crate::{template::load_template, types::color::Color};
 use mlua::{IntoLua, Lua, UserData, UserDataMethods};
 use niji_templates::Template;
 
-use super::Module;
+use super::ApiModule;
 
 fn is_array(table: &mlua::Table) -> bool {
 	for i in 1..=table.clone().pairs::<mlua::Value, mlua::Value>().count() {
@@ -119,7 +119,7 @@ impl TemplateApi {
 	}
 }
 
-impl Module for TemplateApi {
+impl ApiModule for TemplateApi {
 	const NAMESPACE: &'static str = "template";
 
 	fn build(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {

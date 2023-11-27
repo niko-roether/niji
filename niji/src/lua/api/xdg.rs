@@ -4,11 +4,11 @@ use mlua::IntoLua;
 
 use crate::utils::xdg::XdgDirs;
 
-use super::Module;
+use super::ApiModule;
 
 pub struct XdgApi;
 
-impl Module for XdgApi {
+impl ApiModule for XdgApi {
 	const NAMESPACE: &'static str = "xdg";
 
 	fn build(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {

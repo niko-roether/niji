@@ -1,7 +1,7 @@
 use mlua::{IntoLua, Lua};
 use niji_console::prompt;
 
-use super::Module;
+use super::ApiModule;
 
 pub struct ConsoleApi;
 
@@ -32,7 +32,7 @@ impl ConsoleApi {
 	}
 }
 
-impl Module for ConsoleApi {
+impl ApiModule for ConsoleApi {
 	const NAMESPACE: &'static str = "console";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {

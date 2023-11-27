@@ -2,7 +2,7 @@ use std::process::{Command, Stdio};
 
 use mlua::{IntoLua, Lua};
 
-use super::Module;
+use super::ApiModule;
 
 pub struct OsApi;
 
@@ -20,7 +20,7 @@ impl OsApi {
 	}
 }
 
-impl Module for OsApi {
+impl ApiModule for OsApi {
 	const NAMESPACE: &'static str = "os";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {

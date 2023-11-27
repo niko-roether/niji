@@ -1,10 +1,10 @@
 use mlua::{IntoLua, Lua};
 
-use super::{Module, ModuleContext};
+use super::{ApiModule, ModuleContext};
 
 pub struct ModuleMetaApi;
 
-impl Module for ModuleMetaApi {
+impl ApiModule for ModuleMetaApi {
 	const NAMESPACE: &'static str = "mod";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {
