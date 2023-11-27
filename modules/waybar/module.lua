@@ -58,7 +58,7 @@ end
 
 function M.reload()
 	os.execute("killall waybar")
-	niji.os.exec_detached("waybar")
+	niji.os.exec_detached("waybar &> /dev/null")
 end
 
 return M

@@ -32,7 +32,7 @@ function M.reload(config)
 		niji.console.warn("Some programs will only reflect cursor theme changes after reopening")
 	end
 
-	os.execute("swaymsg reload -q")
+	os.execute("swaymsg reload -q > /dev/null")
 end
 
 return M

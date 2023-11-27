@@ -10,9 +10,6 @@ impl OsApi {
 	fn exec_detached(_: &Lua, command: String) -> mlua::Result<()> {
 		Command::new("sh")
 			.args(["-c", &command])
-			.stdin(Stdio::null())
-			.stdout(Stdio::null())
-			.stderr(Stdio::null())
 			.spawn()
 			.map_err(mlua::Error::runtime)?;
 

@@ -20,6 +20,13 @@ fn is_array(table: &mlua::Table) -> bool {
 
 fn to_template_vec(table: mlua::Table) -> mlua::Result<niji_templates::Value> {
 	let len = table.raw_len();
+
+	// Cannot differentiate between empty maps and empty arrays.
+	// Just returning nil gives more intuitive behavior.
+	if len == 0 {
+		return Ok(niji_templates::Value::Nil);
+	}
+
 	let mut vec = Vec::with_capacity(len);
 
 	for i in 1..=len {
