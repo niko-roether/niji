@@ -7,6 +7,11 @@ function M.apply(config, theme)
 	local focused_text_color = "text" .. focused_color;
 	local indicator_color = config.indicator_color or "surface";
 
+	local wallpaper = nil
+	if config.disable_wallpaper ~= true then
+		wallpaper = niji.util.by_theme(theme, config.wallpaper)
+	end
+
 	local theme = template:render {
 		unfocused = theme.ui.background,
 		text_unfocused = theme.ui.text_background,
@@ -18,7 +23,8 @@ function M.apply(config, theme)
 		text_notify = theme.ui.text_warning,
 		indicator = theme.ui[indicator_color],
 		cursor = config.cursor_theme,
-		cursor_size = config.cursor_size
+		cursor_size = config.cursor_size,
+		wallpaper = wallpaper
 	}
 
 	niji.fs.write_output("theme", theme)

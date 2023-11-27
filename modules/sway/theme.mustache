@@ -11,5 +11,9 @@ font {{.}} {{font_size}}
 {{/font}}
 
 {{#cursor}}
-seat seat0 xcursor_theme {{cursor}} {{cursor_size}}
+seat seat0 xcursor_theme "{{cursor}}" {{cursor_size}}
 {{/cursor}}
+
+{{#wallpaper}}
+output * bg "{{.}}" fill
+{{/wallpaper}}
