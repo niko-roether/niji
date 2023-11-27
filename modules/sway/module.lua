@@ -16,13 +16,22 @@ function M.apply(config, theme)
 		font_size = (config.font_size or 12) * (config.font_scale or 1),
 		notify = theme.ui.warning,
 		text_notify = theme.ui.text_warning,
-		indicator = theme.ui[indicator_color]
+		indicator = theme.ui[indicator_color],
+		cursor = config.cursor,
+		cursor_size = config.cursor_size
 	}
 
 	niji.fs.write_output("theme", theme)
 end
 
-function M.reload()
+function M.reload(config)
+	if
+		config.cursor ~= nil and config.cursor ~= os.getenv("XCURSOR_THEME") or
+		config.cursor_size ~= nil and tostring(config.cursor_size) ~= os.getenv("XCURSOR_SIZE")
+	then
+		niji.console.warn("Some programs will only reflect cursor theme changes after reopening")
+	end
+
 	os.execute("swaymsg reload -q")
 end
 
