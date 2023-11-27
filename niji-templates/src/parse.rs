@@ -6,13 +6,15 @@ use std::{
 
 use thiserror::Error;
 
-use crate::template::{Insert, Name, Section, Template, Token};
+use crate::template::{Insert, Name, Section, SetFmt, Template, Token};
 
 // Tokens := (Token | SetDelimiters)*
-// Token := Section | Value | String
+// Token := Section | SetFmt | Insert | String
 // Section := "{{", ("#" | "^"), Name, "}}", Tokens, "{{/", Name, "}}"
 // Name := Ident, (".", Ident)*
-// SetDelimiters := "{{=", Delimiter, Delimiter, "}}"
+// SetDelimiters := "{{=", Delimiter, Delimiter, "=}}"
+// Insert := "{{", Name, [":", String], "}}"
+// SetFmt := "{{%", String, ":", String, "%}}"
 
 #[derive(Debug, Error)]
 pub enum ParseErrorKind {
@@ -44,7 +46,10 @@ pub enum ParseErrorKind {
 	ExpectedStrLit,
 
 	#[error("'{0}' cannot be used in a delimiter")]
-	ForbiddenDelimiterChar(char)
+	ForbiddenDelimiterChar(char),
+
+	#[error("Expected '{0}'")]
+	ExpectedOp(char)
 }
 
 #[derive(Debug, Error)]
@@ -417,6 +422,57 @@ fn parse_delimiter_definition(source: &mut Source) -> ParseResult<String> {
 	Ok(Some(delimiter))
 }
 
+fn parse_set_fmt(source: &mut Source, state: &State) -> ParseResult<SetFmt> {
+	let mut src = source.clone();
+	let setfmt_start = format!("{}%", state.start_delimiter);
+	let setfmt_end = format!("%{}", state.end_delimiter);
+
+	if !has_delimiter(&mut src, &setfmt_start) {
+		return Ok(None);
+	}
+
+	skip_whitespace(&mut src);
+
+	let Some(type_name) = parse_str_lit(&mut src)? else {
+		return Err(ParseError::new(
+			ParseErrorKind::ExpectedStrLit,
+			src.position
+		));
+	};
+
+	skip_whitespace(&mut src);
+
+	if src.peek() == Some(':') {
+		src.next().unwrap();
+	} else {
+		return Err(ParseError::new(
+			ParseErrorKind::ExpectedOp(':'),
+			src.position
+		));
+	}
+
+	skip_whitespace(&mut src);
+
+	let Some(format) = parse_str_lit(&mut src)? else {
+		return Err(ParseError::new(
+			ParseErrorKind::ExpectedStrLit,
+			src.position
+		));
+	};
+
+	skip_whitespace(&mut src);
+
+	if !has_delimiter(&mut src, &setfmt_end) {
+		return Err(ParseError::new(
+			ParseErrorKind::ExpectedClosingDelim(setfmt_end.clone()),
+			src.position
+		));
+	}
+
+	*source = src;
+	Ok(Some(SetFmt { type_name, format }))
+}
+
 fn parse_instruction(source: &mut Source, state: &mut State) -> ParseResult<()> {
 	let mut src = source.clone();
 	let instr_start = format!("{}=", state.start_delimiter);
@@ -425,8 +481,6 @@ fn parse_instruction(source: &mut Source, state: &mut State) -> ParseResult<()> 
 	if !has_delimiter(&mut src, &instr_start) {
 		return Ok(None);
 	}
-
-	skip_whitespace(&mut src);
 
 	skip_whitespace(&mut src);
 
@@ -493,6 +547,8 @@ fn parse_string(source: &mut Source, state: &State) -> ParseResult<String> {
 fn parse_token(source: &mut Source, state: &mut State) -> ParseResult<Token> {
 	if let Some(section) = parse_section(source, state)? {
 		Ok(Some(Token::Section(section)))
+	} else if let Some(value) = parse_set_fmt(source, state)? {
+		Ok(Some(Token::SetFmt(value)))
 	} else if let Some(value) = parse_insert(source, state)? {
 		Ok(Some(Token::Insert(value)))
 	} else if let Some(string) = parse_string(source, state)? {
@@ -609,13 +665,26 @@ mod tests {
 
 	#[test]
 	fn format_definition() {
-		let template: Template = "{{value : \"{a}\"}}".parse().unwrap();
+		let template: Template = r#"{{value : "{a}"}}"#.parse().unwrap();
 
 		assert_eq!(
 			template,
 			Template::new(vec![Token::Insert(Insert {
 				name: Name(vec!["value".to_string()]),
 				format: Some("{a}".to_string())
+			})])
+		)
+	}
+
+	#[test]
+	fn setfmt() {
+		let template: Template = r#"{{% "color" : "{r}" %}}"#.parse().unwrap();
+
+		assert_eq!(
+			template,
+			Template::new(vec![Token::SetFmt(SetFmt {
+				type_name: "color".to_string(),
+				format: "{r}".to_string()
 			})])
 		)
 	}

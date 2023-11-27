@@ -30,10 +30,17 @@ pub(crate) struct Insert {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SetFmt {
+	pub type_name: String,
+	pub format: String
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum Token {
 	String(String),
 	Insert(Insert),
-	Section(Section)
+	Section(Section),
+	SetFmt(SetFmt)
 }
 
 #[derive(Debug, Error)]
@@ -79,39 +86,42 @@ impl Template {
 		self.fmt.insert(type_name, format);
 	}
 
-	pub fn render(&self, value: &Value) -> Result<String, RenderError> {
+	pub fn render(&mut self, value: &Value) -> Result<String, RenderError> {
 		let mut buf = String::new();
-		self.render_tokens(&mut buf, &self.tokens, &[value])?;
+		Self::render_tokens(&mut buf, &self.tokens, &[value], &mut self.fmt)?;
 		Ok(buf)
 	}
 
 	fn render_tokens(
-		&self,
 		buf: &mut String,
 		tokens: &[Token],
-		context: &[&Value]
+		context: &[&Value],
+		fmt: &mut HashMap<String, String>
 	) -> Result<(), RenderError> {
 		for token in tokens {
 			match token {
 				Token::String(string) => buf.push_str(string),
-				Token::Insert(insert) => self.render_insert(buf, insert, context)?,
-				Token::Section(section) => self.render_section(buf, section, context)?
+				Token::Insert(insert) => Self::render_insert(buf, insert, context, fmt)?,
+				Token::Section(section) => Self::render_section(buf, section, context, fmt)?,
+				Token::SetFmt(setfmt) => {
+					fmt.insert(setfmt.type_name.clone(), setfmt.format.clone());
+				}
 			}
 		}
 		Ok(())
 	}
 
 	fn render_section(
-		&self,
 		buf: &mut String,
 		section: &Section,
-		context: &[&Value]
+		context: &[&Value],
+		fmt: &mut HashMap<String, String>
 	) -> Result<(), RenderError> {
 		let value = Self::get_named_value(&section.name.0, context)?;
 
 		match (section.inverted, value) {
 			(false, Value::String(..) | Value::Fmt(..) | Value::Map(..)) => {
-				self.render_tokens(buf, &section.content, &[&[value], context].concat())?
+				Self::render_tokens(buf, &section.content, &[&[value], context].concat(), fmt)?
 			}
 			(true, Value::String(..)) => {
 				return Err(RenderError::CannotCreateInvertedSection("string"))
@@ -124,22 +134,22 @@ impl Template {
 			}
 			(invert, Value::Bool(bool)) => {
 				if bool ^ invert {
-					self.render_tokens(buf, &section.content, &[&[value], context].concat())?
+					Self::render_tokens(buf, &section.content, &[&[value], context].concat(), fmt)?
 				}
 			}
 			(invert, Value::Nil) => {
 				if invert {
-					self.render_tokens(buf, &section.content, &[&[value], context].concat())?
+					Self::render_tokens(buf, &section.content, &[&[value], context].concat(), fmt)?
 				}
 			}
 			(false, Value::Vec(vec)) => {
 				for val in vec {
-					self.render_tokens(buf, &section.content, &[&[val], context].concat())?;
+					Self::render_tokens(buf, &section.content, &[&[val], context].concat(), fmt)?;
 				}
 			}
 			(true, Value::Vec(vec)) => {
 				for val in vec.iter().rev() {
-					self.render_tokens(buf, &section.content, &[&[val], context].concat())?;
+					Self::render_tokens(buf, &section.content, &[&[val], context].concat(), fmt)?;
 				}
 			}
 		}
@@ -148,10 +158,10 @@ impl Template {
 	}
 
 	fn render_insert(
-		&self,
 		buf: &mut String,
 		insert: &Insert,
-		context: &[&Value]
+		context: &[&Value],
+		fmt: &HashMap<String, String>
 	) -> Result<(), RenderError> {
 		let value = Self::get_named_value(&insert.name.0, context)?;
 
@@ -162,8 +172,7 @@ impl Template {
 			Value::String(string) => buf.push_str(string),
 			Value::Fmt(fmt_val) => buf.push_str(
 				&fmt_val.format(
-					self.fmt
-						.get(fmt_val.type_name())
+					fmt.get(fmt_val.type_name())
 						.or(insert.format.as_ref())
 						.map(String::as_str)
 				)?
