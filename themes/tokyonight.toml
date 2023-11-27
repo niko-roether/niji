@@ -8,7 +8,7 @@ primary = "#a9b1d6"
 text_primary = "#1a1b26"
 secondary = "#73daca"
 border = "#1a1b26"
-shadow = "#21222cee"
+shadow = "#10101080"
 
 success = "#73daca"
 text_success = "#e0af68"

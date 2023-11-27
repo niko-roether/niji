@@ -25,6 +25,8 @@ end
 function M.apply(config, theme)
 	local font_size = get_font_size(config)
 	local custom_style = get_custom_style(config)
+	local show_shadow = true
+	if config.show_shadow ~= nil then show_shadow = config.show_shadow end
 
 	local style = style_css:render {
 		icon_font = config.icon_font,
@@ -50,6 +52,8 @@ function M.apply(config, theme)
 		border_radius = config.border_radius or "4px",
 		border_width = config.border_width or "2px",
 		custom_modules = config.custom_modules or {},
+		show_shadow = show_shadow,
+		shadow = theme.ui.shadow,
 		custom_style = custom_style
 	}
 

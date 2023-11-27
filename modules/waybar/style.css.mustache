@@ -25,6 +25,10 @@ window#waybar.hidden {
 	background-color: {{background}};
 	border-radius: {{border_radius}};
 	margin: {{margin_y}} 0;
+
+	{{#show_shadow}}
+	box-shadow: 0 3px 2px {{shadow}};
+	{{/show_shadow}}
 }
 
 #workspaces button {
@@ -77,6 +81,10 @@ window#waybar.hidden {
 	border-radius: {{border_radius}};
 	background-color: {{background}};
 	color: {{text_background}};
+
+	{{#show_shadow}}
+	box-shadow: 0 3px 2px {{shadow}};
+	{{/show_shadow}}
 }
 
 
