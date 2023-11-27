@@ -1,3 +1,2 @@
-- GTK cursor / icon theme
-- Wallpapers?
+- Possibly theme specific config options like icon theme, wallpaper, etc.
 - All the modules!
