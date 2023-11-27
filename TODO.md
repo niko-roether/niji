@@ -1,2 +1,3 @@
-- Syntax for defining default format in templates
+- GTK cursor / icon theme
+- Wallpapers?
 - All the modules!

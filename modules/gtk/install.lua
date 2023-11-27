@@ -11,8 +11,6 @@ local THEME_LOCATION_TMP = TMP_DIR .. "/colloid/src"
 local SASSC_OPT = "-m -t expanded"
 
 local colors_scss_template = niji.template.load("./assets/_colors.scss.mustache")
-colors_scss_template:set_format("color", "rgba({r}, {g}, {b}, {af})")
-
 local tweaks_temp_template = niji.template.load("./assets/_tweaks-temp.scss.mustache")
 
 local function tmp_copy_theme()

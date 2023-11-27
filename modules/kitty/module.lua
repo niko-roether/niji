@@ -1,7 +1,6 @@
 local M = {}
 
 local template = niji.template.load("niji.conf.mustache")
-template:set_format("color", "#{rx}{gx}{bx}")
 
 function M.apply(config, theme)
 	local theme = template:render {

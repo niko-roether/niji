@@ -1,7 +1,6 @@
 local M = {}
 
 local template = niji.template.load("theme.conf.mustache")
-template:set_format("color", "rgba({rx}{gx}{bx}{ax})")
 
 function M.apply(config, theme)
 	local configure_cursor = config.cursor ~= nil and config.cursor_size ~= nil

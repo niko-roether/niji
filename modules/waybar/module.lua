@@ -1,7 +1,6 @@
 local M = {}
 
 local style_css = niji.template.load("style.css.mustache")
-style_css:set_format("color", "rgba({r}, {g}, {b}, {af})")
 
 local function get_custom_style(config)
 	local custom_style = "";
