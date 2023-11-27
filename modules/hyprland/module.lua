@@ -10,7 +10,7 @@ function M.apply(config, theme)
 
 	local theme_conf = template:render {
 		configure_cursor = configure_cursor,
-		cursor_theme = config.cursor,
+		cursor_theme = config.cursor_theme,
 		cursor_size = config.cursor_size,
 		border_color = theme.ui.background,
 		active_border_color = theme.ui[config.focused_color or "surface"],

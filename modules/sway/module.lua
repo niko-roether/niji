@@ -17,7 +17,7 @@ function M.apply(config, theme)
 		notify = theme.ui.warning,
 		text_notify = theme.ui.text_warning,
 		indicator = theme.ui[indicator_color],
-		cursor = config.cursor,
+		cursor = config.cursor_theme,
 		cursor_size = config.cursor_size
 	}
 
@@ -26,7 +26,7 @@ end
 
 function M.reload(config)
 	if
-		config.cursor ~= nil and config.cursor ~= os.getenv("XCURSOR_THEME") or
+		config.cursor_theme ~= nil and config.cursor_theme ~= os.getenv("XCURSOR_THEME") or
 		config.cursor_size ~= nil and tostring(config.cursor_size) ~= os.getenv("XCURSOR_SIZE")
 	then
 		niji.console.warn("Some programs will only reflect cursor theme changes after reopening")
