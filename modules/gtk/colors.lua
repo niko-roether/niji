@@ -163,6 +163,7 @@ function M.make_colors(theme)
 		on_warning = theme.ui.text_warning,
 		on_error = theme.ui.text_error,
 		on_success = theme.ui.text_success,
+		on_assets = theme.ui.background,
 
 		red_light = theme.terminal.bright_red,
 		red_dark = theme.terminal.red,

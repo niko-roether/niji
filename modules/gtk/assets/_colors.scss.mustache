@@ -104,6 +104,9 @@ $titlebutton-min: {{titlebutton_min}};
 	@if $color == $success {
 		@return {{on_success}};
 	}
+	@if $color == $assets-color {
+		@return {{on_assets}};
+	}
 	@return {{on_background}};
 }
 
