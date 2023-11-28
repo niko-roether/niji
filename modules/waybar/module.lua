@@ -23,6 +23,8 @@ function M.apply(config, theme)
 		secondary = theme.ui.secondary,
 		warning = theme.ui.warning,
 		text_warning = theme.ui.text_warning,
+		info = theme.ui.info,
+		text_info = theme.ui.text_info,
 		padding_x = config.padding_x or "12px",
 		padding_y = config.padding_y or "4px",
 		margin_x = config.margin_x or "3px",
