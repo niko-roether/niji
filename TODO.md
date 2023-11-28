@@ -1,2 +1,5 @@
-- Possibly theme specific config options like icon theme, wallpaper, etc.
 - All the modules!
+  - mako
+  - wofi
+  - qt
+- GTK icon themes
