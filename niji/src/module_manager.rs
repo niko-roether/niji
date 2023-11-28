@@ -1,6 +1,6 @@
 use std::{collections::HashSet, path::PathBuf, rc::Rc, sync::Mutex};
 
-use log::{debug, error, info, warn};
+use log::{debug, error, info};
 use niji_console::heading;
 use thiserror::Error;
 
@@ -170,11 +170,7 @@ impl ModuleManager {
 					niji_console::println!();
 				}
 			} else {
-				warn!(
-					"Module {} does not support reloading. You will only see the changes on a \
-					 restart.",
-					module_descr.name
-				)
+				debug!("Module {} does not support reloading.", module_descr.name)
 			}
 		}
 		info!("Done!");
