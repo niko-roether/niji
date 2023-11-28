@@ -1,4 +1,3 @@
-- Append hash to the backup file name
 - All the modules!
   - wofi
   - qt

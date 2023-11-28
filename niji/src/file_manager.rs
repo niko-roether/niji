@@ -74,23 +74,33 @@ impl FileManager {
 		path: &Path,
 		string: &str
 	) -> Result<(), Error> {
-		if self.is_managed(managed_files, path)? {
-			debug!("Writing to managed file at {}", path.display());
-			fs::write(path, string).map_err(|e| Error::Write(path.display().to_string(), e))?;
-			self.set_managed(managed_files, path.to_path_buf())?;
-			return Ok(());
+		let current_hash = Self::hash_contents(&path)?;
+		debug!("{} has current hash {current_hash}", path.display());
+
+		if let Some(known_hash) = self.get_known_hash(managed_files, path)? {
+			if current_hash == known_hash {
+				debug!("Writing to managed file at {}", path.display());
+				fs::write(path, string).map_err(|e| Error::Write(path.display().to_string(), e))?;
+				self.set_managed(managed_files, path.to_path_buf())?;
+				return Ok(());
+			} else {
+				debug!("File contents of {} have changed", path.display())
+			}
+		} else {
+			debug!("{} is not in the managed files table", path.display())
 		}
 
-		self.backup_and_replace(managed_files, path, string)
+		self.backup_and_replace(managed_files, path, string, current_hash)
 	}
 
 	fn backup_and_replace(
 		&self,
 		managed_files: &mut HashMap<PathBuf, u64>,
 		path: &Path,
-		string: &str
+		string: &str,
+		hash: u64
 	) -> Result<(), Error> {
-		let backup_path = Self::get_backup_path(path);
+		let backup_path = Self::get_backup_path(path, hash);
 
 		warn!(
 			"In order to apply your configuration, niji needs to write to {}. This would \
@@ -114,10 +124,10 @@ impl FileManager {
 		Ok(())
 	}
 
-	fn get_backup_path(path: &Path) -> PathBuf {
+	fn get_backup_path(path: &Path, hash: u64) -> PathBuf {
 		let date = chrono::offset::Local::now().date_naive();
 		let file_name = format!(
-			"{}.backup-{date}",
+			"{}.backup-{date}-{hash}",
 			path.file_name().unwrap().to_string_lossy()
 		);
 
@@ -137,29 +147,14 @@ impl FileManager {
 		self.write_managed_files(managed_files)
 	}
 
-	fn is_managed(
+	fn get_known_hash(
 		&self,
 		managed_files: &HashMap<PathBuf, u64>,
 		path: &Path
-	) -> Result<bool, Error> {
+	) -> Result<Option<u64>, Error> {
 		let path = path.canonicalize().map_err(Error::Io)?;
 
-		if let Some(known_hash) = managed_files.get(&path) {
-			let current_hash = Self::hash_contents(&path)?;
-
-			debug!(
-				"{} has known hash {known_hash}; current hash is {current_hash}",
-				path.display()
-			);
-
-			if current_hash == *known_hash {
-				return Ok(true);
-			}
-		}
-
-		debug!("{} is not in the managed files table", path.display());
-
-		Ok(false)
+		Ok(managed_files.get(&path).copied())
 	}
 
 	fn hash_contents(path: &Path) -> Result<u64, Error> {
