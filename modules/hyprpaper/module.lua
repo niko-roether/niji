@@ -12,7 +12,7 @@ function M.apply(config, theme)
 	niji.fs.write_config("hypr/hyprpaper.conf", hyprpaper_conf)
 end
 
-function M.reload()
+function M.reload(config)
 	os.execute("pkill hyprpaper")
 	niji.os.exec_detached(config.hyprpaper_command or "hyprpaper > /dev/null")
 end
