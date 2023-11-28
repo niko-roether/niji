@@ -1,5 +1,5 @@
 - All the modules!
-  - mako
   - wofi
   - qt
+  - Also export-gtk, export-hyprland, export-sway etc.
 - GTK icon themes
