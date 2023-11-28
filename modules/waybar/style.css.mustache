@@ -64,16 +64,39 @@ window#waybar.hidden {
 {{#custom_modules}}
 #{{.}},
 {{/custom_modules}}
-#memory,
-#battery,
-#idle_inhibitor,
 #backlight,
-#pulseaudio,
-#network,
+#backlight-slider,
+#battery,
+#bluetooth,
+#cava,
 #clock,
-#tray,
 #cpu,
-#temperature
+#disk,
+#tags,
+#tray,
+#gamemode,
+#language,
+#submap,
+#idle_inhibitor,
+#image,
+#jack,
+#keyboard-state,
+#language,
+#memory,
+#mpd,
+#mpris,
+#network,
+#pulseaudio,
+#pulseaudio-slider,
+#privacy,
+#sndio,
+#window,
+#mode,
+#temperature,
+#taskbar,
+#upower,
+#wireplumber,
+#user
 {
 	border-radius: {{border_radius}};
 	padding: {{padding_y}} {{padding_x}};
@@ -87,6 +110,12 @@ window#waybar.hidden {
 	{{/show_shadow}}
 }
 
+
+#tray.empty {
+	margin: 0;
+	padding: 0;
+	background-color: transparent;
+}
 
 tooltip {
 	border-radius: {{border_radius}};
