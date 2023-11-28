@@ -14,7 +14,7 @@ end
 
 function M.reload()
 	os.execute("pkill hyprpaper")
-	niji.os.exec_detached("hyprpaper > /dev/null")
+	niji.os.exec_detached(config.hyprpaper_command or "hyprpaper > /dev/null")
 end
 
 return M

@@ -39,9 +39,9 @@ function M.apply(config, theme)
 	local output = niji.fs.write_config("waybar/style.css", style)
 end
 
-function M.reload()
+function M.reload(config)
 	os.execute("killall waybar")
-	niji.os.exec_detached("waybar &> /dev/null")
+	niji.os.exec_detached(config.waybar_command or "waybar &> /dev/null")
 end
 
 return M
