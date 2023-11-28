@@ -2,36 +2,15 @@ local M = {}
 
 local style_css = niji.template.load("style.css.mustache")
 
-local function get_custom_style(config)
-	local custom_style = "";
-	if config.custom_style_file ~= nil then
-		local file = niji.fs.open_config_asset(config.custom_style_file)
-		if file ~= nil then
-			custom_style = file:read("*a")
-		else
-			niji.console.error("Failed to read custom style file " .. file)
-		end
-	end
-	return custom_style
-end
-
-local function get_font_size(config)
-	local base_size = config.font_size or 18
-	local scale = config.font_scale or 1
-
-	return (base_size * scale) .. "px"
-end
-
 function M.apply(config, theme)
-	local font_size = get_font_size(config)
-	local custom_style = get_custom_style(config)
+	local custom_style = config.custom_style_file and niji.fs.read_config_asset(config.custom_style_file)
 	local show_shadow = true
 	if config.show_shadow ~= nil then show_shadow = config.show_shadow end
 
 	local style = style_css:render {
 		icon_font = config.icon_font,
 		font = config.font_family,
-		font_size = font_size,
+		font_size = niji.util.font_size(config, 18),
 		transition_duration = config.transition_duration or "200ms",
 		hidden_opacity = config.hidden_opacity or 0.5,
 		bar_background = "transparent",
