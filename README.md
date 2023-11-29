@@ -33,7 +33,7 @@ Technically, all other configuration options are optional, but it is a good idea
 a few other global options, like this:
 
 ```toml
-modules = ["hyprland", "wayland"]
+modules = ["hyprland", "waybar"]
 
 [global]
 font_family = "Fira Sans"
