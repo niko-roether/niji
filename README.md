@@ -7,4 +7,4 @@ Happy hacking!
 
 ## Preview
 
-![Preview Video](preview.mkv)
+![Preview Video](preview.mov)
