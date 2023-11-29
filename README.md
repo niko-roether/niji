@@ -7,4 +7,4 @@ Happy hacking!
 
 ## Preview
 
-![Preview Video](preview.mov)
+https://github.com/nicholas-roether/niji/assets/35772525/1e87d9ac-325b-409e-a1f9-ab95e01cfff8
