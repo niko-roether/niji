@@ -1,5 +1,4 @@
 - All the modules!
-  - wofi
   - qt
   - Also export-gtk, export-hyprland, export-sway etc.
 - Maybe try to read custom config files by default?
