@@ -108,8 +108,11 @@ impl ThemeManager {
 
 		debug!("Reading theme \"{name}\" from {}", path.display());
 
-		Ok(Some(
-			config::read(path).map_err(|e| Error::ThemeRead(name.to_string(), e))?
-		))
+		let mut theme: Theme =
+			config::read(path).map_err(|e| Error::ThemeRead(name.to_string(), e))?;
+
+		theme.name = Some(name.to_string());
+
+		Ok(Some(theme))
 	}
 }
