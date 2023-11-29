@@ -29,8 +29,8 @@ might look like this:
 modules = ["hyprland", "waybar"]
 ```
 
-technically, all other configuration options are optional, but it is a good idea to set
-a few other global options, like this
+Technically, all other configuration options are optional, but it is a good idea to set
+a few other global options, like this:
 
 ```toml
 modules = ["hyprland", "wayland"]
