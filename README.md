@@ -22,7 +22,7 @@ Currently, the only way of installing is to build from source. This is due to ch
 
 ## Getting started
 
-The first step is picking the modules you'd like to use. Take a look at the [built-in modules list](#builtin-modules)
+The first step is picking the modules you'd like to use. Take a look at the [built-in modules list](#built-in-modules)
 A basic configuration for `~/.config/niji/config.toml` might look like this:
 
 ```toml
