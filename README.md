@@ -22,8 +22,8 @@ Currently, the only way of installing is to build from source. This is due to ch
 
 ## Getting started
 
-The first step is picking the modules you'd like to use. A basic configuration for `~/.config/niji/config.toml`
-might look like this:
+The first step is picking the modules you'd like to use. Take a look at the [built-in modules list](#builtin-modules)
+A basic configuration for `~/.config/niji/config.toml` might look like this:
 
 ```toml
 modules = ["hyprland", "waybar"]
@@ -53,7 +53,7 @@ Any top-level configuration value that is not part of a section is considered to
 
 You can use the following options to configure niji.
 
-- `modules`: A list of the names of modules you want to activate. See the [list of modules](#built-in-modules) for available names.
+- `modules`: A list of the names of modules you want to activate. See the [list of built-in modules](#built-in-modules) for available names.
 - `disable_reloads`: A list of the names of modules that you want to apply the theme to, but not automatically reload. This is
   useful in nonstandard use cases where the side effects of reloading may not be desired.
 
