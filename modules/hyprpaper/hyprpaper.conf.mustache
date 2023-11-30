@@ -4,9 +4,5 @@ wallpaper = , {{.}}
 {{/wallpaper}}
 
 {{#splash}}
-splash = true
+splash = true {{#splash_offset}}, {{.}} {{/splash_offset}}
 {{/splash}}
-
-{{#splash_offset}}
-splash_offset = {{.}}
-{{/splash_offset}}
