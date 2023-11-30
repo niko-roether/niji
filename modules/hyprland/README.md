@@ -19,7 +19,7 @@ The following global configuration options are supported by this module:
 - `cursor_theme`
 - `cursor_size`
 
-See [the main documentation](../README.md#module-configuration) for more information.
+See [the main documentation](../../README.md#module-configuration) for more information.
 
 Additional module-specific configuration options are:
 

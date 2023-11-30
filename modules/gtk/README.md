@@ -18,7 +18,7 @@ The following global configuration options are supported by this module:
 - `font_family`
 - `font_scale`
 
-See [the main documentation](../README.md#module-configuration) for more information. Note that these options only work
+See [the main documentation](../../README.md#module-configuration) for more information. Note that these options only work
 if reloads are enabled for this module.
 
 Additional module-specific configuration options are:
