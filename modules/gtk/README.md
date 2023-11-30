@@ -11,14 +11,15 @@ need a patched version of libadwaita, like
 
 ## Configuration options
 
-The following global configuration options are relevant:
+The following global configuration options are supported by this module:
 
-| Name           | Type   | Description                                                          |
-| -------------- | ------ | -------------------------------------------------------------------- |
-| `cursor_theme` | string | Which cursor theme to apply. Only works if reloading is enabled.     |
-| `cursor_size`  | int    | Which cursor size to apply. Only works if reloading is enabled.      |
-| `font_family`  | string | Which font family to use for UI. Only works if reloading is enabled. |
-| `font_scale`   | float  | The font scaling factor to use. Only works if reloading is enabled.  |
+- `cursor_theme`
+- `cursor_size`
+- `font_family`
+- `font_scale`
+
+See [the main documentation](#module-configuration) for more information. Note that these options only work
+if reloads are enabled for this module.
 
 Additional module-specific configuration options are:
 

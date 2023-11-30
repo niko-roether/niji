@@ -14,12 +14,12 @@ it deleting anything you think might interfere.
 
 ## Configuration options
 
-The following global configuration options are relevant:
+The following global configuration options are supported by this module:
 
-| Name           | Type   | Description               |
-| -------------- | ------ | ------------------------- |
-| `cursor_theme` | string | Which cursor theme to use |
-| `cursor_size`  | string | Which cursor size to use  |
+- `cursor_theme`
+- `cursor_size`
+
+See [the main documentation](#module-configuration) for more information.
 
 Additional module-specific configuration options are:
 
@@ -27,3 +27,6 @@ Additional module-specific configuration options are:
 | --------------- | -------------------------------------- | ----------------------------------------------------------------- |
 | `focused_color` | "background" or "surface" or "primary" | Which theme color to use for focused windows (default: "surface") |
 
+## See also
+
+- The [hyprpaper module](../hyprpaper/README.md)
