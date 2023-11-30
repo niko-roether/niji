@@ -71,7 +71,7 @@ Common global config options include:
 | `font_scale`   | A factor used to scale the font size. The default is `1.0`.                                                                                      |
 | `cursor_theme` | The cursor theme to use.                                                                                                                         |
 | `cursor_size`  | The cursor size to use.                                                                                                                          |
-| `wallpaper`    | Used to configure setting wallpapers per theme. See [Setting Wallpapers per Theme](#setting-wallapers-per-theme).                                |
+| `wallpaper`    | Used to configure setting wallpapers per theme. See [Setting Wallpapers per Theme](#setting-wallpapers-per-theme).                               |
 
 Any of these config options can be applied per module as well. For module specific settings, see the [list of modules](#built-in-modules), and their respective
 documentation.
