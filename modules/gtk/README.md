@@ -1,4 +1,4 @@
-# GTK module
+# Module `gtk`
 
 The GTK module installs a gtk3/gtk4 theme called "niji", and enables it
 automatically if reloading is not disabled for it. It modifies the
