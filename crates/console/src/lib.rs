@@ -3,7 +3,7 @@ pub use log::LevelFilter;
 use logger::Logger;
 pub use termcolor::ColorChoice;
 
-pub mod __private_api;
+pub mod api;
 mod console;
 mod logger;
 
@@ -13,7 +13,7 @@ mod macros;
 pub fn init(level: LevelFilter, color_choice: ColorChoice) {
 	let console = Console::new(color_choice);
 	if level != LevelFilter::Off {
-		__private_api::set_console(console);
+		api::set_console(console);
 	}
 
 	let logger = Box::new(Logger::new(level));

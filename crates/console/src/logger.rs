@@ -1,6 +1,6 @@
 use log::{Level, LevelFilter};
 
-use crate::__private_api;
+use crate::api;
 
 pub(crate) struct Logger {
 	level: LevelFilter
@@ -19,16 +19,16 @@ impl log::Log for Logger {
 
 	fn log(&self, record: &log::Record) {
 		match record.level() {
-			Level::Error => __private_api::log_error(record.args()).unwrap(),
-			Level::Warn => __private_api::log_warn(record.args()).unwrap(),
-			Level::Info => __private_api::log_info(record.args()).unwrap(),
-			Level::Debug => __private_api::log_debug(record.args()).unwrap(),
-			Level::Trace => __private_api::log_trace(record.args()).unwrap()
+			Level::Error => api::log_error(record.args()).unwrap(),
+			Level::Warn => api::log_warn(record.args()).unwrap(),
+			Level::Info => api::log_info(record.args()).unwrap(),
+			Level::Debug => api::log_debug(record.args()).unwrap(),
+			Level::Trace => api::log_trace(record.args()).unwrap()
 		}
 		self.flush();
 	}
 
 	fn flush(&self) {
-		__private_api::flush().unwrap()
+		api::flush().unwrap()
 	}
 }
