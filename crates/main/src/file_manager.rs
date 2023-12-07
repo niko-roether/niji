@@ -74,7 +74,7 @@ impl FileManager {
 		path: &Path,
 		string: &str
 	) -> Result<(), Error> {
-		let current_hash = Self::hash_contents(&path)?;
+		let current_hash = Self::hash_contents(path)?;
 		debug!("{} has current hash {current_hash}", path.display());
 
 		if let Some(known_hash) = self.get_known_hash(managed_files, path)? {
