@@ -381,9 +381,9 @@ dependencies = [
  "csv",
  "log",
  "mlua",
- "niji-console",
- "niji-macros",
- "niji-templates",
+ "niji_console",
+ "niji_macros",
+ "niji_templates",
  "oklab",
  "serde",
  "serde_with",
@@ -392,7 +392,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "niji-console"
+name = "niji_console"
 version = "0.1.0"
 dependencies = [
  "log",
@@ -400,7 +400,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "niji-macros"
+name = "niji_macros"
 version = "0.1.0"
 dependencies = [
  "proc-macro-error",
@@ -410,7 +410,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "niji-templates"
+name = "niji_templates"
 version = "0.1.0"
 dependencies = [
  "strfmt",

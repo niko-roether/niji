@@ -1,3 +1,4 @@
 [workspace]
 resolver = "2"
-members = ["niji", "niji-macros", "niji-templates", "niji-console"]
+members = ["crates/main", "crates/macros", "crates/templates", "crates/console"]
+
