@@ -26,7 +26,7 @@ Apps that use libadwaita, such as nautilus, are quite stubborn when it comes to 
 them to use a gtk theme other than Adwaita. The easiest way to fix this is to globally set
 the environent variable `GTK_THEME` to `niji`, which works.
 
-If you are using Arch Linux, you can also use [libadwaita-without-adwaita-git](https://aur.archlinux/org/packages/libadwaita-without-adwaita-git)
+If you are using Arch Linux, you can also use [libadwaita-without-adwaita-git](https://aur.archlinux.org/packages/libadwaita-without-adwaita-git)
 for an arguably cleaner solution; this patched version of libadwaita properly respects
 your system gtk theme, and makes apps like nautilus work properly with niji, nwg-look, and other tools,
 out of the box.
