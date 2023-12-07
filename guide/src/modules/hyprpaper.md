@@ -1,0 +1,3 @@
+# `hyprpaper`
+
+The `hyprpaper` module
