@@ -1,3 +1,4 @@
+- Config validation
 - All the modules!
   - qt
   - Also export-gtk, export-hyprland, export-sway etc.
