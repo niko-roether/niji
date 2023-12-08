@@ -8,4 +8,4 @@ description = "Bringing comfortable theming to the tinkerer's desktop"
 
 [output.html]
 site-url = "/niji/"
-git-repository-url = "https://github.com/nicholas-roether/niji/master/guide"
+git-repository-url = "https://github.com/nicholas-roether/niji"
