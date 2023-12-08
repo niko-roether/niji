@@ -4,7 +4,7 @@ local template = niji.template.load("theme.mustache")
 
 function M.apply(config, theme)
 	local focused_color = config.focused_color or "surface";
-	local focused_text_color = "text" .. focused_color;
+	local focused_text_color = "text_" .. focused_color;
 	local indicator_color = config.indicator_color or "surface";
 
 	local wallpaper = nil
@@ -18,7 +18,7 @@ function M.apply(config, theme)
 		focused = theme.ui[focused_color],
 		text_focused = theme.ui[focused_text_color],
 		font = config.font_family,
-		font_size = (config.font_size or 12) * (config.font_scale or 1),
+		font_size = niji.util.font_size(config, 12),
 		notify = theme.ui.warning,
 		text_notify = theme.ui.text_warning,
 		indicator = theme.ui[indicator_color],

@@ -4,6 +4,7 @@
 	border: none;
 	border-radius: 0;
 	min-height: 0;
+	min-width: 0;
 	font-family:
 		{{#font}} "{{.}}", {{/font}}
 		{{#icon_font}} "{{.}}", {{/icon_font}}
@@ -23,8 +24,7 @@ window#waybar.hidden {
 
 #workspaces {
 	background-color: {{background}};
-	border-radius: {{border_radius}};
-	margin: {{margin_y}} 0;
+	border-radius: {{border_radius}}px;
 
 	{{#show_shadow}}
 	box-shadow: 0 3px 2px {{shadow}};
@@ -34,9 +34,9 @@ window#waybar.hidden {
 #workspaces button {
 	all: initial;
 	min-width: 0;
-	padding: {{padding_y}} {{padding_x}};
-	margin-left: {{workspace_button_margin}};
-	border-radius: {{border_radius}};
+	padding: {{padding_y}}px {{padding_x}}px;
+	margin-left: {{workspace_button_margin}}px;
+	border-radius: {{border_radius}}px;
 	background-color: {{surface}};
 	color: {{text_surface}};
 }
@@ -53,7 +53,7 @@ window#waybar.hidden {
 }
 
 #workspace button:hover, #tags button:hover {
-	border: {{border_width}} {{secondary}} solid;
+	border: {{border_width}}px {{secondary}} solid;
 }
 
 #workspace button.urgent {
@@ -98,10 +98,9 @@ window#waybar.hidden {
 #wireplumber,
 #user
 {
-	border-radius: {{border_radius}};
-	padding: {{padding_y}} {{padding_x}};
-	margin: {{margin_y}} {{margin_x}};
-	border-radius: {{border_radius}};
+	border-radius: {{border_radius}}px;
+	padding: {{padding_y}}px {{padding_x}}px;
+	margin: 0 {{module_outer_margin}}px;
 	background-color: {{background}};
 	color: {{text_background}};
 
@@ -125,7 +124,7 @@ window#waybar.hidden {
 }
 
 tooltip {
-	border-radius: {{border_radius}};
+	border-radius: {{border_radius}}px;
 	background-color: {{background}};
 	color: {{text_background}};
 }
