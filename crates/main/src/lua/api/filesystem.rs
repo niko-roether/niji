@@ -92,14 +92,8 @@ impl FilesystemApi {
 	}
 
 	fn read_config_asset(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
 		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
-		let path = files
-			.config_file()
-			.parent()
-			.unwrap()
-			.join(&mod_ctx.name)
-			.join(path);
+		let path = files.config_file().parent().unwrap().join(path);
 
 		fs::read_to_string(path)
 			.map_err(mlua::Error::runtime)?
