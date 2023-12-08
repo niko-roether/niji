@@ -17,7 +17,7 @@ modules = ["hyprland"]
 ```
 
 Niji will now output a hyprland configuration file to `~/.local/share/niji/hyprland/theme.conf`.
-To enable it add the following line to the bottom of your `hyprland.conf`:
+To enable it, add the following line to the bottom of your `hyprland.conf`:
 
 ```
 source = ~/.local/share/niji/hyprland/theme.conf
@@ -41,7 +41,7 @@ here with their default values):
 ```toml
 [hyprland]
 
-# Can be either "background", "surface", or "primary".
+# Can be either "background", "surface", "primary" or "secondary".
 # This value determines which theme color is used for focused window borders.
 focused_color = "surface"
 ```

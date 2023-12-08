@@ -11,6 +11,10 @@ The built-in modules currently included with niji are:
 - [`hyprland`](./hyprland.md): Theming hyprland window decorations
 - [`hyprpaper`](./hyprpaper.md): Wallpaper setting support for hyprpaper
 - [`kitty`](./kitty.md): Theming kitty window and terminal colors
+- [`mako`](./mako.md): Theming mako notifications
+- [`sway`](./sway.md): Theming sway window decorations and setting swaybg wallpapers
+- [`swaylock`](./swaylock.md): Theming your swaylock lock screen
+- [`waybar`](./waybar.md): A fully managed waybar theme
 
 If there is something missing from this list that you'd like to have, take
 a look at [Creating Custom Modules](../custom_modules.md).
