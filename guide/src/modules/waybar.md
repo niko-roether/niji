@@ -48,11 +48,6 @@ padding_x = 12
 # The padding in pixels of waybar elements in the y direction.
 padding_y = 4
 
-# The margin between waybar modules in pixels.
-# Note that values below three don't work properly. This is a known issue,
-# but I have no idea what causes it or how to fix it.
-module_margin = 12
-
 # The margin between workspace buttons in pixels
 workspace_button_margin = 6
 

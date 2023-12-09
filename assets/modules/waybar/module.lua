@@ -27,7 +27,6 @@ function M.apply(config, theme)
 		text_info = theme.ui.text_info,
 		padding_x = config.padding_x or 12,
 		padding_y = config.padding_y or 4,
-		module_outer_margin = math.max(((config.module_margin or 12) - 6) / 2, 0),
 		workspace_button_margin = config.workspace_button_margin or 6,
 		border_radius = config.border_radius or 4,
 		border_width = config.border_width or 2,
