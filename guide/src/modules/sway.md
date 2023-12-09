@@ -31,7 +31,7 @@ The following global configuration options are relevant to this module:
 - `cursor_size`
 - `wallpaper`
 
-See [Configuration](../configuration.md) for a detailed explanantion. In particular,
+See [Configuration](../configuration.md#global-options) for a detailed explanantion. In particular,
 see [Setting Wallpapers per Theme](../configuration.md#setting-wallpapers-per-theme)
 for information on the `wallpaper` setting.
 

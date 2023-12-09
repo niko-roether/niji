@@ -40,7 +40,7 @@ The following global configuration options are relevant to this module:
 - `font_family`
 - `font_scale`
 
-See [Configuration](../configuration.md) for a detailed explanation. Note that these options
+See [Configuration](../configuration.md#global-options) for a detailed explanation. Note that these options
 do not work if reloads are disabled for this module.
 
 Additionaly, these module-specific configuration options can be added to `config.toml`

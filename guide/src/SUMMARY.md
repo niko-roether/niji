@@ -2,6 +2,7 @@
 
 [Introduction](./README.md)
 
+- [Configuration](./configuration.md)
 - [Built-in Modules](./modules/README.md)
   - [gtk](./modules/gtk.md)
   - [hyprland](./modules/hyprland.md)

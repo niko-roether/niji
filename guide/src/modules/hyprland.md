@@ -33,7 +33,7 @@ The following global configuration options are relevant to this module:
 - `cursor_theme`
 - `cursor_size`
 
-See [Configuration](../configuration.md) for a detailed explanation.
+See [Configuration](../configuration.md#global-options) for a detailed explanation.
 
 Additionally, these module-specific configuration options can be added to `config.toml` (shown
 here with their default values):

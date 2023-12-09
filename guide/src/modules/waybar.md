@@ -20,7 +20,7 @@ The following global configuration options are relevant for this module:
 - `font_family`
 - `font_scale`
 
-See [Configuration](../configuration.md) for a detailed explanation.
+See [Configuration](../configuration.md#global-options) for a detailed explanation.
 
 Additionally, these module-specific configuration options can be added to `config.toml` (shown
 here with their default values):
