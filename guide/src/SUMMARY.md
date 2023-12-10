@@ -12,3 +12,4 @@
   - [sway](./modules/sway.md)
   - [swaylock](./modules/swaylock.md)
   - [waybar](./modules/waybar.md)
+- [Custom Modules](./custom-modules.md)
