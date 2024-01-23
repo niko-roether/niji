@@ -31,7 +31,6 @@ function M.apply(config, theme)
 		text_ver_color = theme.ui.text_background,
 		text_wrong_color = theme.ui.text_background,
 		font_family = config.font_family,
-		font_size = niji.util.font_size(config, 30),
 		custom_config = custom_config
 	}
 
