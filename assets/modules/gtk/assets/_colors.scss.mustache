@@ -110,6 +110,33 @@ $titlebutton-min: {{titlebutton_min}};
 	@return {{on_background}};
 }
 
+@function highlight($color) {
+	@if (lightness($color) >= 80%) { @return rgba($white, 0.15); }
+	@else if (lightness($color) >= 40%) { @return rgba($white, 0.2); }
+	@else { @return rgba($white, 0.1); }
+}
+
+@function background($type) {
+	@if ($type == 'a') { @return $white; }
+	@if ($type == 'b') { @return $grey-050; }
+	@if ($type == 'c') { @return $grey-100; }
+	@if ($type == 'd') { @return $grey-250; }
+
+	@if ($type == 'e') { @return $grey-800; }
+	@if ($type == 'f') { @return $grey-750; }
+	@if ($type == 'g') { @return $grey-700; }
+	@if ($type == 'h') { @return $grey-650; }
+}
+
+@function overlay($color, $state: 'normal') {
+	@if ($state == 'normal') { @return rgba(on($color), 0.06); }
+	@if ($state == 'hover') { @return rgba(on($color), 0.12); }
+	@if ($state == 'focus') { @return rgba(on($color), 0.08); }
+	@if ($state == 'active') { @return rgba(on($color), 0.20); }
+	@if ($state == 'checked') { @return rgba(on($color), 0.15); }
+	@if ($state == 'selected') { @return rgba(on($color), 0.1); }
+}
+
 $red-light: {{red_light}};
 $red-dark: {{red_dark}};
 $pink-light: {{pink_light}};
