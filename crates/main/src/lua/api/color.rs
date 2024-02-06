@@ -15,12 +15,17 @@ impl UserData for Color {
 	}
 
 	fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+		methods.add_method("new", |_, _, color_str: String| {
+			Color::from_str(&color_str).map_err(mlua::Error::runtime)
+		});
+
 		methods.add_method("lighten", |_, this, amount: f32| Ok(this.lighten(amount)));
 		methods.add_method("darken", |_, this, amount: f32| Ok(this.darken(amount)));
 		methods.add_method("shade", |_, this, lightness: f32| Ok(this.shade(lightness)));
 		methods.add_method("with_alpha", |_, this, alpha: f32| {
 			Ok(this.with_alpha(alpha))
 		});
+
 		methods.add_meta_method("__tostring", |_, this, ()| Ok(this.to_string()));
 	}
 }
@@ -43,12 +48,6 @@ impl<'lua> FromLua<'lua> for Color {
 pub struct ColorApi;
 
 impl ColorApi {
-	#[inline]
-	#[allow(clippy::new_ret_no_self)]
-	pub fn new(_: &Lua, col: Color) -> mlua::Result<Color> {
-		Ok(col)
-	}
-
 	pub fn blend(_: &Lua, (col1, col2, t): (Color, Color, f32)) -> mlua::Result<Color> {
 		Ok(Color::blend(col1, col2, t))
 	}
@@ -59,12 +58,12 @@ impl ColorApi {
 }
 
 impl ApiModule for ColorApi {
-	const NAMESPACE: &'static str = "col";
+	const NAMESPACE: &'static str = "color";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {
 		let module = lua.create_table()?;
 
-		module.raw_set("new", lua.create_function(ColorApi::new)?)?;
+		module.raw_set("Color", Color::new_rgba(0, 0, 0, 0).into_lua(lua)?)?;
 		module.raw_set("blend", lua.create_function(ColorApi::blend)?)?;
 		module.raw_set("mix", lua.create_function(ColorApi::mix)?)?;
 

@@ -1,3 +1,5 @@
+local Color = niji.color.Color;
+
 local M = {}
 
 local function by_scheme(theme, for_light, for_dark)
@@ -45,8 +47,8 @@ local function text_colors(theme)
 end
 
 local function overlay_colors(theme)
-	local col = niji.col.new("#000")
-	if theme.ui.color_scheme == "dark" then col = niji.col.new("#fff") end
+	local col = Color:new("#000")
+	if theme.ui.color_scheme == "dark" then col = Color:new("#fff") end
 	return {
 		col:with_alpha(0.04),
 		col:with_alpha(0.08),
@@ -202,8 +204,8 @@ function M.make_colors(theme)
 		grey_900 = theme.ui.background:shade(0.9),
 		grey_950 = theme.ui.background:shade(0.95),
 
-		black = niji.col.new("#000"),
-		white = niji.col.new("#fff")
+		black = Color:new("#000"),
+		white = Color:new("#fff")
 	}
 end
 
