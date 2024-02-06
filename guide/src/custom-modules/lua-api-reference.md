@@ -11,6 +11,7 @@ you should always prefer using the niji api, as it provides better integration a
 Contents:
 
 - [Class `niji.Color`](#class-nijicolor)
+- [Module `niji.console`](#module-nijiconsole)
 
 ## Class `niji.Color`
 
@@ -24,13 +25,8 @@ All functions that accept colors also accept strings of the format `"#RRGGBB"` a
 
 Constructs a new `niji.Color` object.
 
-#### Parameters
-
-| Name           | Type     | Description                             |
-| -------------- | -------- | --------------------------------------- |
-| `color_string` | `string` | A string representing the desired color |
-
-#### Example
+- `color_string`: A string representing the desired color (`string`)
+- returns: The resulting color (`niji.Color`)
 
 ```lua
 local my_color = niji.Color:new("#ab38a3ff")
@@ -43,15 +39,10 @@ niji.console.debug(my_color)
 
 Interpolates between two colors.
 
-#### Parameters
-
-| Name      | Type                     | Description                                              |
-| --------- | ------------------------ | -------------------------------------------------------- |
-| `color_1` | `string` or `niji.Color` | The first of the two colors to interpolate between       |
-| `color_2` | `string` or `niji.Color` | The second of the two colors to interpolate between      |
-| `t`       | `float`                  | A number between 0 and 1 that controls the interpolation |
-
-#### Example
+- `color_1`: The first of the two colors to interpolate between (`string` or `niji.Color`)
+- `color_2`: The second of the two colors to interpolate between (`string` or `niji.Color`)
+- `t`: A number between 0 and 1 that controls the interpolation (`float`)
+- returns: The resulting color (`niji.Color`)
 
 ```lua
 local my_color = niji.Color:blend("#ff0000", "#00ff00", 0.3)
@@ -67,10 +58,8 @@ Mixes two colors together evenly. Equivalent to calling `niji.Color:blend` with 
 
 #### Parameters
 
-| Name      | Type                     | Description                                  |
-| --------- | ------------------------ | -------------------------------------------- |
-| `color_1` | `string` or `niji.Color` | The first of the two colors to mix together  |
-| `color_2` | `string` or `niji.Color` | The second of the two colors to mix together |
+- `color_1`: The first of the two colors to mix together (`string` or `niji.Color`)
+- `color_2`: The second of the two colors to mix together (`string` or `niji.Color`)
 
 #### Example
 
@@ -89,13 +78,7 @@ lightness, which means that the change in lightness for a given amount parameter
 should look the same for any base color, unless the resulting color would fall outside
 the RGB color gamut.
 
-#### Parameters
-
-| Name     | Type    | Description                                                        |
-| -------- | ------- | ------------------------------------------------------------------ |
-| `amount` | `float` | The desired relative perceived lightness, ranging between -1 and 1 |
-
-#### Example
+- `amount`: The desired relative perceived lightness, ranging between -1 and 1 (`float`)
 
 ```lua
 local base_color = niji.Color:new("#123faa")
@@ -110,13 +93,7 @@ niji.console.debug(lightened_color)
 Darkens the color by the given amount. Equivalent to calling `niji.Color:lighten`
 with `-amount`.
 
-#### Parameters
-
-| Name     | Type    | Description                                                        |
-| -------- | ------- | ------------------------------------------------------------------ |
-| `amount` | `float` | The desired relative perceived lightness, ranging between -1 and 1 |
-
-#### Example
+- `amount`: The desired relative perceived lightness, ranging between -1 and 1 (`float`)
 
 ```lua
 local base_color = niji.Color:new("#c670f9")
@@ -131,13 +108,7 @@ niji.console.debug(lightened_color)
 Selects a shade of the color that has the provided absolute perceived lightness. As with other
 operations, if that color falls outside the RGB gamut, it gets gamut-clipped.
 
-#### Parameters
-
-| Name        | Type    | Description                                              |
-| ----------- | ------- | -------------------------------------------------------- |
-| `lightness` | `float` | The desired perceived lightness ranging, between 0 and 1 |
-
-#### Example
+- `lightness`: The desired perceived lightness ranging, between 0 and 1 (`float`)
 
 ```lua
 local base_color = niji.Color:new("#cb9174")
@@ -151,13 +122,7 @@ niji.console.debug(shade)
 
 Returns the same color with the provided alpha value.
 
-#### Parameters
-
-| Name    | Type    | Description                                      |
-| ------- | ------- | ------------------------------------------------ |
-| `alpha` | `float` | The desired alpha value ranging, between 0 and 1 |
-
-#### Example
+- `alpha`: The desired alpha value ranging, between 0 and 1 (`float`)
 
 ```lua
 local base_color = niji.Color:new("#abcdef")
@@ -165,4 +130,50 @@ local transparent_color = base_color:with_alpha(0.5)
 
 -- Prints "#abcdef80"
 niji.console.debug(transparent_color)
+```
+
+## Module `niji.console`
+
+The `niji.console` module provides niji-flavored functions for interacting with
+the console.
+
+### `niji.console.debug(message)`
+
+Sends a debug message to the console. Note that these messages are only visible
+if `--verbose` is passed as an argument to niji.
+
+- `message`: The message to send (any type)
+
+### `niji.console.info(message)`
+
+Sends an info message to the console.
+
+- `message`: The message to send (any type)
+
+### `niji.console.warn(message)`
+
+Sends a warning message to the console.
+
+- `message`: The message to send (any type)
+
+### `niji.console.error(message)`
+
+Sends an error message to the console.
+
+- `message`: The message to send (any type)
+
+### `niji.console.prompt(message, default)`
+
+Sends a confirmation prompt to the user. If `default` is not nil, pressing enter on the
+prompt without entering a response will return that value. If `default` is nil, pressing
+enter without entering a response will trigger a reprompt.
+
+- `prompt`: The message to show in the prompt (any type)
+- `default`: The default value for the prompt (`bool` or `nil`)
+- returns: The response from the user (`bool`)
+
+```lua
+if niji.console.prompt("Do the thing?", true) then
+    doTheThing()
+end
 ```
