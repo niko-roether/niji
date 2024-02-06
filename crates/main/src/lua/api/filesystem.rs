@@ -14,7 +14,7 @@ pub struct FilesystemApi;
 impl FilesystemApi {
 	fn write(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let file_mgr = lua.app_data_ref::<Rc<FileManager>>().unwrap();
-		let path = PathBuf::from(path);
+		let path = PathBuf::from(shellexpand::tilde(&path).into_owned());
 
 		fs::create_dir_all(path.parent().unwrap()).map_err(mlua::Error::runtime)?;
 

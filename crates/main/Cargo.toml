@@ -15,5 +15,6 @@ niji_templates = { version = "0.1.0", path = "../templates" }
 oklab = "1.0.1"
 serde = { version = "1.0.190", features = ["derive"] }
 serde_with = "3.4.0"
+shellexpand = "3.1.0"
 thiserror = "1.0.50"
 toml = "0.8.6"
