@@ -22,7 +22,6 @@ impl FilesystemApi {
 			.write_managed(&path, &content)
 			.map_err(mlua::Error::runtime)?;
 
-		fs::write(&path, content).map_err(mlua::Error::runtime)?;
 		Ok(path.to_string_lossy().into_owned())
 	}
 
