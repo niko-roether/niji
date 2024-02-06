@@ -32,6 +32,22 @@ All color fields in the `theme` parameter of the module application handler are 
 
 All functions that accept colors also accept strings of the format `"#RRGGBB"` and `"#RRGGBBAA"`.
 
+### Property `niji.Color.r`
+
+The red channel of the color as an integer between 0 and 255
+
+### Property `niji.Color.g`
+
+The green channel of the color as an integer between 0 and 255
+
+### Property `niji.Color.b`
+
+The blue channel of the color as an integer between 0 and 255
+
+### Property `niji.Color.a`
+
+The alpha channel of the color as an integer between 0 and 255
+
 ### Static `niji.Color:new(color_string)`
 
 Constructs a new `niji.Color` object.
@@ -184,7 +200,7 @@ niji.console.debug(rendered)
 
 ### `niji.Template:set_format(type_name, format_string)`
 
-Set the custom format for the specified type. See [the template system reference](./templating-referece#custom-formats)
+Set the custom format for the specified type. See [the template system reference](./templating-reference#custom-formats)
 for more information.
 
 - `type_name`: The name of the type for which to set the format (`string`)
