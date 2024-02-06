@@ -1,4 +1,4 @@
-local Color = niji.color.Color;
+local Color = niji.Color;
 
 local M = {}
 

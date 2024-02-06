@@ -18,6 +18,12 @@ impl UserData for Color {
 		methods.add_method("new", |_, _, color_str: String| {
 			Color::from_str(&color_str).map_err(mlua::Error::runtime)
 		});
+		methods.add_method("blend", |lua, _, (col1, col2, t): (Color, Color, f32)| {
+			Color::blend(col1, col2, t).into_lua(lua)
+		});
+		methods.add_method("mix", |lua, _, (col1, col2): (Color, Color)| {
+			Color::mix(col1, col2).into_lua(lua)
+		});
 
 		methods.add_method("lighten", |_, this, amount: f32| Ok(this.lighten(amount)));
 		methods.add_method("darken", |_, this, amount: f32| Ok(this.darken(amount)));
@@ -45,28 +51,10 @@ impl<'lua> FromLua<'lua> for Color {
 	}
 }
 
-pub struct ColorApi;
-
-impl ColorApi {
-	pub fn blend(_: &Lua, (col1, col2, t): (Color, Color, f32)) -> mlua::Result<Color> {
-		Ok(Color::blend(col1, col2, t))
-	}
-
-	pub fn mix(_: &Lua, (col1, col2): (Color, Color)) -> mlua::Result<Color> {
-		Ok(Color::mix(col1, col2))
-	}
-}
-
-impl ApiModule for ColorApi {
-	const NAMESPACE: &'static str = "color";
+impl ApiModule for Color {
+	const NAMESPACE: &'static str = "Color";
 
 	fn build(lua: &Lua) -> mlua::Result<mlua::Value> {
-		let module = lua.create_table()?;
-
-		module.raw_set("Color", Color::new_rgba(0, 0, 0, 0).into_lua(lua)?)?;
-		module.raw_set("blend", lua.create_function(ColorApi::blend)?)?;
-		module.raw_set("mix", lua.create_function(ColorApi::mix)?)?;
-
-		module.into_lua(lua)
+		Color::new_rgba(0, 0, 0, 0).into_lua(lua)
 	}
 }

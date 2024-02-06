@@ -2,11 +2,11 @@ use std::{path::PathBuf, rc::Rc};
 
 use mlua::Lua;
 
-use crate::{file_manager::FileManager, files::Files, utils::xdg::XdgDirs};
+use crate::{file_manager::FileManager, files::Files, types::color::Color, utils::xdg::XdgDirs};
 
 use self::{
-	color::ColorApi, console::ConsoleApi, filesystem::FilesystemApi, module_meta::ModuleMetaApi,
-	os::OsApi, template::TemplateApi, util::UtilApi, xdg::XdgApi
+	console::ConsoleApi, filesystem::FilesystemApi, module_meta::ModuleMetaApi, os::OsApi,
+	template::TemplateApi, util::UtilApi, xdg::XdgApi
 };
 
 mod color;
@@ -49,7 +49,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 
 	let api = lua.create_table()?;
 
-	insert_module::<ColorApi>(lua, &api)?;
+	insert_module::<Color>(lua, &api)?;
 	insert_module::<FilesystemApi>(lua, &api)?;
 	insert_module::<ModuleMetaApi>(lua, &api)?;
 	insert_module::<ConsoleApi>(lua, &api)?;

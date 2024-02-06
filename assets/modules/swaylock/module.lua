@@ -24,7 +24,7 @@ function M.apply(config, theme)
 		ring_caps_lock_color = theme.ui.primary,
 		ring_ver_color = theme.ui.warning,
 		ring_wrong_color = theme.ui.error,
-		separator_color = niji.color.Color:new("#00000000"),
+		separator_color = niji.Color:new("#00000000"),
 		text_color = theme.ui.text_background,
 		text_clear_color = theme.ui.text_background,
 		text_caps_lock_color = theme.ui.text_background,
