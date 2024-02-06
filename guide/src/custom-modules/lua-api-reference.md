@@ -20,6 +20,7 @@ Contents:
 - [Namespace `niji.mod`](#namespace-nijimod)
 - [Namespace `niji.os`](#namespace-nijios)
 - [Namespace `niji.util`](#namespace-nijiutil)
+- [Namespace `niji.xdg`](#namespace-nijixdg)
 
 ## Class `niji.Color`
 
@@ -335,11 +336,11 @@ The namespace `niji.mod` can be used to obtain metadata about the current module
 
 ### `niji.mod.name`
 
-The name of the current module
+The name of the current module (`string`)
 
 ### `niji.mod.path`
 
-The absolute path to the module folder of the current module
+The absolute path to the module folder of the current module (`string`)
 
 ## Namespace `niji.os`
 
@@ -398,3 +399,36 @@ function M.apply(config, theme)
     -- ...
 end
 ```
+
+## Namespace `niji.xdg`
+
+The namespace `niji.xdg` provides bindings to the configured locations
+for the xdg base directories standard.
+
+### `niji.xdg.config_home`
+
+`$XDG_CONFIG_HOME`, or `$HOME/.config` by default. (`string`)
+
+### `niji.xdg.data_home`
+
+`$XDG_DATA_HOME`, or `$HOME/.local/share` by default. (`string`)
+
+### `niji.xdg.state_home`
+
+`$XDG_STATE_HOME`, or `$HOME/.local/state` by default. (`string`)
+
+### `niji.xdg.cache_home`
+
+`$XDG_CACHE_HOME`, or `$HOME/.cache` by default. (`string`)
+
+### `niji.xdg.runtime_dir`
+
+The value of `$XDG_RUNTIME_DIR`. (`string`)
+
+### `niji.xdg_data_dirs`
+
+The paths contained in `$XDG_DATA_DIRS`, or `{ "/usr/local/share", "/usr/share" }` by default. (`string[]`)
+
+### `niji.xdg_config.dirs`
+
+The paths contained in `$XDG_CONFIG_DIRS`, `{ "/etc/xdg" }` by default. (`string[]`)
