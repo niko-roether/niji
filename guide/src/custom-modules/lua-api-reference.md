@@ -163,7 +163,7 @@ A utility method that loads a template from a file.
 - returns: The parsed template object (`niji.Template`)
 
 ```lua
-local my_template = niji.Template:load("my_template.hbs")
+local my_template = niji.Template:load("my_template.mustache")
 ```
 
 ### `niji.Template:render(value)`
