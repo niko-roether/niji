@@ -1,12 +1,12 @@
 # Lua API Reference
 
-The niji api resides in the global `niji` namespace. There is no need to import it.
+The niji API resides in the global `niji` namespace. There is no need to import it.
 The niji namespace contains several sub-namespaces and classes for different purposes, which are listed in
 this document.
 
-For more complicated or nonstandard use cases, you can always use the [Lua standard library](https://www.lua.org/manual/5.3/)
-which is fully supported. If one of the functions in the niji api fits what you want to do however,
-you should always prefer using the niji api, as it provides better integration and safety features.
+In addution, you can always use the [Lua standard library](https://www.lua.org/manual/5.3/)
+which is fully supported. If one of the functions in the niji API fits what you want to do however,
+you should always prefer using the niji API, as it provides better integration and safety features.
 
 Modules are always executed with their working directory inside of their module folder,
 so you can easily reference bundled assets like template files using relative paths.
@@ -27,6 +27,8 @@ Contents:
 The class `niji.Color` represents an RGBA color. it can be used to perform certain manipulations
 on colors. All color manipulations use the Oklab perceptual color space, so while some results
 may appear unexpected through an RGB lens, they should look good.
+
+All color fields in the `theme` parameter of the module application handler are also instances of `niji.Color`.
 
 All functions that accept colors also accept strings of the format `"#RRGGBB"` and `"#RRGGBBAA"`.
 
@@ -113,7 +115,7 @@ niji.console.debug(lightened_color)
 Selects a shade of the color that has the provided absolute perceived lightness. As with other
 operations, if that color falls outside the RGB gamut, it gets gamut-clipped.
 
-- `lightness`: The desired perceived lightness ranging, between 0 and 1 (`float`)
+- `lightness`: The desired perceived lightness, ranging between 0 and 1 (`float`)
 
 ```lua
 local base_color = niji.Color:new("#cb9174")
@@ -127,7 +129,7 @@ niji.console.debug(shade)
 
 Returns the same color with the provided alpha value.
 
-- `alpha`: The desired alpha value ranging, between 0 and 1 (`float`)
+- `alpha`: The desired alpha value, ranging between 0 and 1 (`float`)
 
 ```lua
 local base_color = niji.Color:new("#abcdef")
@@ -139,7 +141,7 @@ niji.console.debug(transparent_color)
 
 ## Class `niji.Template`
 
-The class `niji.Template` is the lua API for niji's builting [templating system](./templating-reference.md).
+The class `niji.Template` is the lua API for niji's builtin [templating system](./templating-reference.md).
 It can be used to load, parse and render templates.
 
 ### Static `niji.Template:parse(template)`
@@ -220,8 +222,8 @@ Sends an error message to the console.
 
 ### `niji.console.prompt(message, default)`
 
-Sends a confirmation prompt to the user. If `default` is not nil, pressing enter #6c3a1fon the
-prompt without entering a response will return that value. If `default` is nil, pressing
+Sends a confirmation prompt to the user. If `default` is not nil, pressing enter
+without entering a response will return that value. If `default` is nil, pressing
 enter without entering a response will trigger a reprompt.
 
 - `prompt`: The message to show in the prompt (any type)
@@ -237,7 +239,7 @@ end
 ## Namespace `niji.fs`
 
 The namespace `niji.fs` contains functions for interacting with the file system. While it is much
-more restrictive than the filesystem api built into lua, it is strongly recommended to use
+more restrictive than the filesystem API built into lua, it is strongly recommended to use
 `niji.fs` functions over raw lua functions whenever possible, because they have a lot of
 extra safety features, such as automatically checking for conflicts with preexisting files.
 
@@ -348,7 +350,7 @@ The namespace `niji.os` contains supplementary functions to the "os" functionali
 
 ### `niji.os.exec_detached(command)`
 
-Behaves like the builtin os.exec function in lua, except it detaches the command
+Behaves like the builtin `os.exec` function in lua, except it detaches the command
 from the parent process, allowing it to keep running in the background after niji has completed
 execution.
 
