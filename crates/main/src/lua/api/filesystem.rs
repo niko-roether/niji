@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf, rc::Rc};
+use std::{fs, rc::Rc};
 
 use log::info;
 use mlua::{IntoLua, Lua};
@@ -14,7 +14,7 @@ pub struct FilesystemApi;
 impl FilesystemApi {
 	fn write(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let file_mgr = lua.app_data_ref::<Rc<FileManager>>().unwrap();
-		let path = PathBuf::from(shellexpand::tilde(&path).into_owned());
+		let path = fs::canonicalize(&*shellexpand::tilde(&path)).map_err(mlua::Error::runtime)?;
 
 		fs::create_dir_all(path.parent().unwrap()).map_err(mlua::Error::runtime)?;
 
