@@ -12,6 +12,7 @@ Contents:
 
 - [Class `niji.Color`](#class-nijicolor)
 - [Module `niji.console`](#module-nijiconsole)
+- [Module `niji.fs`](#module-nijifs)
 
 ## Class `niji.Color`
 
@@ -56,12 +57,8 @@ niji.console.debug(my_color)
 
 Mixes two colors together evenly. Equivalent to calling `niji.Color:blend` with a `t` of 0.5.
 
-#### Parameters
-
 - `color_1`: The first of the two colors to mix together (`string` or `niji.Color`)
 - `color_2`: The second of the two colors to mix together (`string` or `niji.Color`)
-
-#### Example
 
 ```lua
 local my_color = niji.Color:mix("#ff0000", "#00ff00")
@@ -164,7 +161,7 @@ Sends an error message to the console.
 
 ### `niji.console.prompt(message, default)`
 
-Sends a confirmation prompt to the user. If `default` is not nil, pressing enter on the
+Sends a confirmation prompt to the user. If `default` is not nil, pressing enter #6c3a1fon the
 prompt without entering a response will return that value. If `default` is nil, pressing
 enter without entering a response will trigger a reprompt.
 
@@ -177,3 +174,98 @@ if niji.console.prompt("Do the thing?", true) then
     doTheThing()
 end
 ```
+
+## Module `niji.fs`
+
+The module `niji.fs` contains functions for interacting with the file system. While it is much
+more restrictive than the filesystem api built into lua, it is strongly recommended to use
+`niji.fs` functions over raw lua functions whenever possible, because they have a lot of
+extra safety features, such as automatically checking for conflicts with preexisting files.
+
+### `niji.fs.write(path, content)`
+
+This function should be used when you have to write to a file that might already
+exist on the system, and which you might not want to silently overwrite if it does;
+the major example for this is configuration files which don't support including files
+from other locations.
+
+If you just want to output a file that can then be included/imported by another program,
+consider using `niji.fs.output`. This is often a better approach, because it is a lot less
+invasive.
+
+Calling `niji.fs.write` will cause niji to check if the file already exists, and contains
+data that wasn't written to it by niji. If that is the case, niji will inform the user via a prompt,
+and create a backup of the previous version if necessary. Ultimately, it writes `content` to file
+at the given `path`.
+
+- `path`: The absolute path of the file to write to (`string`). You can use "~" to refer to the current user's home directory.
+- `content`: The string to write to the file (`string`)
+- returns: The absolute, canonical path of the file written to (`string`)
+
+### `niji.fs.write_config(path, content)`
+
+A version of `niji.fs.write` that takes paths relative to `~/.config`.
+
+- `path`: The relative path to the config file to write to (`string`)
+- `content`: The content to write to the file (`string`)
+- returns: The absolute, canonical path of the file written to (`string`)
+
+### `niji.fs.write_state(path, content)`
+
+A version of `niji.fs.write` that takes paths relative to `~/.local/state`.
+
+- `path`: The relative path of the state file to write to (`string`)
+- `content`: The content to write to the file (`string`)
+- returns: The absolute, canonical path of the file written to (`string`)
+
+### `niji.fs.write_data(path, content)`
+
+A version of `niji.fs.write` that takes path relative to `~/.local/share`.
+
+- `path`: The relative path of the data file to write to (`string`)
+- `content`: The content to write to the file (`string`)
+- returns: The absolute, canonical path of the file written to (`string`)
+
+### `niji.fs.output(path, content)`
+
+This function should be used if you want to output a file that is then actively imported/included
+by another program. An example for this is the hyprland module, which outputs a partial hyprland config file
+which you can then include in your config. In many cases, this is the recommended approach over `niji.fs.write`,
+because it is less invasive and makes it easier to manage separate config options. Which approach fits each module
+better is up to the disgression of the module author however.
+
+The `path` argument for this functions is relative to your module's output folder, which,
+by default, is located at `~/.local/share/niji/<module name>`.
+
+- `path`: The relative path of the output file within the output folde (`string`)
+- `content`: The content to write to the file (`string`)
+- returns: The absolute path of the file that was written to (`string`)
+
+### `niji.fs.read_config_asset(path)`
+
+Reads a file with a path relative to your module's module folder. This is often used for things
+like templates, or other assets that are included within the module files.
+
+- `path`: The relative path of the asset file within the module folder (`string`)
+- returns: The contents of the file (`string`)
+
+### `niji.fs.read_config(path)`
+
+Reads a file with a path relative to `~/.config`.
+
+- `path`: The relative path of the config file (`string`)
+- returns: The contents of the file (`string`)
+
+### `niji.fs.read_state(path)`
+
+Reads a file with a path relative to `~/.local/state`.
+
+- `path`: The relative path of the state file (`string`)
+- returns: The contents of the file (`string`)
+
+### `niji.fs.read_data(path)`
+
+Reads a file with a path relative to `~/.local/share`.
+
+- `path`: The relative path of the state file (`string`)
+- returns: The contents of the file (`string`)
