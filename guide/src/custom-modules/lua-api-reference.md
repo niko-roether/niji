@@ -19,6 +19,7 @@ Contents:
 - [Namespace `niji.fs`](#namespace-nijifs)
 - [Namespace `niji.mod`](#namespace-nijimod)
 - [Namespace `niji.os`](#namespace-nijios)
+- [Namespace `niji.util`](#namespace-nijiutil)
 
 ## Class `niji.Color`
 
@@ -354,3 +355,46 @@ You should use this method if you want to restart a background process with upda
 configuration, for example.
 
 - `command`: The command to execute in the background (`string`)
+
+## Namespace `niji.util`
+
+The namespace `niji.util` implements functions for a couple of common, specific
+operations.
+
+### `niji.util.font_size(config, default)`
+
+This function allows modules to easily handle the global `font_scale` option.
+If you output a font size to somewhere, simply pass it through this function
+to allow the user to scale their system font to their liking.
+
+- `config`: The module configuration passed to the module handlers
+- `default`: The font size to use if the scale is 1.0 (`int`)
+- returns: The properly scaled font size (`int`)
+
+```lua
+function M.apply(config, theme)
+    local my_font_size = niji.util.font_size(config, 12)
+
+    -- ...
+end
+```
+
+### `niji.util.by_theme(theme, value)`
+
+This function makes it easy to allow a config option to optionally be set for each theme
+individually. The archetypical use case is modules with wallpaper support handling
+the global `wallpaper` config option.
+
+The logic itself is fairly simple; if `value` is a table, return `value[<theme name>]`, or
+`value.default` if that is not set. Otherwise, just return `value` itself.
+
+- `theme`: The theme passed to the apply handler
+- `value`: The config value to handle
+
+```lua
+function M.apply(config, theme)
+    local selected_wallpaper = niji.util.by_theme(theme, config.wallpaper)
+
+    -- ...
+end
+```
