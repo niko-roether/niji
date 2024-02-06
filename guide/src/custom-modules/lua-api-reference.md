@@ -1,7 +1,7 @@
 # Lua API Reference
 
 The niji api resides in the global `niji` namespace. There is no need to import it.
-The niji namespace contains several submodules and classes for different purposes, which are listed in
+The niji namespace contains several sub-namespaces and classes for different purposes, which are listed in
 this document.
 
 For more complicated or nonstandard use cases, you can always use the [Lua standard library](https://www.lua.org/manual/5.3/)
@@ -11,8 +11,9 @@ you should always prefer using the niji api, as it provides better integration a
 Contents:
 
 - [Class `niji.Color`](#class-nijicolor)
-- [Module `niji.console`](#module-nijiconsole)
-- [Module `niji.fs`](#module-nijifs)
+- [Namespace `niji.console`](#namepsace-nijiconsole)
+- [Namespace `niji.fs`](#namepsace-nijifs)
+- [Namespace `niji.mod`](#namepsace-nijimod)
 
 ## Class `niji.Color`
 
@@ -129,9 +130,9 @@ local transparent_color = base_color:with_alpha(0.5)
 niji.console.debug(transparent_color)
 ```
 
-## Module `niji.console`
+## Namespace `niji.console`
 
-The `niji.console` module provides niji-flavored functions for interacting with
+The `niji.console` namespace provides niji-flavored functions for interacting with
 the console.
 
 ### `niji.console.debug(message)`
@@ -175,9 +176,9 @@ if niji.console.prompt("Do the thing?", true) then
 end
 ```
 
-## Module `niji.fs`
+## Namespace `niji.fs`
 
-The module `niji.fs` contains functions for interacting with the file system. While it is much
+The namespace `niji.fs` contains functions for interacting with the file system. While it is much
 more restrictive than the filesystem api built into lua, it is strongly recommended to use
 `niji.fs` functions over raw lua functions whenever possible, because they have a lot of
 extra safety features, such as automatically checking for conflicts with preexisting files.
@@ -269,3 +270,15 @@ Reads a file with a path relative to `~/.local/share`.
 
 - `path`: The relative path of the state file (`string`)
 - returns: The contents of the file (`string`)
+
+## Namespace `niji.mod`
+
+The namespace `niji.mod` can be used to obtain metadata about the current module.
+
+### `niji.mod.name`
+
+The name of the current module
+
+### `niji.mod.path`
+
+The absolute path to the module folder of the current module
