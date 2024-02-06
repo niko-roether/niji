@@ -13,3 +13,5 @@
   - [swaylock](./modules/swaylock.md)
   - [waybar](./modules/waybar.md)
 - [Custom Modules](./custom-modules/README.md)
+  - [Lua API Reference](./custom-modules/lua-api-reference.md)
+  - [Templating Reference](./custom-modules/templating-reference.md)
