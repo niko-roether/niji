@@ -8,9 +8,13 @@ For more complicated or nonstandard use cases, you can always use the [Lua stand
 which is fully supported. If one of the functions in the niji api fits what you want to do however,
 you should always prefer using the niji api, as it provides better integration and safety features.
 
+Modules are always executed with their working directory inside of their module folder,
+so you can easily reference bundled assets like template files using relative paths.
+
 Contents:
 
 - [Class `niji.Color`](#class-nijicolor)
+- [Class `niji.Template`](#class-nijitemplate)
 - [Namespace `niji.console`](#namespace-nijiconsole)
 - [Namespace `niji.fs`](#namespace-nijifs)
 - [Namespace `niji.mod`](#namespace-nijimod)
@@ -131,6 +135,57 @@ local transparent_color = base_color:with_alpha(0.5)
 niji.console.debug(transparent_color)
 ```
 
+## Class `niji.Template`
+
+The class `niji.Template` is the lua API for niji's builting [templating system](./templating-reference.md).
+It can be used to load, parse and render templates.
+
+### Static `niji.Template:parse(template)`
+
+Parses the provided string `template` as a template.
+
+- `template`: The template string (`string`)
+- returns: The parsed template object (`niji.Template`)
+
+```lua
+local my_template = niji.Template:parse("Hello {{name}}!")
+```
+
+### Static `niji.Template:load(path)`
+
+A utility method that loads a template from a file.
+
+- `path`: The path to the template file to load (`string`)
+- returns: The parsed template object (`niji.Template`)
+
+```lua
+local my_template = niji.Template:load("my_template.hbs")
+```
+
+### `niji.Template:render(value)`
+
+Render the template to a string using a given input value. This is most commonly
+a table of keys and values used in the template.
+
+- `value`: The value to use as an input in the template (any type)
+- returns: The rendered string (`string`)
+
+```lua
+local my_template = niji.Template:parse("Hello {{name}}!")
+local rendered = my_template:render({ name = "World" })
+
+-- prints "Hello World!"
+niji.console.debug(rendered)
+```
+
+### `niji.Template:set_format(type_name, format_string)`
+
+Set the custom format for the specified type. See [the template system reference](./templating-referece#custom-formats)
+for more information.
+
+- `type_name`: The name of the type for which to set the format (`string`)
+- `format_string`: The format string to use for the given type
+
 ## Namespace `niji.console`
 
 The `niji.console` namespace provides niji-flavored functions for interacting with
@@ -200,7 +255,7 @@ data that wasn't written to it by niji. If that is the case, niji will inform th
 and create a backup of the previous version if necessary. Ultimately, it writes `content` to file
 at the given `path`.
 
-- `path`: The absolute path of the file to write to (`string`). You can use "~" to refer to the current user's home directory.
+- `path`: The path of the file to write to (`string`). You can use "~" to refer to the current user's home directory.
 - `content`: The string to write to the file (`string`)
 - returns: The absolute, canonical path of the file written to (`string`)
 
@@ -245,10 +300,11 @@ by default, is located at `~/.local/share/niji/<module name>`.
 
 ### `niji.fs.read_config_asset(path)`
 
-Reads a file with a path relative to your module's module folder. This is often used for things
-like templates, or other assets that are included within the module files.
+Reads a file with a path relative to `.config/niji`. This is often used for things
+like supplementary configuration files that get inserted into the generated config
+of a module, as used in the `mako` module for example.
 
-- `path`: The relative path of the asset file within the module folder (`string`)
+- `path`: The relative path of the asset file within the config folder (`string`)
 - returns: The contents of the file (`string`)
 
 ### `niji.fs.read_config(path)`
