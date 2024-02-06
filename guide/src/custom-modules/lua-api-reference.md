@@ -11,9 +11,10 @@ you should always prefer using the niji api, as it provides better integration a
 Contents:
 
 - [Class `niji.Color`](#class-nijicolor)
-- [Namespace `niji.console`](#namepsace-nijiconsole)
-- [Namespace `niji.fs`](#namepsace-nijifs)
-- [Namespace `niji.mod`](#namepsace-nijimod)
+- [Namespace `niji.console`](#namespace-nijiconsole)
+- [Namespace `niji.fs`](#namespace-nijifs)
+- [Namespace `niji.mod`](#namespace-nijimod)
+- [Namespace `niji.os`](#namespace-nijios)
 
 ## Class `niji.Color`
 
@@ -282,3 +283,18 @@ The name of the current module
 ### `niji.mod.path`
 
 The absolute path to the module folder of the current module
+
+## Namespace `niji.os`
+
+The namespace `niji.os` contains supplementary functions to the "os" functionality in lua.
+
+### `niji.os.exec_detached(command)`
+
+Behaves like the builtin os.exec function in lua, except it detaches the command
+from the parent process, allowing it to keep running in the background after niji has completed
+execution.
+
+You should use this method if you want to restart a background process with updated
+configuration, for example.
+
+- `command`: The command to execute in the background (`string`)
