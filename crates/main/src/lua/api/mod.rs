@@ -6,7 +6,7 @@ use crate::{file_manager::FileManager, files::Files, types::color::Color, utils:
 
 use self::{
 	console::ConsoleApi, filesystem::FilesystemApi, module_meta::ModuleMetaApi, os::OsApi,
-	template::TemplateApi, util::UtilApi, xdg::XdgApi
+	template::LuaTemplate, util::UtilApi, xdg::XdgApi
 };
 
 mod color;
@@ -54,7 +54,7 @@ pub fn init(lua: &Lua, init: Init) -> mlua::Result<()> {
 	insert_module::<ModuleMetaApi>(lua, &api)?;
 	insert_module::<ConsoleApi>(lua, &api)?;
 	insert_module::<XdgApi>(lua, &api)?;
-	insert_module::<TemplateApi>(lua, &api)?;
+	insert_module::<LuaTemplate>(lua, &api)?;
 	insert_module::<OsApi>(lua, &api)?;
 	insert_module::<UtilApi>(lua, &api)?;
 

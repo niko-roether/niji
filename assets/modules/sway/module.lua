@@ -1,6 +1,6 @@
 local M = {}
 
-local template = niji.template.load("theme.mustache")
+local template = niji.Template:load("theme.mustache")
 
 function M.apply(config, theme)
 	local focused_color = config.focused_color or "surface";

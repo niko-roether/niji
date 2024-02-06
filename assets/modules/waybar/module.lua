@@ -1,6 +1,6 @@
 local M = {}
 
-local style_css = niji.template.load("style.css.mustache")
+local style_css = niji.Template:load("style.css.mustache")
 
 function M.apply(config, theme)
 	local custom_style = config.custom_style_file and niji.fs.read_config_asset(config.custom_style_file)

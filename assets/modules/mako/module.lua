@@ -1,6 +1,6 @@
 local M = {}
 
-local template = niji.template.load("config.mustache")
+local template = niji.Template:load("config.mustache")
 
 function M.apply(config, theme)
 	local custom_config = config.custom_config_file and niji.fs.read_config_asset(config.custom_config_file)

@@ -1,6 +1,6 @@
 local M = {}
 
-local template = niji.template.load("hyprpaper.conf.mustache")
+local template = niji.Template:load("hyprpaper.conf.mustache")
 
 function M.apply(config, theme)
 	local hyprpaper_conf = template:render {

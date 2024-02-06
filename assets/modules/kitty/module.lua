@@ -1,6 +1,6 @@
 local M = {}
 
-local template = niji.template.load("niji.conf.mustache")
+local template = niji.Template:load("niji.conf.mustache")
 
 function M.apply(config, theme)
 	local theme = template:render {

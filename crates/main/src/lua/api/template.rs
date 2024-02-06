@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use crate::{template::load_template, types::color::Color};
-use mlua::{IntoLua, Lua, UserData, UserDataMethods};
+use mlua::{IntoLua, UserData, UserDataMethods};
 use niji_templates::Template;
 
 use super::ApiModule;
@@ -90,6 +90,19 @@ impl From<Template> for LuaTemplate {
 
 impl UserData for LuaTemplate {
 	fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
+		methods.add_method("load", |lua, _, path: String| {
+			let template = load_template(&path).map_err(|e| {
+				mlua::Error::runtime(format!("Failed to load template {path}: {e}"))
+			})?;
+			LuaTemplate(template).into_lua(lua)
+		});
+
+		methods.add_method("parse", |lua, _, template: String| {
+			let template: Template = template.parse().map_err(mlua::Error::runtime)?;
+
+			LuaTemplate(template).into_lua(lua)
+		});
+
 		methods.add_method_mut(
 			"set_format",
 			|_, this, (ty, fmtstr): (String, String)| -> mlua::Result<()> {
@@ -109,32 +122,10 @@ impl UserData for LuaTemplate {
 	}
 }
 
-pub struct TemplateApi;
-
-impl TemplateApi {
-	fn load(lua: &Lua, path: String) -> mlua::Result<mlua::Value> {
-		let template = load_template(&path)
-			.map_err(|e| mlua::Error::runtime(format!("Failed to load template {path}: {e}")))?;
-
-		LuaTemplate(template).into_lua(lua)
-	}
-
-	fn parse(lua: &Lua, template: String) -> mlua::Result<mlua::Value> {
-		let template: Template = template.parse().map_err(mlua::Error::runtime)?;
-
-		LuaTemplate(template).into_lua(lua)
-	}
-}
-
-impl ApiModule for TemplateApi {
-	const NAMESPACE: &'static str = "template";
+impl ApiModule for LuaTemplate {
+	const NAMESPACE: &'static str = "Template";
 
 	fn build(lua: &mlua::Lua) -> mlua::Result<mlua::Value> {
-		let module = lua.create_table()?;
-
-		module.raw_set("load", lua.create_function(Self::load)?)?;
-		module.raw_set("parse", lua.create_function(Self::parse)?)?;
-
-		module.into_lua(lua)
+		LuaTemplate(Template::from_str("").unwrap()).into_lua(lua)
 	}
 }

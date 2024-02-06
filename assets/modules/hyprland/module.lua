@@ -1,6 +1,6 @@
 local M = {}
 
-local template = niji.template.load("theme.conf.mustache")
+local template = niji.Template:load("theme.conf.mustache")
 
 function M.apply(config, theme)
 	local configure_cursor = config.cursor_theme ~= nil and config.cursor_size ~= nil
