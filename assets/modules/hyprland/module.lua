@@ -17,7 +17,7 @@ function M.apply(config, theme)
 		shadow_color = theme.ui.shadow
 	}
 
-	niji.fs.write_output("theme.conf", theme_conf)
+	niji.fs.output("theme.conf", theme_conf)
 end
 
 function M.reload()

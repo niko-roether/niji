@@ -79,7 +79,7 @@ impl FilesystemApi {
 			.into_lua(lua)
 	}
 
-	fn write_output(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
+	fn output(lua: &Lua, (path, content): (String, String)) -> mlua::Result<String> {
 		let mod_ctx = lua.app_data_ref::<ModuleContext>().unwrap();
 		let files = lua.app_data_ref::<Rc<Files>>().unwrap();
 		let path = files.output_dir().join(&mod_ctx.name).join(path);
@@ -110,7 +110,7 @@ impl ApiModule for FilesystemApi {
 		module.raw_set("write_config", lua.create_function(Self::write_config)?)?;
 		module.raw_set("write_state", lua.create_function(Self::write_state)?)?;
 		module.raw_set("write_data", lua.create_function(Self::write_data)?)?;
-		module.raw_set("write_output", lua.create_function(Self::write_output)?)?;
+		module.raw_set("output", lua.create_function(Self::output)?)?;
 		module.raw_set("read_config", lua.create_function(Self::read_config)?)?;
 		module.raw_set("read_state", lua.create_function(Self::read_state)?)?;
 		module.raw_set("read_data", lua.create_function(Self::read_data)?)?;

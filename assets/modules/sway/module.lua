@@ -27,7 +27,7 @@ function M.apply(config, theme)
 		wallpaper = wallpaper
 	}
 
-	niji.fs.write_output("theme", theme)
+	niji.fs.output("theme", theme)
 end
 
 function M.reload(config)
