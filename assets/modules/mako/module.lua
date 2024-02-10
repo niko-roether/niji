@@ -9,10 +9,12 @@ function M.apply(config, theme)
 	local config = template:render {
 		font_family = config.font_family or "sans-serif",
 		font_size = niji.util.font_size(config, 11),
-		background_color = theme.ui.surface:with_alpha(alpha),
+		background_color = theme.ui.background:with_alpha(alpha),
 		text_color = theme.ui.text_background,
 		border_size = config.border_width or 2,
-		border_color = theme.ui.border,
+		low_border_color = theme.ui.border,
+		normal_border_color = theme.ui.info,
+		high_border_color = theme.ui.warning,
 		border_radius = config.border_radius or 10,
 		custom_config = custom_config
 	}
