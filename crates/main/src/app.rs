@@ -74,8 +74,8 @@ impl NijiApp {
 		Ok(())
 	}
 
-	pub fn reset_theme(&self) -> Result<(), Error> {
-		Ok(self.theme_manager.reset_theme()?)
+	pub fn unset_theme(&self) -> Result<(), Error> {
+		Ok(self.theme_manager.unset_theme()?)
 	}
 
 	pub fn set_theme(&self, name: &str) -> Result<(), Error> {

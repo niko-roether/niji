@@ -123,8 +123,8 @@ pub fn run() {
 						)
 				)
 				.subcommand(Command::new("list").about("List the names of available themes"))
-				.subcommand(Command::new("reset").about(
-					"Reset the current theme. Note that this will not make any changes to the \
+				.subcommand(Command::new("unset").about(
+					"Unset the current theme. Note that this will not make any changes to the \
 					 emitted files!"
 				))
 		)
@@ -178,7 +178,7 @@ fn cmd_theme(app: &NijiApp, args: &ArgMatches) {
 		Some(("show", args)) => cmd_theme_show(app, args),
 		Some(("set", args)) => cmd_theme_set(app, args),
 		Some(("list", _)) => cmd_theme_list(app),
-		Some(("reset", _)) => cmd_theme_reset(app),
+		Some(("unset", _)) => cmd_theme_unset(app),
 		_ => unreachable!()
 	}
 }
@@ -235,6 +235,6 @@ fn cmd_theme_list(app: &NijiApp) {
 	}
 }
 
-fn cmd_theme_reset(app: &NijiApp) {
-	handle!(app.reset_theme())
+fn cmd_theme_unset(app: &NijiApp) {
+	handle!(app.unset_theme())
 }

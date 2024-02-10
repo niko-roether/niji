@@ -51,7 +51,7 @@ impl ThemeManager {
 
 	pub fn current_theme(&self) -> Result<Theme, Error> {
 		if !self.files.current_theme_file().exists() {
-			self.reset_theme()?;
+			self.unset_theme()?;
 		}
 
 		let current_theme =
@@ -84,7 +84,7 @@ impl ThemeManager {
 		Ok(())
 	}
 
-	pub fn reset_theme(&self) -> Result<(), Error> {
+	pub fn unset_theme(&self) -> Result<(), Error> {
 		fs::write(self.files.current_theme_file(), "").map_err(Error::AccessThemeState)?;
 		Ok(())
 	}
