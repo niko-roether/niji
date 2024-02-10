@@ -4,7 +4,7 @@ local template = niji.Template:load("config.mustache")
 
 function M.apply(config, theme)
 	local custom_config = config.custom_config_file and niji.fs.read_config_asset(config.custom_config_file)
-	local alpha = config.popup_alpha or 0.8
+	local alpha = config.popup_alpha or 1.0
 
 	local config = template:render {
 		font_family = config.font_family or "sans-serif",
