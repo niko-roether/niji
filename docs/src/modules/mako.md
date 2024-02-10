@@ -34,6 +34,9 @@ border_width = 2
 # The border radius of notifications
 border_radius = 10
 
+# The background transparency of the popup
+popup_alpha = 1.0
+
 # Set to a path string to set more configuration options
 custom_config_file = false
 ```
