@@ -4,6 +4,8 @@
 
 - [Guides](./guides/README.md)
 - [Configuration](./configuration.md)
+- [Command Line Interface](./cli.md)
+- [Built-in Themes](./builtin-themes.md)
 - [Built-in Modules](./modules/README.md)
   - [gtk](./modules/gtk.md)
   - [hyprland](./modules/hyprland.md)
