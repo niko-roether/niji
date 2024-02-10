@@ -1,6 +1,6 @@
 # Lua API Reference
 
-The niji API resides in the global `niji` namespace. There is no need to import it.
+niji's Lua API resides in the global `niji` namespace. There is no need to import it.
 The niji namespace contains several sub-namespaces and classes for different purposes, which are listed in
 this document.
 

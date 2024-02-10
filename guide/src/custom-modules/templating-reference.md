@@ -1,10 +1,13 @@
 # Templating reference
 
-niji has builtin support for templating using its [`niji.Template` API](./lua-api-reference.md#class-nijitemplate)
+niji has builtin support for templating using its [`niji.Template` API](./lua-api-reference.md#class-nijitemplate).
 
 The templating language used for this is niji's own dialect of [mustache](https://mustache.github.io/).
 You can look at the [mustache documentation](https://mustache.github.io/mustache.5.html) for general information
-on how it works, it all applies to niji's dialect as well.
+on how it works, it mostly applies to niji's dialect as well.
+
+One major difference from the mustache specification is that triple mustaches (`{{{name}}}`), which are normally
+used to disable escaping of HTML characters, are not supported. Instead, niji templates just never escape HTML characters.
 
 ## Custom Formats
 
@@ -55,4 +58,3 @@ For now, the only formattable type is `niji.Color`. It exposes the following pro
 | `gf` | The green component as a float between 0 and 1      |
 | `bf` | The blue component as a float between 0 and 1       |
 | `af` | The alpha component as a float between 0 and 1      |
-

@@ -2,6 +2,7 @@
 
 [Introduction](./README.md)
 
+- [Guides](./guides/README.md)
 - [Configuration](./configuration.md)
 - [Built-in Modules](./modules/README.md)
   - [gtk](./modules/gtk.md)
@@ -12,6 +13,7 @@
   - [sway](./modules/sway.md)
   - [swaylock](./modules/swaylock.md)
   - [waybar](./modules/waybar.md)
+- [Custom Themes](./custom-themes.md)
 - [Custom Modules](./custom-modules/README.md)
   - [Lua API Reference](./custom-modules/lua-api-reference.md)
   - [Templating Reference](./custom-modules/templating-reference.md)
