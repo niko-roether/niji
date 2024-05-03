@@ -7,7 +7,7 @@ Happy hacking!
 
 ## Preview
 
-https://github.com/nicholas-roether/niji/assets/35772525/1e87d9ac-325b-409e-a1f9-ab95e01cfff8
+https://github.com/niko-roether/niji/assets/35772525/1e87d9ac-325b-409e-a1f9-ab95e01cfff8
 
 This preview shows niji theming hyprland, hyprpaper, waybar, kitty, and nautilus. It is also theming
 some other applications that aren't visible here, as indicated by the terminal output.
@@ -16,7 +16,7 @@ some other applications that aren't visible here, as indicated by the terminal o
 
 Currently, the only way of installing is to build from source. This is due to change when version 0.1 is published.
 
-1. Clone the repository: `git clone https://github.com/nicholas-roether/niji`
+1. Clone the repository: `git clone https://github.com/niko-roether/niji`
 2. Enter the repository: `cd niji`
 3. Install using cargo: `cargo install --path ./niji`
 
