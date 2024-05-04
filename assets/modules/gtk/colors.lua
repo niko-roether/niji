@@ -17,7 +17,7 @@ local function background_colors(theme)
 		by_scheme(theme, theme.ui.background:darken(0.2), theme.ui.background:lighten(0.2)),
 		by_scheme(theme, theme.ui.background:darken(0.3), theme.ui.background:lighten(0.3)),
 
-		surface = theme.ui.surface,
+		surface = by_scheme(theme, theme.ui.background:darken(0.06), theme.ui.background:lighten(0.06)),
 		black = {
 			theme.ui.background:shade(0.02),
 			theme.ui.background:shade(0.1),
