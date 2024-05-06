@@ -9,6 +9,9 @@ function M.apply(config, theme)
 		background_color = theme.ui.background,
 		border_color = theme.ui.border,
 		bar_color = theme.ui.primary,
+		overflow_background_color = theme.ui.background,
+		overflow_border_color = theme.ui.border,
+		overflow_bar_color = theme.ui.warning,
 		custom_config = custom_config
 	}
 
