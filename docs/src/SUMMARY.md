@@ -15,6 +15,7 @@
   - [sway](./modules/sway.md)
   - [swaylock](./modules/swaylock.md)
   - [waybar](./modules/waybar.md)
+  - [wob](./modules/wob.md)
 - [Custom Themes](./custom-themes.md)
 - [Custom Modules](./custom-modules/README.md)
   - [Lua API Reference](./custom-modules/lua-api-reference.md)
