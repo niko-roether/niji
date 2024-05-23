@@ -200,7 +200,7 @@ niji.console.debug(rendered)
 
 ### `niji.Template:set_format(type_name, format_string)`
 
-Set the custom format for the specified type. See [the template system reference](./templating-reference#custom-formats)
+Set the custom format for the specified type. See [the template system reference](./templating-reference.md#custom-formats)
 for more information.
 
 - `type_name`: The name of the type for which to set the format (`string`)
