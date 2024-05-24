@@ -110,8 +110,7 @@ local function install_gtk3(color_scheme)
 
 	local src_assets = THEME_LOCATION_TMP .. "/assets/gtk"
 	local dest_assets = dest .. "/assets"
-	os.execute("cp -rf " .. src_assets .. "/assets-Grey " .. dest_assets)
-	os.execute("cp -rf " .. src_assets .. "/scalable " .. dest_assets)
+	os.execute("cp -rf " .. src_assets .. "/assets " .. dest_assets)
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-3.0/gtk-" .. color .. ".scss", dest .. "/gtk.css")
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-3.0/gtk-Dark.scss", dest .. "/gtk-dark.css")
 end
@@ -127,8 +126,7 @@ local function install_gtk4(color_scheme)
 
 	local src_assets = THEME_LOCATION_TMP .. "/assets/gtk"
 	local dest_assets = dest .. "/assets"
-	os.execute("cp -rf " .. src_assets .. "/assets-Grey " .. dest_assets)
-	os.execute("cp -rf " .. src_assets .. "/scalable " .. dest_assets)
+	os.execute("cp -rf " .. src_assets .. "/assets " .. dest_assets)
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-4.0/gtk-" .. color .. ".scss", dest .. "/gtk.css")
 	sass_compile(THEME_LOCATION_TMP .. "/main/gtk-4.0/gtk-Dark.scss", dest .. "/gtk-dark.css")
 end
