@@ -1,5 +1,3 @@
-#![feature(macro_metavar_expr)]
-
 mod app;
 mod cli;
 mod config;
