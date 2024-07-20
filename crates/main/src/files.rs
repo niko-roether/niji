@@ -26,6 +26,12 @@ pub struct Files {
 	modules_dirs: Vec<PathBuf>,
 }
 
+#[derive(Debug, Clone)]
+pub struct Location {
+	pub name: String,
+	pub path: PathBuf,
+}
+
 impl Files {
 	const PREFIX: &'static str = "niji";
 	const CONFIG_FILE: &'static str = "config.toml";
@@ -98,16 +104,37 @@ impl Files {
 		&self.output_dir
 	}
 
-	pub fn iter_themes(&self) -> impl Iterator<Item = PathBuf> + '_ {
-		let toplevel_themes = find_files(&self.themes_dirs);
+	pub fn iter_themes(&self) -> impl Iterator<Item = Location> + '_ {
+		let toplevel_themes = find_files(&self.themes_dirs).map(|f| Location {
+			name: f
+				.file_stem()
+				.unwrap_or_default()
+				.to_string_lossy()
+				.to_string(),
+			path: f,
+		});
 		let nested_themes = find_dirs(&self.themes_dirs)
-			.map(|d| d.join(Self::THEME_MAIN_FILE_NAME))
-			.filter(|d| d.exists());
+			.map(|d| Location {
+				name: d
+					.file_name()
+					.unwrap_or_default()
+					.to_string_lossy()
+					.to_string(),
+				path: d.join(Self::THEME_MAIN_FILE_NAME),
+			})
+			.filter(|l| l.path.exists());
 		toplevel_themes.chain(nested_themes)
 	}
 
-	pub fn iter_modules(&self) -> impl Iterator<Item = PathBuf> + '_ {
-		find_dirs(&self.modules_dirs)
+	pub fn iter_modules(&self) -> impl Iterator<Item = Location> + '_ {
+		find_dirs(&self.modules_dirs).map(|d| Location {
+			name: d
+				.file_name()
+				.unwrap_or_default()
+				.to_string_lossy()
+				.to_string(),
+			path: d,
+		})
 	}
 }
 

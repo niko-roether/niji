@@ -1,11 +1,11 @@
-use std::{collections::HashSet, ffi::OsString, fs, io, path::PathBuf, rc::Rc};
+use std::{collections::HashSet, fs, io, path::PathBuf, rc::Rc};
 
 use log::debug;
 use thiserror::Error;
 
 use crate::{
 	config::{self, Theme},
-	files::Files
+	files::Files,
 };
 
 #[derive(Debug, Error)]
@@ -23,11 +23,11 @@ pub enum Error {
 	UnknownCurrentTheme(String),
 
 	#[error("No theme is selected")]
-	NoThemeSelected
+	NoThemeSelected,
 }
 
 pub struct ThemeManager {
-	files: Rc<Files>
+	files: Rc<Files>,
 }
 
 impl ThemeManager {
@@ -37,13 +37,13 @@ impl ThemeManager {
 
 	pub fn list_themes(&self) -> Vec<String> {
 		let mut themes = HashSet::new();
-		for path in self.files.iter_themes() {
-			let Some(os_name) = path.file_stem() else {
-				continue;
-			};
-			let name = os_name.to_string_lossy().into_owned();
-			if themes.insert(name.clone()) {
-				debug!("Found theme {name} at {}", path.display());
+		for location in self.files.iter_themes() {
+			if themes.insert(location.name.clone()) {
+				debug!(
+					"Found theme {} at {}",
+					location.name,
+					location.path.display()
+				);
 			}
 		}
 		themes.into_iter().collect()
@@ -93,7 +93,8 @@ impl ThemeManager {
 		let Some(path) = self
 			.files
 			.iter_themes()
-			.find(|f| f.file_stem() == Some(&OsString::from(name)))
+			.find(|l| l.name == name)
+			.map(|l| l.path)
 		else {
 			return None;
 		};

@@ -10,7 +10,7 @@ use crate::{
 	files::Files,
 	lua::runtime::{LuaRuntime, LuaRuntimeInit},
 	module::Module,
-	utils::xdg::XdgDirs
+	utils::xdg::XdgDirs,
 };
 
 #[derive(Debug, Error)]
@@ -19,26 +19,26 @@ pub enum Error {
 	UnknownModule(String),
 
 	#[error("Failed to initialize lua runtime: {0}")]
-	RuntimeInit(mlua::Error)
+	RuntimeInit(mlua::Error),
 }
 
 pub struct ModuleManagerInit {
 	pub xdg: Rc<XdgDirs>,
 	pub files: Rc<Files>,
 	pub config: Rc<Config>,
-	pub file_manager: Rc<FileManager>
+	pub file_manager: Rc<FileManager>,
 }
 
 #[derive(Clone)]
 struct ModuleDescriptor {
 	name: String,
-	path: PathBuf
+	path: PathBuf,
 }
 
 pub struct ModuleManager {
 	files: Rc<Files>,
 	active_modules: Mutex<Vec<ModuleDescriptor>>,
-	lua_runtime: LuaRuntime
+	lua_runtime: LuaRuntime,
 }
 
 impl ModuleManager {
@@ -47,8 +47,8 @@ impl ModuleManager {
 			xdg,
 			files,
 			config,
-			file_manager
-		}: ModuleManagerInit
+			file_manager,
+		}: ModuleManagerInit,
 	) -> Result<Self, Error> {
 		let mut active_modules = Vec::<ModuleDescriptor>::with_capacity(config.modules.len());
 		for mod_name in &config.modules {
@@ -58,14 +58,14 @@ impl ModuleManager {
 		let lua_runtime = LuaRuntime::new(LuaRuntimeInit {
 			xdg: Rc::clone(&xdg),
 			files: Rc::clone(&files),
-			file_manager: Rc::clone(&file_manager)
+			file_manager: Rc::clone(&file_manager),
 		})
 		.map_err(Error::RuntimeInit)?;
 
 		Ok(Self {
 			files: Rc::clone(&files),
 			active_modules: Mutex::new(active_modules),
-			lua_runtime
+			lua_runtime,
 		})
 	}
 
@@ -74,7 +74,7 @@ impl ModuleManager {
 		config: &Config,
 		theme: &Theme,
 		reload: bool,
-		modules: Option<&[String]>
+		modules: Option<&[String]>,
 	) -> Result<(), Error> {
 		let mut remaining = HashSet::<String>::new();
 		if let Some(modules) = modules {
@@ -94,7 +94,7 @@ impl ModuleManager {
 				let module_descr = Self::activate(
 					&self.files,
 					&mut self.active_modules.lock().unwrap(),
-					&mod_name
+					&mod_name,
 				)?;
 				self.apply_module(&module_descr, config, theme, reload);
 			}
@@ -106,7 +106,7 @@ impl ModuleManager {
 	fn activate(
 		files: &Files,
 		active_modules: &mut Vec<ModuleDescriptor>,
-		mod_name: &str
+		mod_name: &str,
 	) -> Result<ModuleDescriptor, Error> {
 		let module_dir = Self::find_module_dir(files, mod_name)
 			.ok_or_else(|| Error::UnknownModule(mod_name.to_string()))?;
@@ -118,7 +118,7 @@ impl ModuleManager {
 
 		let module_descr = ModuleDescriptor {
 			name: mod_name.to_string(),
-			path: module_dir
+			path: module_dir,
 		};
 
 		active_modules.push(module_descr.clone());
@@ -131,7 +131,7 @@ impl ModuleManager {
 		module_descr: &ModuleDescriptor,
 		config: &Config,
 		theme: &Theme,
-		reload: bool
+		reload: bool,
 	) {
 		heading!("{}", module_descr.name);
 
@@ -178,15 +178,11 @@ impl ModuleManager {
 	}
 
 	fn find_module_dir(files: &Files, name: &str) -> Option<PathBuf> {
-		for module_dir in files.iter_modules() {
-			let Some(dirname) = module_dir.file_name() else {
-				continue;
-			};
-			if dirname.to_str() == Some(name) {
-				return Some(module_dir);
+		for module_location in files.iter_modules() {
+			if module_location.name == name {
+				return Some(module_location.path);
 			}
 		}
-
 		None
 	}
 }
