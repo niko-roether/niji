@@ -1,19 +1,19 @@
 use std::{
 	fs, io,
-	path::{Path, PathBuf}
+	path::{Path, PathBuf},
 };
 
 use thiserror::Error;
 
 use crate::utils::{
 	fs::{find_dirs, find_files},
-	xdg::XdgDirs
+	xdg::XdgDirs,
 };
 
 #[derive(Debug, Error)]
 pub enum Error {
 	#[error("Failed to create {0}: {1}")]
-	CreationFailed(String, io::Error)
+	CreationFailed(String, io::Error),
 }
 
 #[derive(Debug)]
@@ -23,7 +23,7 @@ pub struct Files {
 	managed_files_file: PathBuf,
 	output_dir: PathBuf,
 	themes_dirs: Vec<PathBuf>,
-	modules_dirs: Vec<PathBuf>
+	modules_dirs: Vec<PathBuf>,
 }
 
 impl Files {
@@ -32,6 +32,7 @@ impl Files {
 	const CURRENT_THEME_FILE: &'static str = "current_theme.txt";
 	const MANAGED_FILES_FILE: &'static str = "managed_files.csv";
 	const THEMES_DIR: &'static str = "themes";
+	const THEME_MAIN_FILE_NAME: &'static str = "theme.toml";
 	const MODULES_DIR: &'static str = "modules";
 
 	pub fn new(xdg: &XdgDirs) -> Result<Self, Error> {
@@ -73,7 +74,7 @@ impl Files {
 			current_theme_file,
 			managed_files_file,
 			themes_dirs,
-			modules_dirs
+			modules_dirs,
 		})
 	}
 
@@ -98,7 +99,11 @@ impl Files {
 	}
 
 	pub fn iter_themes(&self) -> impl Iterator<Item = PathBuf> + '_ {
-		find_files(&self.themes_dirs)
+		let toplevel_themes = find_files(&self.themes_dirs);
+		let nested_themes = find_dirs(&self.themes_dirs)
+			.map(|d| d.join(Self::THEME_MAIN_FILE_NAME))
+			.filter(|d| d.exists());
+		toplevel_themes.chain(nested_themes)
 	}
 
 	pub fn iter_modules(&self) -> impl Iterator<Item = PathBuf> + '_ {
