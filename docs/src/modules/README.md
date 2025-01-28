@@ -17,4 +17,4 @@ The built-in modules currently included with niji are:
 - [`waybar`](./waybar.md): A fully managed waybar theme
 
 If there is something missing from this list that you'd like to have, take
-a look at [Creating Custom Modules](../custom-modules).
+a look at [Custom Modules](../custom-modules).
