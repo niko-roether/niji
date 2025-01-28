@@ -13,7 +13,7 @@ Currently, the only way to install niji is from source. To do this:
 ## Initial Configuration
 
 Create the configuration file at `~/.config/niji/config.toml`. The first step is to choose which modules
-to use. Take a look at [Built-in Modules](./builtin-modules.md) for a list of available modules. Simply
+to use. Take a look at [Built-in Modules](./modules/README.md) for a list of available modules. Simply
 set your desired modules using this syntax:
 
 ```toml
