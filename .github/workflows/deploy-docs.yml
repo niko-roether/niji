@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install MdBook
-        run: snap install mdbook
+        run: sudo snap install mdbook
       - name: Checkout
         uses: actions/checkout@v4
       - name: Enter Docs Directory
