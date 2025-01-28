@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::{
 	config::{self, Theme},
-	files::Files,
+	files::Files
 };
 
 #[derive(Debug, Error)]
@@ -23,11 +23,11 @@ pub enum Error {
 	UnknownCurrentTheme(String),
 
 	#[error("No theme is selected")]
-	NoThemeSelected,
+	NoThemeSelected
 }
 
 pub struct ThemeManager {
-	files: Rc<Files>,
+	files: Rc<Files>
 }
 
 impl ThemeManager {
@@ -90,14 +90,11 @@ impl ThemeManager {
 	}
 
 	fn find_theme_path(&self, name: &str) -> Option<PathBuf> {
-		let Some(path) = self
+		let path = self
 			.files
 			.iter_themes()
 			.find(|l| l.name == name)
-			.map(|l| l.path)
-		else {
-			return None;
-		};
+			.map(|l| l.path)?;
 
 		Some(path)
 	}

@@ -1,4 +1,4 @@
-use oklab::{oklab_to_srgb, srgb_to_oklab, Oklab, RGB};
+use oklab::{oklab_to_srgb, srgb_to_oklab, Oklab, Rgb};
 
 use crate::utils::lerp;
 
@@ -15,7 +15,7 @@ impl OklchColor {
 	}
 
 	pub fn from_srgb(r: u8, g: u8, b: u8) -> Self {
-		let lab = srgb_to_oklab(RGB { r, g, b });
+		let lab = srgb_to_oklab(Rgb { r, g, b });
 
 		// Convert to polar representation
 		let c = f32::sqrt(lab.a.powi(2) + lab.b.powi(2));
