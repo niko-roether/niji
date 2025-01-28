@@ -38,6 +38,9 @@ cursor_theme = "Adwaita"
 cursor_size = 22
 ```
 
+Lastly, be sure to refer to the [documentation of each of your selected modules](./modules/README.md)
+and check for available configuration options and additional necessary steps for activation.
+
 You can now list avaliable themes using `niji theme list`, and preview them using `niji theme show <name>`.
 If you've picked one, apply it using `niji theme set <name>`.
 
