@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install MdBook
-        run: sudo snap install mdbook
+        run: |
+          rustup update stable
+          rustup default stable
+          cargo install mdbook
       - name: Checkout
         uses: actions/checkout@v4
       - name: Enter Docs Directory
