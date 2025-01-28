@@ -18,14 +18,14 @@ jobs:
       - name: Build Docs
         run: mdbook build
       - name: Upload Static Files
-        if: github.ref == "refs/heads/master"
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
           path: book/
 
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == "refs/heads/master"
+    if: github.ref == 'refs/heads/master'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
