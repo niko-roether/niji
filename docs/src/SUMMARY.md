@@ -2,7 +2,7 @@
 
 [Introduction](./README.md)
 
-- [Guides](./guides/README.md)
+- [Getting Started](./getting-started.md)
 - [Configuration](./configuration.md)
 - [Command Line Interface](./cli.md)
 - [Built-in Themes](./builtin-themes.md)
