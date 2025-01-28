@@ -1,0 +1,36 @@
+name: Docs
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install MdBook
+        run: snap install mdbook
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Enter Docs Directory
+        run: cd docs
+      - name: Build Docs
+        run: mdbook build
+      - name: Upload Static Files
+        if: github.ref == "refs/heads/master"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: book/
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == "refs/heads/master"
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      needs: build
+      steps:
+        - name: Deploy to Github Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
