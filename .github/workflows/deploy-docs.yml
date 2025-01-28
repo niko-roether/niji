@@ -16,15 +16,15 @@ jobs:
           cargo install mdbook
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Enter Docs Directory
-        run: cd docs
       - name: Build Docs
-        run: mdbook build
+        run: |
+          cd docs
+          mdbook build
       - name: Upload Static Files
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: book/
+          path: docs/book/
 
   deploy:
     runs-on: ubuntu-latest
