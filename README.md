@@ -7,11 +7,11 @@ Happy hacking!
 
 ## Preview
 
-https://github.com/niko-roether/niji/assets/35772525/1e87d9ac-325b-409e-a1f9-ab95e01cfff8
+https://github.com/lina-roether/niji/assets/35772525/1e87d9ac-325b-409e-a1f9-ab95e01cfff8
 
 This preview shows niji theming hyprland, hyprpaper, waybar, kitty, and nautilus. It is also theming
 some other applications that aren't visible here, as indicated by the terminal output.
 
 ## Documentation
 
-For documentation and a guide to get started, [see the docs](https://niko-roether.github.io/niji/).
+For documentation and a guide to get started, [see the docs](https://lina-roether.github.io/niji/).
