@@ -1,5 +1,8 @@
 # Custom Themes
 
+If you build a custom theme, consider contributing it! Just make sure you have the proper license for the color scheme
+you're using, as color schemes may be subject to copyright.
+
 Custom niji themes are defined using [TOML](https://toml.io) files placed
 into the `~/.config/niji/themes` directory, with the filename (without the extension)
 matching the theme name.
