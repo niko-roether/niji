@@ -2,7 +2,13 @@
 
 ## Installation
 
-Currently, the only way to install niji is from source. To do this:
+### AUR
+
+Arch Linux users can install niji from the AUR using the `niji-git` package.
+
+### Manually
+
+To install niji manually from source, do the following steps:
 
 1. Clone the git repository and enter the folder
 2. Install using cargo: `cargo install --path ./crates/main`
